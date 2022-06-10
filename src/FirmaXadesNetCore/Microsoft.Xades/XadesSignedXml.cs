@@ -1191,7 +1191,6 @@ public class XadesSignedXml : SignedXml
 	/// <returns>If the function returns true the check was OK</returns>
 	public virtual bool CheckCertificateValuesMatchCertificateRefs()
 	{
-		SHA1Managed sha1Managed;
 		UnsignedSignatureProperties unsignedSignatureProperties;
 		ArrayList certDigests;
 		byte[] certDigest;
@@ -1212,8 +1211,7 @@ public class XadesSignedXml : SignedXml
 			certDigests.Sort();
 			foreach (EncapsulatedX509Certificate encapsulatedX509Certificate in unsignedSignatureProperties.CertificateValues.EncapsulatedX509CertificateCollection)
 			{
-				sha1Managed = new SHA1Managed();
-				certDigest = sha1Managed.ComputeHash(encapsulatedX509Certificate.PkiData);
+				certDigest = SHA1.HashData(encapsulatedX509Certificate.PkiData);
 				index = certDigests.BinarySearch(Convert.ToBase64String(certDigest));
 				if (index >= 0)
 				{
@@ -1236,7 +1234,6 @@ public class XadesSignedXml : SignedXml
 	/// <returns>If the function returns true the check was OK</returns>
 	public virtual bool CheckRevocationValuesMatchRevocationRefs()
 	{
-		SHA1Managed sha1Managed;
 		UnsignedSignatureProperties unsignedSignatureProperties;
 		ArrayList crlDigests;
 		byte[] crlDigest;
@@ -1257,8 +1254,7 @@ public class XadesSignedXml : SignedXml
 			crlDigests.Sort();
 			foreach (CRLValue crlValue in unsignedSignatureProperties.RevocationValues.CRLValues.CRLValueCollection)
 			{
-				sha1Managed = new SHA1Managed();
-				crlDigest = sha1Managed.ComputeHash(crlValue.PkiData);
+				crlDigest = SHA1.HashData(crlValue.PkiData);
 				index = crlDigests.BinarySearch(Convert.ToBase64String(crlDigest));
 				if (index >= 0)
 				{
@@ -1495,7 +1491,7 @@ public class XadesSignedXml : SignedXml
 		var System_Security_Assembly = Assembly.Load("System.Security");
 		var cripXmlAssembly = Assembly.Load("System.Security.Cryptography.Xml");
 		Type ReferenceLevelSortOrder_Type = System_Security_Assembly.GetType("System.Security.Cryptography.Xml.SignedXml+ReferenceLevelSortOrder");
-		ConstructorInfo ReferenceLevelSortOrder_Constructor = ReferenceLevelSortOrder_Type.GetConstructor(new Type[] { });
+		ConstructorInfo ReferenceLevelSortOrder_Constructor = ReferenceLevelSortOrder_Type.GetConstructor(Array.Empty<Type>());
 		object comparer = ReferenceLevelSortOrder_Constructor.Invoke(null);
 		//
 
@@ -1513,7 +1509,7 @@ public class XadesSignedXml : SignedXml
 		list2.Sort((IComparer)comparer);
 
 		Type CanonicalXmlNodeList_Type = cripXmlAssembly.GetType("System.Security.Cryptography.Xml.CanonicalXmlNodeList");
-		ConstructorInfo CanonicalXmlNodeList_Constructor = CanonicalXmlNodeList_Type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { }, null);
+		ConstructorInfo CanonicalXmlNodeList_Constructor = CanonicalXmlNodeList_Type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, Array.Empty<Type>(), null);
 
 		// refList is a list of elements that might be targets of references
 		object refList = CanonicalXmlNodeList_Constructor.Invoke(null);
@@ -1644,7 +1640,7 @@ public class XadesSignedXml : SignedXml
 
 		var System_Security_Cryptography_Xml_Assembly = Assembly.Load("System.Security.Cryptography.Xml");
 		Type CanonicalXmlNodeList_Type = System_Security_Cryptography_Xml_Assembly.GetType("System.Security.Cryptography.Xml.CanonicalXmlNodeList");
-		ConstructorInfo CanonicalXmlNodeList_Constructor = CanonicalXmlNodeList_Type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { }, null);
+		ConstructorInfo CanonicalXmlNodeList_Constructor = CanonicalXmlNodeList_Type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, Array.Empty<Type>(), null);
 
 		MethodInfo CanonicalXmlNodeList_Add = CanonicalXmlNodeList_Type.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance);
 		object refList = CanonicalXmlNodeList_Constructor.Invoke(null);
@@ -1684,7 +1680,7 @@ public class XadesSignedXml : SignedXml
 	{
 		if (key == null)
 		{
-			throw new ArgumentNullException("key");
+			throw new ArgumentNullException(nameof(key));
 		}
 
 		if (CryptoConfig.CreateFromName(SignatureMethod) is not SignatureDescription signatureDescription)

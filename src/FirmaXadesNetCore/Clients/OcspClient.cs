@@ -22,8 +22,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Collections;
-using System.Net;
-using System.Security.Cryptography;
+using System.Net.Http.Headers;
 using FirmaXadesNetCore.Utils;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Ocsp;
@@ -31,11 +30,20 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Ocsp;
 using Org.BouncyCastle.X509;
+using RSA_CERTIFICATE_EXTENSIONS = System.Security.Cryptography.X509Certificates.RSACertificateExtensions;
 
 namespace FirmaXadesNetCore.Clients;
 
 public class OcspClient
 {
+	private static readonly HttpClient _httpClient;
+
+	static OcspClient()
+	{
+		_httpClient = new HttpClient();
+		_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/ocsp-response"));
+	}
+
 	#region Private variables
 
 	private Asn1OctetString _nonceAsn1OctetString;
@@ -54,11 +62,24 @@ public class OcspClient
 	public byte[] QueryBinary(X509Certificate eeCert, X509Certificate issuerCert, string url, GeneralName requestorName = null,
 		System.Security.Cryptography.X509Certificates.X509Certificate2 signCertificate = null)
 	{
-		OcspReq req = GenerateOcspRequest(issuerCert, eeCert.SerialNumber, requestorName, signCertificate);
+		OcspReq ocspRequest = GenerateOcspRequest(issuerCert, eeCert.SerialNumber, requestorName, signCertificate);
 
-		byte[] binaryResp = PostData(url, req.GetEncoded(), "application/ocsp-request", "application/ocsp-response");
+		using var request = new HttpRequestMessage(HttpMethod.Post, url)
+		{
+			Content = new ByteArrayContent(ocspRequest.GetEncoded()),
+		};
 
-		return binaryResp;
+		request.Content.Headers.ContentType = MediaTypeWithQualityHeaderValue.Parse("application/ocsp-request");
+
+		using HttpResponseMessage response = _httpClient.Send(request);
+
+		response.EnsureSuccessStatusCode();
+
+		return response.Content
+			.ReadAsByteArrayAsync()
+			.ConfigureAwait(continueOnCapturedContext: false)
+			.GetAwaiter()
+			.GetResult();
 	}
 
 	/// <summary>
@@ -162,49 +183,15 @@ public class OcspClient
 
 	#region Private methods
 
-	/// <summary>
-	/// Construye la petición web y devuelve el resultado de la misma
-	/// </summary>
-	/// <param name="url"></param>
-	/// <param name="data"></param>
-	/// <param name="contentType"></param>
-	/// <param name="accept"></param>
-	/// <returns></returns>
-	private byte[] PostData(string url, byte[] data, string contentType, string accept)
+
+	protected static Asn1Object GetExtensionValue(X509Certificate certificate, string oid)
 	{
-		byte[] resp;
-
-		var request = (HttpWebRequest)WebRequest.Create(url);
-		request.Method = "POST";
-		request.ContentType = contentType;
-		request.ContentLength = data.Length;
-		request.Accept = accept;
-
-		Stream stream = request.GetRequestStream();
-		stream.Write(data, 0, data.Length);
-		stream.Close();
-		var response = (HttpWebResponse)request.GetResponse();
-		Stream respStream = response.GetResponseStream();
-		using (var ms = new MemoryStream())
-		{
-			respStream.CopyTo(ms);
-			resp = ms.ToArray();
-			respStream.Close();
-		}
-
-		return resp;
-	}
-
-
-	protected static Asn1Object GetExtensionValue(X509Certificate cert,
-			string oid)
-	{
-		if (cert == null)
+		if (certificate == null)
 		{
 			return null;
 		}
 
-		byte[] bytes = cert.GetExtensionValue(new DerObjectIdentifier(oid)).GetOctets();
+		byte[] bytes = certificate.GetExtensionValue(new DerObjectIdentifier(oid)).GetOctets();
 
 		if (bytes == null)
 		{
@@ -248,7 +235,7 @@ public class OcspClient
 
 		if (signCertificate != null)
 		{
-			return ocspRequestGenerator.Generate((RSACryptoServiceProvider)signCertificate.PrivateKey, CertUtil.GetCertChain(signCertificate));
+			return ocspRequestGenerator.Generate(RSA_CERTIFICATE_EXTENSIONS.GetRSAPrivateKey(signCertificate), CertUtil.GetCertChain(signCertificate));
 		}
 		else
 		{

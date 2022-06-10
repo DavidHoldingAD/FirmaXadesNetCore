@@ -48,7 +48,7 @@ public class Signer : IDisposable
 	{
 		if (certificate == null)
 		{
-			throw new ArgumentNullException("certificate");
+			throw new ArgumentNullException(nameof(certificate));
 		}
 
 		if (!certificate.HasPrivateKey)

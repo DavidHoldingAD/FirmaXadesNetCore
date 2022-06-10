@@ -100,7 +100,7 @@ public sealed class RSAPKCS1SHA256SignatureDescription : SignatureDescription
 	public RSAPKCS1SHA256SignatureDescription()
 	{
 		KeyAlgorithm = typeof(RSACryptoServiceProvider).FullName;
-		DigestAlgorithm = typeof(SHA256Managed).FullName;   // Note - SHA256CryptoServiceProvider is not registered with CryptoConfig
+		DigestAlgorithm = typeof(SHA256).FullName;   // Note - SHA256CryptoServiceProvider is not registered with CryptoConfig
 		FormatterAlgorithm = typeof(RSAPKCS1SignatureFormatter).FullName;
 		DeformatterAlgorithm = typeof(RSAPKCS1SignatureDeformatter).FullName;
 	}
@@ -109,7 +109,7 @@ public sealed class RSAPKCS1SHA256SignatureDescription : SignatureDescription
 	{
 		if (key == null)
 		{
-			throw new ArgumentNullException("key");
+			throw new ArgumentNullException(nameof(key));
 		}
 
 		var deformatter = new RSAPKCS1SignatureDeformatter(key);
@@ -121,7 +121,7 @@ public sealed class RSAPKCS1SHA256SignatureDescription : SignatureDescription
 	{
 		if (key == null)
 		{
-			throw new ArgumentNullException("key");
+			throw new ArgumentNullException(nameof(key));
 		}
 
 		var formatter = new RSAPKCS1SignatureFormatter(key);

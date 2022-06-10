@@ -107,7 +107,7 @@ public class Identifier
 	{
 		if (xmlElement == null)
 		{
-			throw new ArgumentNullException("xmlElement");
+			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
 		if (xmlElement.HasAttribute("Qualifier"))

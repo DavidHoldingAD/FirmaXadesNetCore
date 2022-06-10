@@ -113,7 +113,7 @@ public class SignatureProductionPlace
 
 		if (xmlElement == null)
 		{
-			throw new ArgumentNullException("xmlElement");
+			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);

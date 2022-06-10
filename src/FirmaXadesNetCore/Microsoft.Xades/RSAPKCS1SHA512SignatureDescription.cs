@@ -29,7 +29,7 @@ public sealed class RSAPKCS1SHA512SignatureDescription : SignatureDescription
 	public RSAPKCS1SHA512SignatureDescription()
 	{
 		KeyAlgorithm = typeof(RSACryptoServiceProvider).FullName;
-		DigestAlgorithm = typeof(SHA512Managed).FullName;
+		DigestAlgorithm = typeof(SHA512).FullName;
 		FormatterAlgorithm = typeof(RSAPKCS1SignatureFormatter).FullName;
 		DeformatterAlgorithm = typeof(RSAPKCS1SignatureDeformatter).FullName;
 	}
@@ -38,7 +38,7 @@ public sealed class RSAPKCS1SHA512SignatureDescription : SignatureDescription
 	{
 		if (key == null)
 		{
-			throw new ArgumentNullException("key");
+			throw new ArgumentNullException(nameof(key));
 		}
 
 		var deformatter = new RSAPKCS1SignatureDeformatter(key);
@@ -50,7 +50,7 @@ public sealed class RSAPKCS1SHA512SignatureDescription : SignatureDescription
 	{
 		if (key == null)
 		{
-			throw new ArgumentNullException("key");
+			throw new ArgumentNullException(nameof(key));
 		}
 
 		var formatter = new RSAPKCS1SignatureFormatter(key);

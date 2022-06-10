@@ -84,6 +84,12 @@ csharp_prefer_simple_using_statement = true:suggestion
 csharp_style_prefer_method_group_conversion = true:silent
 csharp_style_expression_bodied_lambdas = true:silent
 
+# IDE0057: Use range operator
+csharp_style_prefer_range_operator = false
+
+# CA1822: Mark members as static
+dotnet_diagnostic.CA1822.severity = none
+
 [*.Designer.cs]
 # CS1591: Missing XML comment for publicly visible type or member 'Type_or_Member'
 dotnet_diagnostic.CS1591.severity = none

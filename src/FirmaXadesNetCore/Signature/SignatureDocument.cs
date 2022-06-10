@@ -176,7 +176,7 @@ public class SignatureDocument
 	{
 		if (sigDocument == null)
 		{
-			throw new ArgumentNullException("sigDocument");
+			throw new ArgumentNullException(nameof(sigDocument));
 		}
 
 		if (sigDocument.Document == null || sigDocument.XadesSignature == null)

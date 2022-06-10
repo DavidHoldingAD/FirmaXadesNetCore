@@ -75,7 +75,7 @@ public class CanonicalizationMethod
 	{
 		if (xmlElement == null)
 		{
-			throw new ArgumentNullException("xmlElement");
+			throw new ArgumentNullException(nameof(xmlElement));
 		}
 		if (xmlElement.HasAttribute("Algorithm"))
 		{

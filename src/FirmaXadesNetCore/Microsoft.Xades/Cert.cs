@@ -101,7 +101,7 @@ public class Cert
 
 		if (xmlElement == null)
 		{
-			throw new ArgumentNullException("xmlElement");
+			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
 		if (xmlElement.HasAttribute("URI"))

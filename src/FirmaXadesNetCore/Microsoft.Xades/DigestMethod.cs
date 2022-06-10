@@ -74,7 +74,7 @@ public class DigestMethod
 	{
 		if (xmlElement == null)
 		{
-			throw new ArgumentNullException("xmlElement");
+			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
 		Algorithm = xmlElement.GetAttribute("Algorithm");

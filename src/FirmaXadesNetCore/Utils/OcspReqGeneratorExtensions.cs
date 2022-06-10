@@ -39,9 +39,7 @@ namespace FirmaXadesNetCore.Utils;
 static class OcspReqGeneratorExtensions
 {
 
-	public static OcspReq Generate(this OcspReqGenerator ocspRegGenerator,
-				RSACryptoServiceProvider rsa,
-				X509Chain chain)
+	public static OcspReq Generate(this OcspReqGenerator ocspRegGenerator, RSA rsa, X509Chain chain)
 	{
 		var requests = new Asn1EncodableVector();
 		DerObjectIdentifier signingAlgorithm = PkcsObjectIdentifiers.Sha1WithRsaEncryption;
@@ -87,8 +85,7 @@ static class OcspReqGeneratorExtensions
 			try
 			{
 				byte[] encoded = tbsReq.GetEncoded();
-
-				byte[] signedData = rsa.SignData(encoded, new SHA1CryptoServiceProvider());
+				byte[] signedData = rsa.SignData(encoded, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1);
 
 				bitSig = new DerBitString(signedData);
 			}

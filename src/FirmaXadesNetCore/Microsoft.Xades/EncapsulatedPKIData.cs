@@ -102,7 +102,7 @@ public class EncapsulatedPKIData
 	{
 		if (xmlElement == null)
 		{
-			throw new ArgumentNullException("xmlElement");
+			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
 		if (xmlElement.HasAttribute("Id"))
