@@ -2,22 +2,17 @@ FirmaXadesNetCore
 =============
 ![.NET Core](https://github.com/newverdun/FirmaXadesNetCore/workflows/.NET%20Core/badge.svg?branch=master)
 
-INTRODUCCIÓN
+INTRODUCTION
 -------------
-FirmaXadesNet es una librería desarrollada en C# para la generación de firmas XAdES realizada por el Dpto. de Nuevas Tecnologías de la Concejalía de Urbanismo del Ayuntamiento de Cartagena, la cual está basada en una modificación del XAdES starter kit desarrollado por Microsoft Francia.
+FirmaXadesNet is a library developed in C# for the generation of XAdES signatures carried out by the
+Department of New Technologies of the Town Planning Department of the Cartagena City Council, which is based
+on a modification of the XAdES starter kit developed by Microsoft France.
 
-FirmaXadesNetCore es una adaptacion a .NET Standard 2.1
-
-
-CARACTERÍSTICAS
+FEATURES
 ---------------
 
-- Generación de firmas XAdES-BES, XAdES-EPES, XAdES-T y XAdES-XL.
-
-- Formatos Externally Detached, Internally Detached, Enveloped y Enveloping.
-
-- Validación de certificados mediante OCSP y listas de revocación.
-
-- Soporte para co-firmas y contrafirmas.
-
-- Soporte para métodos de firma RSA-SHA1, RSA-SHA256 y RSA-SHA512.
+- Generation of XAdES-BES, XAdES-EPES, XAdES-T and XAdES-XL signatures.
+- Externally Detached, Internally Detached, Enveloped and Enveloping formats.
+- Validation of certificates through OCSP and revocation lists.
+- Support for co-signatures and countersignatures.
+- Support for RSA-SHA1, RSA-SHA256 and RSA-SHA512 signature methods.
