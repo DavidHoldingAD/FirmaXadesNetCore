@@ -23,35 +23,34 @@
 
 using FirmaXadesNetCore.Crypto;
 
-namespace FirmaXadesNetCore.Signature.Parameters
+namespace FirmaXadesNetCore.Signature.Parameters;
+
+public class SignaturePolicyInfo
 {
-	public class SignaturePolicyInfo
+	#region Private variables
+
+	private DigestMethod _defaultPolicyDigestAlgorithm = DigestMethod.SHA1;
+
+	#endregion
+
+	#region Public properties
+
+	public string PolicyIdentifier { get; set; }
+
+	public string PolicyHash { get; set; }
+
+	public DigestMethod PolicyDigestAlgorithm { get; set; }
+
+	public string PolicyUri { get; set; }
+
+	#endregion
+
+	#region Constructors
+
+	public SignaturePolicyInfo()
 	{
-		#region Private variables
-
-		private DigestMethod _defaultPolicyDigestAlgorithm = DigestMethod.SHA1;
-
-		#endregion
-
-		#region Public properties
-
-		public string PolicyIdentifier { get; set; }
-
-		public string PolicyHash { get; set; }
-
-		public DigestMethod PolicyDigestAlgorithm { get; set; }
-
-		public string PolicyUri { get; set; }
-
-		#endregion
-
-		#region Constructors
-
-		public SignaturePolicyInfo()
-		{
-			this.PolicyDigestAlgorithm = _defaultPolicyDigestAlgorithm;
-		}
-
-		#endregion
+		PolicyDigestAlgorithm = _defaultPolicyDigestAlgorithm;
 	}
+
+	#endregion
 }

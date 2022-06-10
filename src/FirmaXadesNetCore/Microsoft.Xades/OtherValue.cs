@@ -22,88 +22,87 @@
 
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// This class provides a placeholder for other revocation information
+/// </summary>
+public class OtherValue
 {
+	#region Private variables
+	private XmlElement anyXmlElement;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// This class provides a placeholder for other revocation information
+	/// The generic XML element that represents any other value
 	/// </summary>
-	public class OtherValue
+	public XmlElement AnyXmlElement
 	{
-		#region Private variables
-		private XmlElement anyXmlElement;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// The generic XML element that represents any other value
-		/// </summary>
-		public XmlElement AnyXmlElement
+		get
 		{
-			get
-			{
-				return this.anyXmlElement;
-			}
-			set
-			{
-				this.anyXmlElement = value;
-			}
+			return anyXmlElement;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public OtherValue()
+		set
 		{
+			anyXmlElement = value;
 		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (this.anyXmlElement != null)
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			this.anyXmlElement = xmlElement;
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement("OtherValue", XadesSignedXml.XadesNamespaceUri);
-
-			if (this.anyXmlElement != null)
-			{
-				retVal.AppendChild(creationXmlDocument.ImportNode(this.anyXmlElement, true));
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public OtherValue()
+	{
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (anyXmlElement != null)
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		anyXmlElement = xmlElement;
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement("OtherValue", XadesSignedXml.XadesNamespaceUri);
+
+		if (anyXmlElement != null)
+		{
+			retVal.AppendChild(creationXmlDocument.ImportNode(anyXmlElement, true));
+		}
+
+		return retVal;
+	}
+	#endregion
 }

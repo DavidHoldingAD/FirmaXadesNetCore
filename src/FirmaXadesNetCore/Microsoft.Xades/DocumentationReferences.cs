@@ -20,136 +20,133 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Collections;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// This class contains a collection of DocumentationReferences
+/// </summary>
+public class DocumentationReferences
 {
+	#region Private variables
+	private DocumentationReferenceCollection documentationReferenceCollection;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// This class contains a collection of DocumentationReferences
+	/// Collection of documentation references
 	/// </summary>
-	public class DocumentationReferences
+	public DocumentationReferenceCollection DocumentationReferenceCollection
 	{
-		#region Private variables
-		private DocumentationReferenceCollection documentationReferenceCollection;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// Collection of documentation references
-		/// </summary>
-		public DocumentationReferenceCollection DocumentationReferenceCollection
+		get
 		{
-			get
-			{
-				return this.documentationReferenceCollection;
-			}
-			set
-			{
-				this.documentationReferenceCollection = value;
-			}
+			return documentationReferenceCollection;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public DocumentationReferences()
+		set
 		{
-			this.documentationReferenceCollection = new DocumentationReferenceCollection();
+			documentationReferenceCollection = value;
 		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (this.documentationReferenceCollection.Count > 0)
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-			DocumentationReference newDocumentationReference;
-			IEnumerator enumerator;
-			XmlElement iterationXmlElement;
-
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
-
-			this.documentationReferenceCollection.Clear();
-			xmlNodeList = xmlElement.SelectNodes("xsd:DocumentationReference", xmlNamespaceManager);
-			enumerator = xmlNodeList.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					iterationXmlElement = enumerator.Current as XmlElement;
-					if (iterationXmlElement != null)
-					{
-						newDocumentationReference = new DocumentationReference();
-						newDocumentationReference.LoadXml(iterationXmlElement);
-						this.documentationReferenceCollection.Add(newDocumentationReference);
-					}
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
-				{
-					disposable.Dispose();
-				}
-			}
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement("DocumentationReferences", XadesSignedXml.XadesNamespaceUri);
-
-			if (this.documentationReferenceCollection.Count > 0)
-			{
-				foreach (DocumentationReference documentationReference in this.documentationReferenceCollection)
-				{
-					if (documentationReference.HasChanged())
-					{
-						retVal.AppendChild(creationXmlDocument.ImportNode(documentationReference.GetXml(), true));
-					}
-				}
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public DocumentationReferences()
+	{
+		documentationReferenceCollection = new DocumentationReferenceCollection();
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (documentationReferenceCollection.Count > 0)
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+		DocumentationReference newDocumentationReference;
+		IEnumerator enumerator;
+		XmlElement iterationXmlElement;
+
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+
+		documentationReferenceCollection.Clear();
+		xmlNodeList = xmlElement.SelectNodes("xsd:DocumentationReference", xmlNamespaceManager);
+		enumerator = xmlNodeList.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				iterationXmlElement = enumerator.Current as XmlElement;
+				if (iterationXmlElement != null)
+				{
+					newDocumentationReference = new DocumentationReference();
+					newDocumentationReference.LoadXml(iterationXmlElement);
+					documentationReferenceCollection.Add(newDocumentationReference);
+				}
+			}
+		}
+		finally
+		{
+			if (enumerator is IDisposable disposable)
+			{
+				disposable.Dispose();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement("DocumentationReferences", XadesSignedXml.XadesNamespaceUri);
+
+		if (documentationReferenceCollection.Count > 0)
+		{
+			foreach (DocumentationReference documentationReference in documentationReferenceCollection)
+			{
+				if (documentationReference.HasChanged())
+				{
+					retVal.AppendChild(creationXmlDocument.ImportNode(documentationReference.GetXml(), true));
+				}
+			}
+		}
+
+		return retVal;
+	}
+	#endregion
 }

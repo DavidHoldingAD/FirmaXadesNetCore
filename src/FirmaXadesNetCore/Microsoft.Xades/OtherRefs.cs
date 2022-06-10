@@ -20,136 +20,133 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Collections;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// This class contains a collection of OtherRefs
+/// </summary>
+public class OtherRefs
 {
+	#region Private variables
+	private OtherRefCollection otherRefCollection;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// This class contains a collection of OtherRefs
+	/// Collection of other refs
 	/// </summary>
-	public class OtherRefs
+	public OtherRefCollection OtherRefCollection
 	{
-		#region Private variables
-		private OtherRefCollection otherRefCollection;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// Collection of other refs
-		/// </summary>
-		public OtherRefCollection OtherRefCollection
+		get
 		{
-			get
-			{
-				return this.otherRefCollection;
-			}
-			set
-			{
-				this.otherRefCollection = value;
-			}
+			return otherRefCollection;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public OtherRefs()
+		set
 		{
-			this.otherRefCollection = new OtherRefCollection();
+			otherRefCollection = value;
 		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (this.otherRefCollection.Count > 0)
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-			OtherRef newOtherRef;
-			IEnumerator enumerator;
-			XmlElement iterationXmlElement;
-
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
-
-			this.otherRefCollection.Clear();
-			xmlNodeList = xmlElement.SelectNodes("xsd:OtherRef", xmlNamespaceManager);
-			enumerator = xmlNodeList.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					iterationXmlElement = enumerator.Current as XmlElement;
-					if (iterationXmlElement != null)
-					{
-						newOtherRef = new OtherRef();
-						newOtherRef.LoadXml(iterationXmlElement);
-						this.otherRefCollection.Add(newOtherRef);
-					}
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
-				{
-					disposable.Dispose();
-				}
-			}
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement("OtherRefs", XadesSignedXml.XadesNamespaceUri);
-
-			if (this.otherRefCollection.Count > 0)
-			{
-				foreach (OtherRef otherRef in this.otherRefCollection)
-				{
-					if (otherRef.HasChanged())
-					{
-						retVal.AppendChild(creationXmlDocument.ImportNode(otherRef.GetXml(), true));
-					}
-				}
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public OtherRefs()
+	{
+		otherRefCollection = new OtherRefCollection();
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (otherRefCollection.Count > 0)
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+		OtherRef newOtherRef;
+		IEnumerator enumerator;
+		XmlElement iterationXmlElement;
+
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+
+		otherRefCollection.Clear();
+		xmlNodeList = xmlElement.SelectNodes("xsd:OtherRef", xmlNamespaceManager);
+		enumerator = xmlNodeList.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				iterationXmlElement = enumerator.Current as XmlElement;
+				if (iterationXmlElement != null)
+				{
+					newOtherRef = new OtherRef();
+					newOtherRef.LoadXml(iterationXmlElement);
+					otherRefCollection.Add(newOtherRef);
+				}
+			}
+		}
+		finally
+		{
+			if (enumerator is IDisposable disposable)
+			{
+				disposable.Dispose();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement("OtherRefs", XadesSignedXml.XadesNamespaceUri);
+
+		if (otherRefCollection.Count > 0)
+		{
+			foreach (OtherRef otherRef in otherRefCollection)
+			{
+				if (otherRef.HasChanged())
+				{
+					retVal.AppendChild(creationXmlDocument.ImportNode(otherRef.GetXml(), true));
+				}
+			}
+		}
+
+		return retVal;
+	}
+	#endregion
 }

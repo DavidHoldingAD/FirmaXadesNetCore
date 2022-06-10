@@ -20,22 +20,21 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// The EncapsulatedX509Certificate element is able to contain the
+/// base64 encoding of a DER-encoded X.509 certificate
+/// </summary>
+public class EncapsulatedX509Certificate : EncapsulatedPKIData
 {
+	#region Constructors
 	/// <summary>
-	/// The EncapsulatedX509Certificate element is able to contain the
-	/// base64 encoding of a DER-encoded X.509 certificate
+	/// Default constructor
 	/// </summary>
-	public class EncapsulatedX509Certificate : EncapsulatedPKIData
+	public EncapsulatedX509Certificate()
 	{
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public EncapsulatedX509Certificate()
-		{
-			this.TagName = "EncapsulatedX509Certificate";
-		}
-		#endregion
+		TagName = "EncapsulatedX509Certificate";
 	}
+	#endregion
 }

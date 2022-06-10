@@ -20,44 +20,41 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Security.Cryptography;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+public sealed class RSAPKCS1SHA512SignatureDescription : SignatureDescription
 {
-
-	public sealed class RSAPKCS1SHA512SignatureDescription : SignatureDescription
+	public RSAPKCS1SHA512SignatureDescription()
 	{
-		public RSAPKCS1SHA512SignatureDescription()
+		KeyAlgorithm = typeof(RSACryptoServiceProvider).FullName;
+		DigestAlgorithm = typeof(SHA512Managed).FullName;
+		FormatterAlgorithm = typeof(RSAPKCS1SignatureFormatter).FullName;
+		DeformatterAlgorithm = typeof(RSAPKCS1SignatureDeformatter).FullName;
+	}
+
+	public override AsymmetricSignatureDeformatter CreateDeformatter(AsymmetricAlgorithm key)
+	{
+		if (key == null)
 		{
-			KeyAlgorithm = typeof(RSACryptoServiceProvider).FullName;
-			DigestAlgorithm = typeof(SHA512Managed).FullName;
-			FormatterAlgorithm = typeof(RSAPKCS1SignatureFormatter).FullName;
-			DeformatterAlgorithm = typeof(RSAPKCS1SignatureDeformatter).FullName;
+			throw new ArgumentNullException("key");
 		}
 
-		public override AsymmetricSignatureDeformatter CreateDeformatter(AsymmetricAlgorithm key)
-		{
-			if (key == null)
-			{
-				throw new ArgumentNullException("key");
-			}
+		var deformatter = new RSAPKCS1SignatureDeformatter(key);
+		deformatter.SetHashAlgorithm("SHA512");
+		return deformatter;
+	}
 
-			var deformatter = new RSAPKCS1SignatureDeformatter(key);
-			deformatter.SetHashAlgorithm("SHA512");
-			return deformatter;
+	public override AsymmetricSignatureFormatter CreateFormatter(AsymmetricAlgorithm key)
+	{
+		if (key == null)
+		{
+			throw new ArgumentNullException("key");
 		}
 
-		public override AsymmetricSignatureFormatter CreateFormatter(AsymmetricAlgorithm key)
-		{
-			if (key == null)
-			{
-				throw new ArgumentNullException("key");
-			}
-
-			var formatter = new RSAPKCS1SignatureFormatter(key);
-			formatter.SetHashAlgorithm("SHA512");
-			return formatter;
-		}
+		var formatter = new RSAPKCS1SignatureFormatter(key);
+		formatter.SetHashAlgorithm("SHA512");
+		return formatter;
 	}
 }

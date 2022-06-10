@@ -20,136 +20,133 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Collections;
 using System.Security.Cryptography;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// This class has as purpose to provide the simple substitution of the
+/// certificate. It contains references to certificates and digest values
+/// computed on them
+/// </summary>
+public class SigningCertificate
 {
+	#region Private variables
+	private CertCollection certCollection;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// This class has as purpose to provide the simple substitution of the
-	/// certificate. It contains references to certificates and digest values
-	/// computed on them
+	/// A collection of certs
 	/// </summary>
-	public class SigningCertificate
+	public CertCollection CertCollection
 	{
-		#region Private variables
-		private CertCollection certCollection;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// A collection of certs
-		/// </summary>
-		public CertCollection CertCollection
+		get
 		{
-			get
-			{
-				return this.certCollection;
-			}
-			set
-			{
-				this.certCollection = value;
-			}
+			return certCollection;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public SigningCertificate()
+		set
 		{
-			this.certCollection = new CertCollection();
+			certCollection = value;
 		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			return true; //Should always be considered dirty
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-			IEnumerator enumerator;
-			XmlElement iterationXmlElement;
-			Cert newCert;
-
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
-
-			this.certCollection.Clear();
-			xmlNodeList = xmlElement.SelectNodes("xsd:Cert", xmlNamespaceManager);
-			enumerator = xmlNodeList.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					iterationXmlElement = enumerator.Current as XmlElement;
-					if (iterationXmlElement != null)
-					{
-						newCert = new Cert();
-						newCert.LoadXml(iterationXmlElement);
-						this.certCollection.Add(newCert);
-					}
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
-				{
-					disposable.Dispose();
-				}
-			}
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SigningCertificate", XadesSignedXml.XadesNamespaceUri);
-
-			if (this.certCollection.Count > 0)
-			{
-				foreach (Cert cert in this.certCollection)
-				{
-					if (cert.HasChanged())
-					{
-						retVal.AppendChild(creationXmlDocument.ImportNode(cert.GetXml(), true));
-					}
-				}
-			}
-			else
-			{
-				throw new CryptographicException("SigningCertificate.Certcollection should have count > 0");
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public SigningCertificate()
+	{
+		certCollection = new CertCollection();
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		return true; //Should always be considered dirty
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+		IEnumerator enumerator;
+		XmlElement iterationXmlElement;
+		Cert newCert;
+
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+
+		certCollection.Clear();
+		xmlNodeList = xmlElement.SelectNodes("xsd:Cert", xmlNamespaceManager);
+		enumerator = xmlNodeList.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				iterationXmlElement = enumerator.Current as XmlElement;
+				if (iterationXmlElement != null)
+				{
+					newCert = new Cert();
+					newCert.LoadXml(iterationXmlElement);
+					certCollection.Add(newCert);
+				}
+			}
+		}
+		finally
+		{
+			if (enumerator is IDisposable disposable)
+			{
+				disposable.Dispose();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SigningCertificate", XadesSignedXml.XadesNamespaceUri);
+
+		if (certCollection.Count > 0)
+		{
+			foreach (Cert cert in certCollection)
+			{
+				if (cert.HasChanged())
+				{
+					retVal.AppendChild(creationXmlDocument.ImportNode(cert.GetXml(), true));
+				}
+			}
+		}
+		else
+		{
+			throw new CryptographicException("SigningCertificate.Certcollection should have count > 0");
+		}
+
+		return retVal;
+	}
+	#endregion
 }

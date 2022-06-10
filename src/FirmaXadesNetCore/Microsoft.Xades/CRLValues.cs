@@ -20,136 +20,133 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Collections;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// This class contains a collection of CRL values
+/// </summary>
+public class CRLValues
 {
+	#region Private variables
+	private CRLValueCollection crlValueCollection;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// This class contains a collection of CRL values
+	/// Collection of CRLValues
 	/// </summary>
-	public class CRLValues
+	public CRLValueCollection CRLValueCollection
 	{
-		#region Private variables
-		private CRLValueCollection crlValueCollection;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// Collection of CRLValues
-		/// </summary>
-		public CRLValueCollection CRLValueCollection
+		get
 		{
-			get
-			{
-				return this.crlValueCollection;
-			}
-			set
-			{
-				this.crlValueCollection = value;
-			}
+			return crlValueCollection;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public CRLValues()
+		set
 		{
-			this.crlValueCollection = new CRLValueCollection();
+			crlValueCollection = value;
 		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (this.crlValueCollection.Count > 0)
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-			CRLValue newCRLValue;
-			IEnumerator enumerator;
-			XmlElement iterationXmlElement;
-
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
-
-			this.crlValueCollection.Clear();
-			xmlNodeList = xmlElement.SelectNodes("xsd:EncapsulatedCRLValue", xmlNamespaceManager);
-			enumerator = xmlNodeList.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					iterationXmlElement = enumerator.Current as XmlElement;
-					if (iterationXmlElement != null)
-					{
-						newCRLValue = new CRLValue();
-						newCRLValue.LoadXml(iterationXmlElement);
-						this.crlValueCollection.Add(newCRLValue);
-					}
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
-				{
-					disposable.Dispose();
-				}
-			}
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CRLValues", XadesSignedXml.XadesNamespaceUri);
-
-			if (this.crlValueCollection.Count > 0)
-			{
-				foreach (CRLValue crlValue in this.crlValueCollection)
-				{
-					if (crlValue.HasChanged())
-					{
-						retVal.AppendChild(creationXmlDocument.ImportNode(crlValue.GetXml(), true));
-					}
-				}
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public CRLValues()
+	{
+		crlValueCollection = new CRLValueCollection();
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (crlValueCollection.Count > 0)
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+		CRLValue newCRLValue;
+		IEnumerator enumerator;
+		XmlElement iterationXmlElement;
+
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+
+		crlValueCollection.Clear();
+		xmlNodeList = xmlElement.SelectNodes("xsd:EncapsulatedCRLValue", xmlNamespaceManager);
+		enumerator = xmlNodeList.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				iterationXmlElement = enumerator.Current as XmlElement;
+				if (iterationXmlElement != null)
+				{
+					newCRLValue = new CRLValue();
+					newCRLValue.LoadXml(iterationXmlElement);
+					crlValueCollection.Add(newCRLValue);
+				}
+			}
+		}
+		finally
+		{
+			if (enumerator is IDisposable disposable)
+			{
+				disposable.Dispose();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CRLValues", XadesSignedXml.XadesNamespaceUri);
+
+		if (crlValueCollection.Count > 0)
+		{
+			foreach (CRLValue crlValue in crlValueCollection)
+			{
+				if (crlValue.HasChanged())
+				{
+					retVal.AppendChild(creationXmlDocument.ImportNode(crlValue.GetXml(), true));
+				}
+			}
+		}
+
+		return retVal;
+	}
+	#endregion
 }

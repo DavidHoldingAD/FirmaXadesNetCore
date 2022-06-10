@@ -20,151 +20,149 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Security.Cryptography;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// The NoticeRef element names an organization and identifies by
+/// numbers a group of textual statements prepared by that organization,
+/// so that the application could get the explicit notices from a notices file.
+/// </summary>
+public class NoticeRef
 {
+	#region Private variables
+	private string organization;
+	private NoticeNumbers noticeNumbers;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// The NoticeRef element names an organization and identifies by
-	/// numbers a group of textual statements prepared by that organization,
-	/// so that the application could get the explicit notices from a notices file.
+	/// Organization issuing the signature policy
 	/// </summary>
-	public class NoticeRef
+	public string Organization
 	{
-		#region Private variables
-		private string organization;
-		private NoticeNumbers noticeNumbers;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// Organization issuing the signature policy
-		/// </summary>
-		public string Organization
+		get
 		{
-			get
-			{
-				return this.organization;
-			}
-			set
-			{
-				this.organization = value;
-			}
+			return organization;
 		}
-
-		/// <summary>
-		/// Numerical identification of textual statements prepared by the organization,
-		/// so that the application can get the explicit notices from a notices file.
-		/// </summary>
-		public NoticeNumbers NoticeNumbers
+		set
 		{
-			get
-			{
-				return this.noticeNumbers;
-			}
-			set
-			{
-				this.noticeNumbers = value;
-			}
+			organization = value;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public NoticeRef()
-		{
-			this.noticeNumbers = new NoticeNumbers();
-		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (!String.IsNullOrEmpty(this.organization))
-			{
-				retVal = true;
-			}
-
-			if (this.noticeNumbers != null && this.noticeNumbers.HasChanged())
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
-
-			xmlNodeList = xmlElement.SelectNodes("xsd:Organization", xmlNamespaceManager);
-			if (xmlNodeList.Count == 0)
-			{
-				throw new CryptographicException("Organization missing");
-			}
-			this.organization = xmlNodeList.Item(0).InnerText;
-
-			xmlNodeList = xmlElement.SelectNodes("xsd:NoticeNumbers", xmlNamespaceManager);
-			if (xmlNodeList.Count == 0)
-			{
-				throw new CryptographicException("NoticeNumbers missing");
-			}
-			this.noticeNumbers = new NoticeNumbers();
-			this.noticeNumbers.LoadXml((XmlElement)xmlNodeList.Item(0));
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement bufferXmlElement;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement("NoticeRef", XadesSignedXml.XadesNamespaceUri);
-
-			if (this.organization == null)
-			{
-				throw new CryptographicException("Organization can't be null");
-			}
-			bufferXmlElement = creationXmlDocument.CreateElement("Organization", XadesSignedXml.XadesNamespaceUri);
-			bufferXmlElement.InnerText = this.organization;
-			retVal.AppendChild(bufferXmlElement);
-
-			if (this.noticeNumbers == null)
-			{
-				throw new CryptographicException("NoticeNumbers can't be null");
-			}
-			retVal.AppendChild(creationXmlDocument.ImportNode(this.noticeNumbers.GetXml(), true));
-
-			return retVal;
-		}
-		#endregion
 	}
+
+	/// <summary>
+	/// Numerical identification of textual statements prepared by the organization,
+	/// so that the application can get the explicit notices from a notices file.
+	/// </summary>
+	public NoticeNumbers NoticeNumbers
+	{
+		get
+		{
+			return noticeNumbers;
+		}
+		set
+		{
+			noticeNumbers = value;
+		}
+	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public NoticeRef()
+	{
+		noticeNumbers = new NoticeNumbers();
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (!string.IsNullOrEmpty(organization))
+		{
+			retVal = true;
+		}
+
+		if (noticeNumbers != null && noticeNumbers.HasChanged())
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+
+		xmlNodeList = xmlElement.SelectNodes("xsd:Organization", xmlNamespaceManager);
+		if (xmlNodeList.Count == 0)
+		{
+			throw new CryptographicException("Organization missing");
+		}
+		organization = xmlNodeList.Item(0).InnerText;
+
+		xmlNodeList = xmlElement.SelectNodes("xsd:NoticeNumbers", xmlNamespaceManager);
+		if (xmlNodeList.Count == 0)
+		{
+			throw new CryptographicException("NoticeNumbers missing");
+		}
+		noticeNumbers = new NoticeNumbers();
+		noticeNumbers.LoadXml((XmlElement)xmlNodeList.Item(0));
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement bufferXmlElement;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement("NoticeRef", XadesSignedXml.XadesNamespaceUri);
+
+		if (organization == null)
+		{
+			throw new CryptographicException("Organization can't be null");
+		}
+		bufferXmlElement = creationXmlDocument.CreateElement("Organization", XadesSignedXml.XadesNamespaceUri);
+		bufferXmlElement.InnerText = organization;
+		retVal.AppendChild(bufferXmlElement);
+
+		if (noticeNumbers == null)
+		{
+			throw new CryptographicException("NoticeNumbers can't be null");
+		}
+		retVal.AppendChild(creationXmlDocument.ImportNode(noticeNumbers.GetXml(), true));
+
+		return retVal;
+	}
+	#endregion
 }

@@ -23,89 +23,88 @@
 using System.Collections;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// The OtherCertificate element is a placeholder for potential future
+/// new formats of certificates
+/// </summary>
+public class OtherCertificate : ArrayList
 {
+	#region Private variables
+	private XmlElement anyXmlElement;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// The OtherCertificate element is a placeholder for potential future
-	/// new formats of certificates
+	/// The generic XML element that represents any certificate
 	/// </summary>
-	public class OtherCertificate : ArrayList
+	public XmlElement AnyXmlElement
 	{
-		#region Private variables
-		private XmlElement anyXmlElement;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// The generic XML element that represents any certificate
-		/// </summary>
-		public XmlElement AnyXmlElement
+		get
 		{
-			get
-			{
-				return this.anyXmlElement;
-			}
-			set
-			{
-				this.anyXmlElement = value;
-			}
+			return anyXmlElement;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public OtherCertificate()
+		set
 		{
+			anyXmlElement = value;
 		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (this.anyXmlElement != null)
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			this.anyXmlElement = xmlElement;
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement("OtherCertificate", XadesSignedXml.XadesNamespaceUri);
-
-			if (this.anyXmlElement != null)
-			{
-				retVal.AppendChild(creationXmlDocument.ImportNode(this.anyXmlElement, true));
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public OtherCertificate()
+	{
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (anyXmlElement != null)
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		anyXmlElement = xmlElement;
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement("OtherCertificate", XadesSignedXml.XadesNamespaceUri);
+
+		if (anyXmlElement != null)
+		{
+			retVal.AppendChild(creationXmlDocument.ImportNode(anyXmlElement, true));
+		}
+
+		return retVal;
+	}
+	#endregion
 }

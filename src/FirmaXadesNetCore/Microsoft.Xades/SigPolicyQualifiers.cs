@@ -20,159 +20,156 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Collections;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// This class contains a collection of SigPolicyQualifiers
+/// </summary>
+public class SigPolicyQualifiers
 {
+	#region Private variables
+	private SigPolicyQualifierCollection sigPolicyQualifierCollection;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// This class contains a collection of SigPolicyQualifiers
+	/// A collection of sig policy qualifiers
 	/// </summary>
-	public class SigPolicyQualifiers
+	public SigPolicyQualifierCollection SigPolicyQualifierCollection
 	{
-		#region Private variables
-		private SigPolicyQualifierCollection sigPolicyQualifierCollection;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// A collection of sig policy qualifiers
-		/// </summary>
-		public SigPolicyQualifierCollection SigPolicyQualifierCollection
+		get
 		{
-			get
-			{
-				return this.sigPolicyQualifierCollection;
-			}
-			set
-			{
-				this.sigPolicyQualifierCollection = value;
-			}
+			return sigPolicyQualifierCollection;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public SigPolicyQualifiers()
+		set
 		{
-			this.sigPolicyQualifierCollection = new SigPolicyQualifierCollection();
+			sigPolicyQualifierCollection = value;
 		}
-		#endregion
+	}
+	#endregion
 
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public SigPolicyQualifiers()
+	{
+		sigPolicyQualifierCollection = new SigPolicyQualifierCollection();
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (sigPolicyQualifierCollection.Count > 0)
 		{
-			bool retVal = false;
-
-			if (this.sigPolicyQualifierCollection.Count > 0)
-			{
-				retVal = true;
-			}
-
-			return retVal;
+			retVal = true;
 		}
 
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+		SPUri newSPUri;
+		SPUserNotice newSPUserNotice;
+		SigPolicyQualifier newSigPolicyQualifier;
+		IEnumerator enumerator;
+		XmlElement iterationXmlElement;
+		XmlElement subElement;
+
+		if (xmlElement == null)
 		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-			SPUri newSPUri;
-			SPUserNotice newSPUserNotice;
-			SigPolicyQualifier newSigPolicyQualifier;
-			IEnumerator enumerator;
-			XmlElement iterationXmlElement;
-			XmlElement subElement;
+			throw new ArgumentNullException("xmlElement");
+		}
 
-			if (xmlElement == null)
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+
+		sigPolicyQualifierCollection.Clear();
+		xmlNodeList = xmlElement.SelectNodes("xsd:SigPolicyQualifier", xmlNamespaceManager);
+		enumerator = xmlNodeList.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
 			{
-				throw new ArgumentNullException("xmlElement");
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
-
-			this.sigPolicyQualifierCollection.Clear();
-			xmlNodeList = xmlElement.SelectNodes("xsd:SigPolicyQualifier", xmlNamespaceManager);
-			enumerator = xmlNodeList.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
+				iterationXmlElement = enumerator.Current as XmlElement;
+				if (iterationXmlElement != null)
 				{
-					iterationXmlElement = enumerator.Current as XmlElement;
-					if (iterationXmlElement != null)
+					subElement = (XmlElement)iterationXmlElement.SelectSingleNode("xsd:SPURI", xmlNamespaceManager);
+					if (subElement != null)
 					{
-						subElement = (XmlElement)iterationXmlElement.SelectSingleNode("xsd:SPURI", xmlNamespaceManager);
+						newSPUri = new SPUri();
+						newSPUri.LoadXml(iterationXmlElement);
+						sigPolicyQualifierCollection.Add(newSPUri);
+					}
+					else
+					{
+						subElement = (XmlElement)iterationXmlElement.SelectSingleNode("xsd:SPUserNotice", xmlNamespaceManager);
 						if (subElement != null)
 						{
-							newSPUri = new SPUri();
-							newSPUri.LoadXml(iterationXmlElement);
-							this.sigPolicyQualifierCollection.Add(newSPUri);
+							newSPUserNotice = new SPUserNotice();
+							newSPUserNotice.LoadXml(iterationXmlElement);
+							sigPolicyQualifierCollection.Add(newSPUserNotice);
 						}
 						else
 						{
-							subElement = (XmlElement)iterationXmlElement.SelectSingleNode("xsd:SPUserNotice", xmlNamespaceManager);
-							if (subElement != null)
-							{
-								newSPUserNotice = new SPUserNotice();
-								newSPUserNotice.LoadXml(iterationXmlElement);
-								this.sigPolicyQualifierCollection.Add(newSPUserNotice);
-							}
-							else
-							{
-								newSigPolicyQualifier = new SigPolicyQualifier();
-								newSigPolicyQualifier.LoadXml(iterationXmlElement);
-								this.sigPolicyQualifierCollection.Add(newSigPolicyQualifier);
-							}
+							newSigPolicyQualifier = new SigPolicyQualifier();
+							newSigPolicyQualifier.LoadXml(iterationXmlElement);
+							sigPolicyQualifierCollection.Add(newSigPolicyQualifier);
 						}
 					}
 				}
 			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
-				{
-					disposable.Dispose();
-				}
-			}
 		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
+		finally
 		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SigPolicyQualifiers", XadesSignedXml.XadesNamespaceUri);
-
-			if (this.sigPolicyQualifierCollection.Count > 0)
+			if (enumerator is IDisposable disposable)
 			{
-				foreach (SigPolicyQualifier sigPolicyQualifier in this.sigPolicyQualifierCollection)
+				disposable.Dispose();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SigPolicyQualifiers", XadesSignedXml.XadesNamespaceUri);
+
+		if (sigPolicyQualifierCollection.Count > 0)
+		{
+			foreach (SigPolicyQualifier sigPolicyQualifier in sigPolicyQualifierCollection)
+			{
+				if (sigPolicyQualifier.HasChanged())
 				{
-					if (sigPolicyQualifier.HasChanged())
-					{
-						retVal.AppendChild(creationXmlDocument.ImportNode(sigPolicyQualifier.GetXml(), true));
-					}
+					retVal.AppendChild(creationXmlDocument.ImportNode(sigPolicyQualifier.GetXml(), true));
 				}
 			}
-
-			return retVal;
 		}
-		#endregion
+
+		return retVal;
 	}
+	#endregion
 }

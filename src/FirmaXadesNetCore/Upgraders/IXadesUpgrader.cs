@@ -24,10 +24,9 @@
 using FirmaXadesNetCore.Signature;
 using FirmaXadesNetCore.Upgraders.Parameters;
 
-namespace FirmaXadesNetCore.Upgraders
+namespace FirmaXadesNetCore.Upgraders;
+
+interface IXadesUpgrader
 {
-	interface IXadesUpgrader
-	{
-		void Upgrade(SignatureDocument signatureDocument, UpgradeParameters parameters);
-	}
+	void Upgrade(SignatureDocument signatureDocument, UpgradeParameters parameters);
 }

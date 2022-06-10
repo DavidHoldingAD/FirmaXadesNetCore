@@ -20,137 +20,134 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Collections;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// This class contains identifying numbers for a group of textual statements
+/// so that the XAdES based application can get the explicit notices from a
+/// notices file
+/// </summary>
+public class NoticeNumbers
 {
+	#region Private variables
+	private NoticeNumberCollection noticeNumberCollection;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// This class contains identifying numbers for a group of textual statements
-	/// so that the XAdES based application can get the explicit notices from a
-	/// notices file
+	/// Collection of notice numbers
 	/// </summary>
-	public class NoticeNumbers
+	public NoticeNumberCollection NoticeNumberCollection
 	{
-		#region Private variables
-		private NoticeNumberCollection noticeNumberCollection;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// Collection of notice numbers
-		/// </summary>
-		public NoticeNumberCollection NoticeNumberCollection
+		get
 		{
-			get
-			{
-				return this.noticeNumberCollection;
-			}
-			set
-			{
-				this.noticeNumberCollection = value;
-			}
+			return noticeNumberCollection;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public NoticeNumbers()
+		set
 		{
-			this.noticeNumberCollection = new NoticeNumberCollection();
+			noticeNumberCollection = value;
 		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (this.noticeNumberCollection.Count > 0)
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-			int newNoticeNumber;
-			IEnumerator enumerator;
-			XmlElement iterationXmlElement;
-
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
-
-			this.noticeNumberCollection.Clear();
-			xmlNodeList = xmlElement.SelectNodes("xsd:int", xmlNamespaceManager);
-			enumerator = xmlNodeList.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					iterationXmlElement = enumerator.Current as XmlElement;
-					if (iterationXmlElement != null)
-					{
-						newNoticeNumber = int.Parse(iterationXmlElement.InnerText);
-						this.noticeNumberCollection.Add(newNoticeNumber);
-					}
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
-				{
-					disposable.Dispose();
-				}
-			}
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement bufferXmlElement;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement("NoticeNumbers", XadesSignedXml.XadesNamespaceUri);
-
-			if (this.noticeNumberCollection.Count > 0)
-			{
-				foreach (int noticeNumber in this.noticeNumberCollection)
-				{
-					bufferXmlElement = creationXmlDocument.CreateElement("int", XadesSignedXml.XadesNamespaceUri);
-					bufferXmlElement.InnerText = noticeNumber.ToString();
-					retVal.AppendChild(bufferXmlElement);
-				}
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public NoticeNumbers()
+	{
+		noticeNumberCollection = new NoticeNumberCollection();
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (noticeNumberCollection.Count > 0)
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+		int newNoticeNumber;
+		IEnumerator enumerator;
+		XmlElement iterationXmlElement;
+
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+
+		noticeNumberCollection.Clear();
+		xmlNodeList = xmlElement.SelectNodes("xsd:int", xmlNamespaceManager);
+		enumerator = xmlNodeList.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				iterationXmlElement = enumerator.Current as XmlElement;
+				if (iterationXmlElement != null)
+				{
+					newNoticeNumber = int.Parse(iterationXmlElement.InnerText);
+					noticeNumberCollection.Add(newNoticeNumber);
+				}
+			}
+		}
+		finally
+		{
+			if (enumerator is IDisposable disposable)
+			{
+				disposable.Dispose();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement bufferXmlElement;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement("NoticeNumbers", XadesSignedXml.XadesNamespaceUri);
+
+		if (noticeNumberCollection.Count > 0)
+		{
+			foreach (int noticeNumber in noticeNumberCollection)
+			{
+				bufferXmlElement = creationXmlDocument.CreateElement("int", XadesSignedXml.XadesNamespaceUri);
+				bufferXmlElement.InnerText = noticeNumber.ToString();
+				retVal.AppendChild(bufferXmlElement);
+			}
+		}
+
+		return retVal;
+	}
+	#endregion
 }

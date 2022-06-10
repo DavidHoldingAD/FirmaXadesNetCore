@@ -22,89 +22,88 @@
 
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// This class can contain additional information qualifying the signature
+/// policy identifier
+/// </summary>
+public class SigPolicyQualifier
 {
+	#region Private variables
+	private XmlElement anyXmlElement;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// This class can contain additional information qualifying the signature
-	/// policy identifier
+	/// The generic XML element that represents a sig policy qualifier
 	/// </summary>
-	public class SigPolicyQualifier
+	public virtual XmlElement AnyXmlElement
 	{
-		#region Private variables
-		private XmlElement anyXmlElement;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// The generic XML element that represents a sig policy qualifier
-		/// </summary>
-		public virtual XmlElement AnyXmlElement
+		get
 		{
-			get
-			{
-				return this.anyXmlElement;
-			}
-			set
-			{
-				this.anyXmlElement = value;
-			}
+			return anyXmlElement;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public SigPolicyQualifier()
+		set
 		{
+			anyXmlElement = value;
 		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public virtual bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (this.anyXmlElement != null)
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public virtual void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			this.anyXmlElement = xmlElement;
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public virtual XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SigPolicyQualifier", XadesSignedXml.XadesNamespaceUri);
-
-			if (this.anyXmlElement != null)
-			{
-				retVal.AppendChild(creationXmlDocument.ImportNode(this.anyXmlElement, true));
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public SigPolicyQualifier()
+	{
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public virtual bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (anyXmlElement != null)
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public virtual void LoadXml(XmlElement xmlElement)
+	{
+		anyXmlElement = xmlElement;
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public virtual XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SigPolicyQualifier", XadesSignedXml.XadesNamespaceUri);
+
+		if (anyXmlElement != null)
+		{
+			retVal.AppendChild(creationXmlDocument.ImportNode(anyXmlElement, true));
+		}
+
+		return retVal;
+	}
+	#endregion
 }

@@ -20,137 +20,134 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Collections;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// The CertifiedRoles element contains one or more wrapped attribute
+/// certificates for the signer
+/// </summary>
+public class CertifiedRoles
 {
+	#region Private variables
+	private CertifiedRoleCollection certifiedRoleCollection;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// The CertifiedRoles element contains one or more wrapped attribute
-	/// certificates for the signer
+	/// Collection of certified roles
 	/// </summary>
-	public class CertifiedRoles
+	public CertifiedRoleCollection CertifiedRoleCollection
 	{
-		#region Private variables
-		private CertifiedRoleCollection certifiedRoleCollection;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// Collection of certified roles
-		/// </summary>
-		public CertifiedRoleCollection CertifiedRoleCollection
+		get
 		{
-			get
-			{
-				return this.certifiedRoleCollection;
-			}
-			set
-			{
-				this.certifiedRoleCollection = value;
-			}
+			return certifiedRoleCollection;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public CertifiedRoles()
+		set
 		{
-			this.certifiedRoleCollection = new CertifiedRoleCollection();
+			certifiedRoleCollection = value;
 		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (this.certifiedRoleCollection.Count > 0)
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-			EncapsulatedPKIData newCertifiedRole;
-			IEnumerator enumerator;
-			XmlElement iterationXmlElement;
-
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
-
-			this.certifiedRoleCollection.Clear();
-			xmlNodeList = xmlElement.SelectNodes("xsd:CertifiedRole", xmlNamespaceManager);
-			enumerator = xmlNodeList.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					iterationXmlElement = enumerator.Current as XmlElement;
-					if (iterationXmlElement != null)
-					{
-						newCertifiedRole = new EncapsulatedPKIData("CertifiedRole");
-						newCertifiedRole.LoadXml(iterationXmlElement);
-						this.certifiedRoleCollection.Add(newCertifiedRole);
-					}
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
-				{
-					disposable.Dispose();
-				}
-			}
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CertifiedRoles", XadesSignedXml.XadesNamespaceUri);
-
-			if (this.certifiedRoleCollection.Count > 0)
-			{
-				foreach (EncapsulatedPKIData certifiedRole in this.certifiedRoleCollection)
-				{
-					if (certifiedRole.HasChanged())
-					{
-						retVal.AppendChild(creationXmlDocument.ImportNode(certifiedRole.GetXml(), true));
-					}
-				}
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public CertifiedRoles()
+	{
+		certifiedRoleCollection = new CertifiedRoleCollection();
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (certifiedRoleCollection.Count > 0)
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+		EncapsulatedPKIData newCertifiedRole;
+		IEnumerator enumerator;
+		XmlElement iterationXmlElement;
+
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+
+		certifiedRoleCollection.Clear();
+		xmlNodeList = xmlElement.SelectNodes("xsd:CertifiedRole", xmlNamespaceManager);
+		enumerator = xmlNodeList.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				iterationXmlElement = enumerator.Current as XmlElement;
+				if (iterationXmlElement != null)
+				{
+					newCertifiedRole = new EncapsulatedPKIData("CertifiedRole");
+					newCertifiedRole.LoadXml(iterationXmlElement);
+					certifiedRoleCollection.Add(newCertifiedRole);
+				}
+			}
+		}
+		finally
+		{
+			if (enumerator is IDisposable disposable)
+			{
+				disposable.Dispose();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CertifiedRoles", XadesSignedXml.XadesNamespaceUri);
+
+		if (certifiedRoleCollection.Count > 0)
+		{
+			foreach (EncapsulatedPKIData certifiedRole in certifiedRoleCollection)
+			{
+				if (certifiedRole.HasChanged())
+				{
+					retVal.AppendChild(creationXmlDocument.ImportNode(certifiedRole.GetXml(), true));
+				}
+			}
+		}
+
+		return retVal;
+	}
+	#endregion
 }

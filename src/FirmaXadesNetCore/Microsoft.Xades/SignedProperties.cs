@@ -20,194 +20,192 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Security.Cryptography;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// The SignedProperties element contains a number of properties that are
+/// collectively signed by the XMLDSIG signature
+/// </summary>
+public class SignedProperties
 {
+	#region Constants
 	/// <summary>
-	/// The SignedProperties element contains a number of properties that are
-	/// collectively signed by the XMLDSIG signature
+	/// Default value for the SignedProperties Id attribute
 	/// </summary>
-	public class SignedProperties
+	public const string DefaultSignedPropertiesId = "SignedPropertiesId";
+	#endregion
+
+	#region Private variables
+	private string id;
+	private SignedSignatureProperties signedSignatureProperties;
+	private SignedDataObjectProperties signedDataObjectProperties;
+	#endregion
+
+	#region Public properties
+
+	/// <summary>
+	/// This Id is used to be able to point the signature reference to this
+	/// element.  It is initialized by default.
+	/// </summary>
+	public string Id
 	{
-		#region Constants
-		/// <summary>
-		/// Default value for the SignedProperties Id attribute
-		/// </summary>
-		public const string DefaultSignedPropertiesId = "SignedPropertiesId";
-		#endregion
-
-		#region Private variables
-		private string id;
-		private SignedSignatureProperties signedSignatureProperties;
-		private SignedDataObjectProperties signedDataObjectProperties;
-		#endregion
-
-		#region Public properties
-
-		/// <summary>
-		/// This Id is used to be able to point the signature reference to this
-		/// element.  It is initialized by default.
-		/// </summary>
-		public string Id
+		get
 		{
-			get
-			{
-				return this.id;
-			}
-			set
-			{
-				this.id = value;
-			}
+			return id;
 		}
-
-		/// <summary>
-		/// The properties that qualify the signature itself or the signer are
-		/// included as content of the SignedSignatureProperties element
-		/// </summary>
-		public SignedSignatureProperties SignedSignatureProperties
+		set
 		{
-			get
-			{
-				return this.signedSignatureProperties;
-			}
-			set
-			{
-				this.signedSignatureProperties = value;
-			}
+			id = value;
 		}
-
-		/// <summary>
-		/// The SignedDataObjectProperties element contains properties that qualify
-		/// some of the signed data objects
-		/// </summary>
-		public SignedDataObjectProperties SignedDataObjectProperties
-		{
-			get
-			{
-				return this.signedDataObjectProperties;
-			}
-			set
-			{
-				this.signedDataObjectProperties = value;
-			}
-		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public SignedProperties()
-		{
-			this.id = DefaultSignedPropertiesId; //This is where signature reference points to
-			this.signedSignatureProperties = new SignedSignatureProperties();
-			this.signedDataObjectProperties = new SignedDataObjectProperties();
-		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (!String.IsNullOrEmpty(this.id))
-			{
-				retVal = true;
-			}
-
-			if (this.signedSignatureProperties != null && this.signedSignatureProperties.HasChanged())
-			{
-				retVal = true;
-			}
-
-			if (this.signedDataObjectProperties != null && this.signedDataObjectProperties.HasChanged())
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-			if (xmlElement.HasAttribute("Id"))
-			{
-				this.id = xmlElement.GetAttribute("Id");
-			}
-			else
-			{
-				this.id = "";
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
-
-			xmlNodeList = xmlElement.SelectNodes("xsd:SignedSignatureProperties", xmlNamespaceManager);
-			if (xmlNodeList.Count == 0)
-			{
-				throw new CryptographicException("SignedSignatureProperties missing");
-			}
-			this.signedSignatureProperties = new SignedSignatureProperties();
-			this.signedSignatureProperties.LoadXml((XmlElement)xmlNodeList.Item(0));
-
-			xmlNodeList = xmlElement.SelectNodes("xsd:SignedDataObjectProperties", xmlNamespaceManager);
-			if (xmlNodeList.Count != 0)
-			{
-				this.signedDataObjectProperties = new SignedDataObjectProperties();
-				this.signedDataObjectProperties.LoadXml((XmlElement)xmlNodeList.Item(0));
-			}
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignedProperties", XadesSignedXml.XadesNamespaceUri);
-			if (!String.IsNullOrEmpty(this.id))
-			{
-				retVal.SetAttribute("Id", this.id);
-			}
-
-			if (this.signedSignatureProperties != null)
-			{
-				retVal.AppendChild(creationXmlDocument.ImportNode(this.signedSignatureProperties.GetXml(), true));
-			}
-			else
-			{
-				throw new CryptographicException("SignedSignatureProperties should not be null");
-			}
-
-			if (this.signedDataObjectProperties != null && this.signedDataObjectProperties.HasChanged())
-			{
-				retVal.AppendChild(creationXmlDocument.ImportNode(this.signedDataObjectProperties.GetXml(), true));
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+
+	/// <summary>
+	/// The properties that qualify the signature itself or the signer are
+	/// included as content of the SignedSignatureProperties element
+	/// </summary>
+	public SignedSignatureProperties SignedSignatureProperties
+	{
+		get
+		{
+			return signedSignatureProperties;
+		}
+		set
+		{
+			signedSignatureProperties = value;
+		}
+	}
+
+	/// <summary>
+	/// The SignedDataObjectProperties element contains properties that qualify
+	/// some of the signed data objects
+	/// </summary>
+	public SignedDataObjectProperties SignedDataObjectProperties
+	{
+		get
+		{
+			return signedDataObjectProperties;
+		}
+		set
+		{
+			signedDataObjectProperties = value;
+		}
+	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public SignedProperties()
+	{
+		id = DefaultSignedPropertiesId; //This is where signature reference points to
+		signedSignatureProperties = new SignedSignatureProperties();
+		signedDataObjectProperties = new SignedDataObjectProperties();
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (!string.IsNullOrEmpty(id))
+		{
+			retVal = true;
+		}
+
+		if (signedSignatureProperties != null && signedSignatureProperties.HasChanged())
+		{
+			retVal = true;
+		}
+
+		if (signedDataObjectProperties != null && signedDataObjectProperties.HasChanged())
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+		if (xmlElement.HasAttribute("Id"))
+		{
+			id = xmlElement.GetAttribute("Id");
+		}
+		else
+		{
+			id = "";
+		}
+
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+
+		xmlNodeList = xmlElement.SelectNodes("xsd:SignedSignatureProperties", xmlNamespaceManager);
+		if (xmlNodeList.Count == 0)
+		{
+			throw new CryptographicException("SignedSignatureProperties missing");
+		}
+		signedSignatureProperties = new SignedSignatureProperties();
+		signedSignatureProperties.LoadXml((XmlElement)xmlNodeList.Item(0));
+
+		xmlNodeList = xmlElement.SelectNodes("xsd:SignedDataObjectProperties", xmlNamespaceManager);
+		if (xmlNodeList.Count != 0)
+		{
+			signedDataObjectProperties = new SignedDataObjectProperties();
+			signedDataObjectProperties.LoadXml((XmlElement)xmlNodeList.Item(0));
+		}
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignedProperties", XadesSignedXml.XadesNamespaceUri);
+		if (!string.IsNullOrEmpty(id))
+		{
+			retVal.SetAttribute("Id", id);
+		}
+
+		if (signedSignatureProperties != null)
+		{
+			retVal.AppendChild(creationXmlDocument.ImportNode(signedSignatureProperties.GetXml(), true));
+		}
+		else
+		{
+			throw new CryptographicException("SignedSignatureProperties should not be null");
+		}
+
+		if (signedDataObjectProperties != null && signedDataObjectProperties.HasChanged())
+		{
+			retVal.AppendChild(creationXmlDocument.ImportNode(signedDataObjectProperties.GetXml(), true));
+		}
+
+		return retVal;
+	}
+	#endregion
 }

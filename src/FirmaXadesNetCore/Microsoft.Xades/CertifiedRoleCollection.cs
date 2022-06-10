@@ -22,50 +22,49 @@
 
 using System.Collections;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// Collection class that derives from ArrayList.  It provides the minimally
+/// required functionality to add instances of typed classes and obtain typed
+/// elements through a custom indexer.
+/// </summary>
+public class CertifiedRoleCollection : ArrayList
 {
 	/// <summary>
-	/// Collection class that derives from ArrayList.  It provides the minimally
-	/// required functionality to add instances of typed classes and obtain typed
-	/// elements through a custom indexer.
+	/// New typed indexer for the collection
 	/// </summary>
-	public class CertifiedRoleCollection : ArrayList
+	/// <param name="index">Index of the object to retrieve from collection</param>
+	public new CertifiedRole this[int index]
 	{
-		/// <summary>
-		/// New typed indexer for the collection
-		/// </summary>
-		/// <param name="index">Index of the object to retrieve from collection</param>
-		public new CertifiedRole this[int index]
+		get
 		{
-			get
-			{
-				return (CertifiedRole)base[index];
-			}
-			set
-			{
-				base[index] = value;
-			}
+			return (CertifiedRole)base[index];
 		}
-
-		/// <summary>
-		/// Add typed object to the collection
-		/// </summary>
-		/// <param name="objectToAdd">Typed object to be added to collection</param>
-		/// <returns>The object that has been added to collection</returns>
-		public CertifiedRole Add(CertifiedRole objectToAdd)
+		set
 		{
-			base.Add(objectToAdd);
-
-			return objectToAdd;
+			base[index] = value;
 		}
+	}
 
-		/// <summary>
-		/// Add new typed object to the collection
-		/// </summary>
-		/// <returns>The newly created object that has been added to collection</returns>
-		public CertifiedRole Add()
-		{
-			return this.Add(new CertifiedRole());
-		}
+	/// <summary>
+	/// Add typed object to the collection
+	/// </summary>
+	/// <param name="objectToAdd">Typed object to be added to collection</param>
+	/// <returns>The object that has been added to collection</returns>
+	public CertifiedRole Add(CertifiedRole objectToAdd)
+	{
+		base.Add(objectToAdd);
+
+		return objectToAdd;
+	}
+
+	/// <summary>
+	/// Add new typed object to the collection
+	/// </summary>
+	/// <returns>The newly created object that has been added to collection</returns>
+	public CertifiedRole Add()
+	{
+		return Add(new CertifiedRole());
 	}
 }

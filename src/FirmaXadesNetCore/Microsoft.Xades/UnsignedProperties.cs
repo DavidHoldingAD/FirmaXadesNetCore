@@ -20,180 +20,178 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// The UnsignedProperties element contains a number of properties that are
+/// not signed by the XMLDSIG signature
+/// </summary>
+public class UnsignedProperties
 {
+	#region Private variables
+	private string id;
+	private UnsignedSignatureProperties unsignedSignatureProperties;
+	private UnsignedDataObjectProperties unsignedDataObjectProperties;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// The UnsignedProperties element contains a number of properties that are
-	/// not signed by the XMLDSIG signature
+	/// The optional Id attribute can be used to make a reference to the
+	/// UnsignedProperties element
 	/// </summary>
-	public class UnsignedProperties
+	public string Id
 	{
-		#region Private variables
-		private string id;
-		private UnsignedSignatureProperties unsignedSignatureProperties;
-		private UnsignedDataObjectProperties unsignedDataObjectProperties;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// The optional Id attribute can be used to make a reference to the
-		/// UnsignedProperties element
-		/// </summary>
-		public string Id
+		get
 		{
-			get
-			{
-				return this.id;
-			}
-			set
-			{
-				this.id = value;
-			}
+			return id;
 		}
-
-		/// <summary>
-		/// UnsignedSignatureProperties may contain properties that qualify XML
-		/// signature itself or the signer
-		/// </summary>
-		public UnsignedSignatureProperties UnsignedSignatureProperties
+		set
 		{
-			get
-			{
-				return this.unsignedSignatureProperties;
-			}
-			set
-			{
-				this.unsignedSignatureProperties = value;
-			}
+			id = value;
 		}
-
-		/// <summary>
-		/// The UnsignedDataObjectProperties element may contain properties that
-		/// qualify some of the signed data objects
-		/// </summary>
-		public UnsignedDataObjectProperties UnsignedDataObjectProperties
-		{
-			get
-			{
-				return this.unsignedDataObjectProperties;
-			}
-			set
-			{
-				this.unsignedDataObjectProperties = value;
-			}
-		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public UnsignedProperties()
-		{
-			this.UnsignedSignatureProperties = new UnsignedSignatureProperties();
-			this.unsignedDataObjectProperties = new UnsignedDataObjectProperties();
-		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (!String.IsNullOrEmpty(this.id))
-			{
-				retVal = true;
-			}
-
-			if (this.unsignedSignatureProperties != null && this.unsignedSignatureProperties.HasChanged())
-			{
-				retVal = true;
-			}
-
-			if (this.unsignedDataObjectProperties != null && this.unsignedDataObjectProperties.HasChanged())
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		/// <param name="counterSignedXmlElement">Element containing parent signature (needed if there are counter signatures)</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement, XmlElement counterSignedXmlElement)
-		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-			if (xmlElement.HasAttribute("Id"))
-			{
-				this.id = xmlElement.GetAttribute("Id");
-			}
-			else
-			{
-				this.id = "";
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
-
-			xmlNodeList = xmlElement.SelectNodes("xsd:UnsignedSignatureProperties", xmlNamespaceManager);
-			if (xmlNodeList.Count != 0)
-			{
-				this.unsignedSignatureProperties = new UnsignedSignatureProperties();
-				this.unsignedSignatureProperties.LoadXml((XmlElement)xmlNodeList.Item(0), counterSignedXmlElement);
-			}
-
-			xmlNodeList = xmlElement.SelectNodes("xsd:UnsignedDataObjectProperties", xmlNamespaceManager);
-			if (xmlNodeList.Count != 0)
-			{
-				this.unsignedDataObjectProperties = new UnsignedDataObjectProperties();
-				this.unsignedDataObjectProperties.LoadXml((XmlElement)xmlNodeList.Item(0));
-			}
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			//retVal = creationXmlDocument.CreateElement("UnsignedProperties", XadesSignedXml.XadesNamespaceUri);
-			retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "UnsignedProperties", "http://uri.etsi.org/01903/v1.3.2#");
-			if (!String.IsNullOrEmpty(this.id))
-			{
-				retVal.SetAttribute("Id", this.id);
-			}
-
-			if (this.unsignedSignatureProperties != null && this.unsignedSignatureProperties.HasChanged())
-			{
-				retVal.AppendChild(creationXmlDocument.ImportNode(this.unsignedSignatureProperties.GetXml(), true));
-			}
-			if (this.unsignedDataObjectProperties != null && this.unsignedDataObjectProperties.HasChanged())
-			{
-				retVal.AppendChild(creationXmlDocument.ImportNode(this.unsignedDataObjectProperties.GetXml(), true));
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+
+	/// <summary>
+	/// UnsignedSignatureProperties may contain properties that qualify XML
+	/// signature itself or the signer
+	/// </summary>
+	public UnsignedSignatureProperties UnsignedSignatureProperties
+	{
+		get
+		{
+			return unsignedSignatureProperties;
+		}
+		set
+		{
+			unsignedSignatureProperties = value;
+		}
+	}
+
+	/// <summary>
+	/// The UnsignedDataObjectProperties element may contain properties that
+	/// qualify some of the signed data objects
+	/// </summary>
+	public UnsignedDataObjectProperties UnsignedDataObjectProperties
+	{
+		get
+		{
+			return unsignedDataObjectProperties;
+		}
+		set
+		{
+			unsignedDataObjectProperties = value;
+		}
+	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public UnsignedProperties()
+	{
+		UnsignedSignatureProperties = new UnsignedSignatureProperties();
+		unsignedDataObjectProperties = new UnsignedDataObjectProperties();
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (!string.IsNullOrEmpty(id))
+		{
+			retVal = true;
+		}
+
+		if (unsignedSignatureProperties != null && unsignedSignatureProperties.HasChanged())
+		{
+			retVal = true;
+		}
+
+		if (unsignedDataObjectProperties != null && unsignedDataObjectProperties.HasChanged())
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	/// <param name="counterSignedXmlElement">Element containing parent signature (needed if there are counter signatures)</param>
+	public void LoadXml(XmlElement xmlElement, XmlElement counterSignedXmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+		if (xmlElement.HasAttribute("Id"))
+		{
+			id = xmlElement.GetAttribute("Id");
+		}
+		else
+		{
+			id = "";
+		}
+
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+
+		xmlNodeList = xmlElement.SelectNodes("xsd:UnsignedSignatureProperties", xmlNamespaceManager);
+		if (xmlNodeList.Count != 0)
+		{
+			unsignedSignatureProperties = new UnsignedSignatureProperties();
+			unsignedSignatureProperties.LoadXml((XmlElement)xmlNodeList.Item(0), counterSignedXmlElement);
+		}
+
+		xmlNodeList = xmlElement.SelectNodes("xsd:UnsignedDataObjectProperties", xmlNamespaceManager);
+		if (xmlNodeList.Count != 0)
+		{
+			unsignedDataObjectProperties = new UnsignedDataObjectProperties();
+			unsignedDataObjectProperties.LoadXml((XmlElement)xmlNodeList.Item(0));
+		}
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		//retVal = creationXmlDocument.CreateElement("UnsignedProperties", XadesSignedXml.XadesNamespaceUri);
+		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "UnsignedProperties", "http://uri.etsi.org/01903/v1.3.2#");
+		if (!string.IsNullOrEmpty(id))
+		{
+			retVal.SetAttribute("Id", id);
+		}
+
+		if (unsignedSignatureProperties != null && unsignedSignatureProperties.HasChanged())
+		{
+			retVal.AppendChild(creationXmlDocument.ImportNode(unsignedSignatureProperties.GetXml(), true));
+		}
+		if (unsignedDataObjectProperties != null && unsignedDataObjectProperties.HasChanged())
+		{
+			retVal.AppendChild(creationXmlDocument.ImportNode(unsignedDataObjectProperties.GetXml(), true));
+		}
+
+		return retVal;
+	}
+	#endregion
 }

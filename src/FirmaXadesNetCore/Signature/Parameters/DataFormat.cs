@@ -21,18 +21,17 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace FirmaXadesNetCore.Signature.Parameters
+namespace FirmaXadesNetCore.Signature.Parameters;
+
+public class DataFormat
 {
-	public class DataFormat
-	{
-		#region Public properties
+	#region Public properties
 
-		public string MimeType { get; set; }
+	public string MimeType { get; set; }
 
-		public string Description { get; set; }
+	public string Description { get; set; }
 
-		public string TypeIdentifier { get; set; }
+	public string TypeIdentifier { get; set; }
 
-		#endregion
-	}
+	#endregion
 }

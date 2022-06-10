@@ -20,218 +20,216 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// In some transactions the purported place where the signer was at the time
+/// of signature creation may need to be indicated. In order to provide this
+/// information a new property may be included in the signature.
+/// This property specifies an address associated with the signer at a
+/// particular geographical (e.g. city) location.
+/// This is a signed property that qualifies the signer.
+/// An XML electronic signature aligned with the present document MAY contain
+/// at most one SignatureProductionPlace element.
+/// </summary>
+public class SignatureProductionPlace
 {
+	#region Private variables
+	private string city;
+	private string stateOrProvince;
+	private string postalCode;
+	private string countryName;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// In some transactions the purported place where the signer was at the time
-	/// of signature creation may need to be indicated. In order to provide this
-	/// information a new property may be included in the signature.
-	/// This property specifies an address associated with the signer at a
-	/// particular geographical (e.g. city) location.
-	/// This is a signed property that qualifies the signer.
-	/// An XML electronic signature aligned with the present document MAY contain
-	/// at most one SignatureProductionPlace element.
+	/// City where signature was produced
 	/// </summary>
-	public class SignatureProductionPlace
+	public string City
 	{
-		#region Private variables
-		private string city;
-		private string stateOrProvince;
-		private string postalCode;
-		private string countryName;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// City where signature was produced
-		/// </summary>
-		public string City
+		get
 		{
-			get
-			{
-				return this.city;
-			}
-			set
-			{
-				this.city = value;
-			}
+			return city;
 		}
-
-		/// <summary>
-		/// State or province where signature was produced
-		/// </summary>
-		public string StateOrProvince
+		set
 		{
-			get
-			{
-				return this.stateOrProvince;
-			}
-			set
-			{
-				this.stateOrProvince = value;
-			}
+			city = value;
 		}
-
-		/// <summary>
-		/// Postal code of place where signature was produced
-		/// </summary>
-		public string PostalCode
-		{
-			get
-			{
-				return this.postalCode;
-			}
-			set
-			{
-				this.postalCode = value;
-			}
-		}
-
-		/// <summary>
-		/// Country where signature was produced
-		/// </summary>
-		public string CountryName
-		{
-			get
-			{
-				return this.countryName;
-			}
-			set
-			{
-				this.countryName = value;
-			}
-		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public SignatureProductionPlace()
-		{
-		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (!String.IsNullOrEmpty(this.city))
-			{
-				retVal = true;
-			}
-
-			if (!String.IsNullOrEmpty(this.stateOrProvince))
-			{
-				retVal = true;
-			}
-
-			if (!String.IsNullOrEmpty(this.postalCode))
-			{
-				retVal = true;
-			}
-
-			if (!String.IsNullOrEmpty(this.countryName))
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
-
-			xmlNodeList = xmlElement.SelectNodes("xsd:City", xmlNamespaceManager);
-			if (xmlNodeList.Count != 0)
-			{
-				this.city = xmlNodeList.Item(0).InnerText;
-			}
-
-			xmlNodeList = xmlElement.SelectNodes("xsd:PostalCode", xmlNamespaceManager);
-			if (xmlNodeList.Count != 0)
-			{
-				this.postalCode = xmlNodeList.Item(0).InnerText;
-			}
-
-			xmlNodeList = xmlElement.SelectNodes("xsd:StateOrProvince", xmlNamespaceManager);
-			if (xmlNodeList.Count != 0)
-			{
-				this.stateOrProvince = xmlNodeList.Item(0).InnerText;
-			}
-
-			xmlNodeList = xmlElement.SelectNodes("xsd:CountryName", xmlNamespaceManager);
-			if (xmlNodeList.Count != 0)
-			{
-				this.countryName = xmlNodeList.Item(0).InnerText;
-			}
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-			XmlElement bufferXmlElement;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignatureProductionPlace", XadesSignedXml.XadesNamespaceUri);
-
-			if (!String.IsNullOrEmpty(this.city))
-			{
-				bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "City", XadesSignedXml.XadesNamespaceUri);
-				bufferXmlElement.InnerText = this.city;
-				retVal.AppendChild(bufferXmlElement);
-			}
-
-			if (!String.IsNullOrEmpty(this.stateOrProvince))
-			{
-				bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "StateOrProvince", XadesSignedXml.XadesNamespaceUri);
-				bufferXmlElement.InnerText = this.stateOrProvince;
-				retVal.AppendChild(bufferXmlElement);
-			}
-
-			if (!String.IsNullOrEmpty(this.postalCode))
-			{
-				bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "PostalCode", XadesSignedXml.XadesNamespaceUri);
-				bufferXmlElement.InnerText = this.postalCode;
-				retVal.AppendChild(bufferXmlElement);
-			}
-
-			if (this.countryName != null && this.countryName != "")
-			{
-				bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CountryName", XadesSignedXml.XadesNamespaceUri);
-				bufferXmlElement.InnerText = this.countryName;
-				retVal.AppendChild(bufferXmlElement);
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+
+	/// <summary>
+	/// State or province where signature was produced
+	/// </summary>
+	public string StateOrProvince
+	{
+		get
+		{
+			return stateOrProvince;
+		}
+		set
+		{
+			stateOrProvince = value;
+		}
+	}
+
+	/// <summary>
+	/// Postal code of place where signature was produced
+	/// </summary>
+	public string PostalCode
+	{
+		get
+		{
+			return postalCode;
+		}
+		set
+		{
+			postalCode = value;
+		}
+	}
+
+	/// <summary>
+	/// Country where signature was produced
+	/// </summary>
+	public string CountryName
+	{
+		get
+		{
+			return countryName;
+		}
+		set
+		{
+			countryName = value;
+		}
+	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public SignatureProductionPlace()
+	{
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (!string.IsNullOrEmpty(city))
+		{
+			retVal = true;
+		}
+
+		if (!string.IsNullOrEmpty(stateOrProvince))
+		{
+			retVal = true;
+		}
+
+		if (!string.IsNullOrEmpty(postalCode))
+		{
+			retVal = true;
+		}
+
+		if (!string.IsNullOrEmpty(countryName))
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+
+		xmlNodeList = xmlElement.SelectNodes("xsd:City", xmlNamespaceManager);
+		if (xmlNodeList.Count != 0)
+		{
+			city = xmlNodeList.Item(0).InnerText;
+		}
+
+		xmlNodeList = xmlElement.SelectNodes("xsd:PostalCode", xmlNamespaceManager);
+		if (xmlNodeList.Count != 0)
+		{
+			postalCode = xmlNodeList.Item(0).InnerText;
+		}
+
+		xmlNodeList = xmlElement.SelectNodes("xsd:StateOrProvince", xmlNamespaceManager);
+		if (xmlNodeList.Count != 0)
+		{
+			stateOrProvince = xmlNodeList.Item(0).InnerText;
+		}
+
+		xmlNodeList = xmlElement.SelectNodes("xsd:CountryName", xmlNamespaceManager);
+		if (xmlNodeList.Count != 0)
+		{
+			countryName = xmlNodeList.Item(0).InnerText;
+		}
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+		XmlElement bufferXmlElement;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignatureProductionPlace", XadesSignedXml.XadesNamespaceUri);
+
+		if (!string.IsNullOrEmpty(city))
+		{
+			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "City", XadesSignedXml.XadesNamespaceUri);
+			bufferXmlElement.InnerText = city;
+			retVal.AppendChild(bufferXmlElement);
+		}
+
+		if (!string.IsNullOrEmpty(stateOrProvince))
+		{
+			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "StateOrProvince", XadesSignedXml.XadesNamespaceUri);
+			bufferXmlElement.InnerText = stateOrProvince;
+			retVal.AppendChild(bufferXmlElement);
+		}
+
+		if (!string.IsNullOrEmpty(postalCode))
+		{
+			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "PostalCode", XadesSignedXml.XadesNamespaceUri);
+			bufferXmlElement.InnerText = postalCode;
+			retVal.AppendChild(bufferXmlElement);
+		}
+
+		if (countryName != null && countryName != "")
+		{
+			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CountryName", XadesSignedXml.XadesNamespaceUri);
+			bufferXmlElement.InnerText = countryName;
+			retVal.AppendChild(bufferXmlElement);
+		}
+
+		return retVal;
+	}
+	#endregion
 }

@@ -21,20 +21,19 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace FirmaXadesNetCore.Signature.Parameters
+namespace FirmaXadesNetCore.Signature.Parameters;
+
+public class SignatureProductionPlace
 {
-	public class SignatureProductionPlace
-	{
-		#region Public properties
+	#region Public properties
 
-		public string City { get; set; }
+	public string City { get; set; }
 
-		public string StateOrProvince { get; set; }
+	public string StateOrProvince { get; set; }
 
-		public string PostalCode { get; set; }
+	public string PostalCode { get; set; }
 
-		public string CountryName { get; set; }
+	public string CountryName { get; set; }
 
-		#endregion
-	}
+	#endregion
 }

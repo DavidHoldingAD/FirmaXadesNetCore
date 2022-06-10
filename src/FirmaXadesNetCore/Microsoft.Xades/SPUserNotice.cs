@@ -20,165 +20,163 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Security.Cryptography;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// SPUserNotice element is intended for being displayed whenever the
+/// signature is validated.  The class derives from SigPolicyQualifier.
+/// </summary>
+public class SPUserNotice : SigPolicyQualifier
 {
+	#region Private variables
+	private NoticeRef noticeRef;
+	private string explicitText;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// SPUserNotice element is intended for being displayed whenever the
-	/// signature is validated.  The class derives from SigPolicyQualifier.
+	/// The NoticeRef element names an organization and identifies by
+	/// numbers a group of textual statements prepared by that organization,
+	/// so that the application could get the explicit notices from a notices file.
 	/// </summary>
-	public class SPUserNotice : SigPolicyQualifier
+	public NoticeRef NoticeRef
 	{
-		#region Private variables
-		private NoticeRef noticeRef;
-		private string explicitText;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// The NoticeRef element names an organization and identifies by
-		/// numbers a group of textual statements prepared by that organization,
-		/// so that the application could get the explicit notices from a notices file.
-		/// </summary>
-		public NoticeRef NoticeRef
+		get
 		{
-			get
-			{
-				return this.noticeRef;
-			}
-			set
-			{
-				this.noticeRef = value;
-			}
+			return noticeRef;
+		}
+		set
+		{
+			noticeRef = value;
+		}
+	}
+
+	/// <summary>
+	/// The	ExplicitText element contains the text of the notice to be displayed
+	/// </summary>
+	public string ExplicitText
+	{
+		get
+		{
+			return explicitText;
+		}
+		set
+		{
+			explicitText = value;
+		}
+	}
+
+	/// <summary>
+	/// Inherited generic element, not used in the SPUserNotice class
+	/// </summary>
+	public override XmlElement AnyXmlElement
+	{
+		get
+		{
+			return null; //This does not make sense for SPUserNotice
+		}
+		set
+		{
+			throw new CryptographicException("Setting AnyXmlElement on a SPUserNotice is not supported");
+		}
+	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public SPUserNotice()
+	{
+		noticeRef = new NoticeRef();
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public override bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (!string.IsNullOrEmpty(explicitText))
+		{
+			retVal = true;
 		}
 
-		/// <summary>
-		/// The	ExplicitText element contains the text of the notice to be displayed
-		/// </summary>
-		public string ExplicitText
+		if (noticeRef != null && noticeRef.HasChanged())
 		{
-			get
-			{
-				return this.explicitText;
-			}
-			set
-			{
-				this.explicitText = value;
-			}
+			retVal = true;
 		}
 
-		/// <summary>
-		/// Inherited generic element, not used in the SPUserNotice class
-		/// </summary>
-		public override XmlElement AnyXmlElement
-		{
-			get
-			{
-				return null; //This does not make sense for SPUserNotice
-			}
-			set
-			{
-				throw new CryptographicException("Setting AnyXmlElement on a SPUserNotice is not supported");
-			}
-		}
-		#endregion
+		return retVal;
+	}
 
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public SPUserNotice()
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public override void LoadXml(XmlElement xmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+
+		xmlNodeList = xmlElement.SelectNodes("xsd:SPUserNotice/xsd:NoticeRef", xmlNamespaceManager);
+		if (xmlNodeList.Count != 0)
 		{
 			noticeRef = new NoticeRef();
+			noticeRef.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
-		#endregion
 
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public override bool HasChanged()
+		xmlNodeList = xmlElement.SelectNodes("xsd:SPUserNotice/xsd:ExplicitText", xmlNamespaceManager);
+		if (xmlNodeList.Count != 0)
 		{
-			bool retVal = false;
-
-			if (!String.IsNullOrEmpty(this.explicitText))
-			{
-				retVal = true;
-			}
-
-			if (this.noticeRef != null && this.noticeRef.HasChanged())
-			{
-				retVal = true;
-			}
-
-			return retVal;
+			explicitText = xmlNodeList.Item(0).InnerText;
 		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public override void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
-
-			xmlNodeList = xmlElement.SelectNodes("xsd:SPUserNotice/xsd:NoticeRef", xmlNamespaceManager);
-			if (xmlNodeList.Count != 0)
-			{
-				this.noticeRef = new NoticeRef();
-				this.noticeRef.LoadXml((XmlElement)xmlNodeList.Item(0));
-			}
-
-			xmlNodeList = xmlElement.SelectNodes("xsd:SPUserNotice/xsd:ExplicitText", xmlNamespaceManager);
-			if (xmlNodeList.Count != 0)
-			{
-				this.explicitText = xmlNodeList.Item(0).InnerText;
-			}
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public override XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement bufferXmlElement;
-			XmlElement bufferXmlElement2;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement("SigPolicyQualifier", XadesSignedXml.XadesNamespaceUri);
-
-			bufferXmlElement = creationXmlDocument.CreateElement("SPUserNotice", XadesSignedXml.XadesNamespaceUri);
-			if (this.noticeRef != null && this.noticeRef.HasChanged())
-			{
-				bufferXmlElement.AppendChild(creationXmlDocument.ImportNode(this.noticeRef.GetXml(), true));
-			}
-			if (!String.IsNullOrEmpty(this.explicitText))
-			{
-				bufferXmlElement2 = creationXmlDocument.CreateElement("ExplicitText", XadesSignedXml.XadesNamespaceUri);
-				bufferXmlElement2.InnerText = this.explicitText;
-				bufferXmlElement.AppendChild(bufferXmlElement2);
-			}
-
-			retVal.AppendChild(creationXmlDocument.ImportNode(bufferXmlElement, true));
-
-			return retVal;
-		}
-		#endregion
 	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public override XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement bufferXmlElement;
+		XmlElement bufferXmlElement2;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement("SigPolicyQualifier", XadesSignedXml.XadesNamespaceUri);
+
+		bufferXmlElement = creationXmlDocument.CreateElement("SPUserNotice", XadesSignedXml.XadesNamespaceUri);
+		if (noticeRef != null && noticeRef.HasChanged())
+		{
+			bufferXmlElement.AppendChild(creationXmlDocument.ImportNode(noticeRef.GetXml(), true));
+		}
+		if (!string.IsNullOrEmpty(explicitText))
+		{
+			bufferXmlElement2 = creationXmlDocument.CreateElement("ExplicitText", XadesSignedXml.XadesNamespaceUri);
+			bufferXmlElement2.InnerText = explicitText;
+			bufferXmlElement.AppendChild(bufferXmlElement2);
+		}
+
+		retVal.AppendChild(creationXmlDocument.ImportNode(bufferXmlElement, true));
+
+		return retVal;
+	}
+	#endregion
 }

@@ -20,97 +20,95 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// This class refers to one ds:Reference element of the ds:SignedInfo
+/// corresponding with one data object qualified by this property.
+/// If some but not all the signed data objects share the same commitment,
+/// one ObjectReference element must appear for each one of them.
+/// However, if all the signed data objects share the same commitment,
+/// the AllSignedDataObjects empty element must be present.
+/// </summary>
+public class ObjectReference
 {
+	#region Private variables
+	private string objectReferenceUri;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// This class refers to one ds:Reference element of the ds:SignedInfo
-	/// corresponding with one data object qualified by this property.
-	/// If some but not all the signed data objects share the same commitment,
-	/// one ObjectReference element must appear for each one of them.
-	/// However, if all the signed data objects share the same commitment,
-	/// the AllSignedDataObjects empty element must be present.
+	/// Uri of the object reference
 	/// </summary>
-	public class ObjectReference
+	public string ObjectReferenceUri
 	{
-		#region Private variables
-		private string objectReferenceUri;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// Uri of the object reference
-		/// </summary>
-		public string ObjectReferenceUri
+		get
 		{
-			get
-			{
-				return this.objectReferenceUri;
-			}
-			set
-			{
-				this.objectReferenceUri = value;
-			}
+			return objectReferenceUri;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public ObjectReference()
+		set
 		{
+			objectReferenceUri = value;
 		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (this.objectReferenceUri != null && this.objectReferenceUri != "")
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-
-			this.objectReferenceUri = xmlElement.InnerText;
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement("ObjectReference", XadesSignedXml.XadesNamespaceUri);
-			retVal.InnerText = this.objectReferenceUri;
-
-			return retVal;
-		}
-		#endregion
 	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public ObjectReference()
+	{
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (objectReferenceUri != null && objectReferenceUri != "")
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+
+		objectReferenceUri = xmlElement.InnerText;
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement("ObjectReference", XadesSignedXml.XadesNamespaceUri);
+		retVal.InnerText = objectReferenceUri;
+
+		return retVal;
+	}
+	#endregion
 }

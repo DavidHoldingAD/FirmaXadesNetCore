@@ -20,154 +20,152 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// This class represents the unique object of a XAdES signature that
+/// contains all XAdES information
+/// </summary>
+public class XadesObject
 {
+	#region Private variable
+	private string id;
+	private QualifyingProperties qualifyingProperties;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// This class represents the unique object of a XAdES signature that
-	/// contains all XAdES information
+	/// Id attribute of the XAdES object
 	/// </summary>
-	public class XadesObject
+	public string Id
 	{
-		#region Private variable
-		private string id;
-		private QualifyingProperties qualifyingProperties;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// Id attribute of the XAdES object
-		/// </summary>
-		public string Id
+		get
 		{
-			get
-			{
-				return this.id;
-			}
-			set
-			{
-				this.id = value;
-			}
+			return id;
 		}
-
-		/// <summary>
-		/// The QualifyingProperties element acts as a container element for
-		/// all the qualifying information that should be added to an XML
-		/// signature.
-		/// </summary>
-		public QualifyingProperties QualifyingProperties
+		set
 		{
-			get
-			{
-				return this.qualifyingProperties;
-			}
-			set
-			{
-				this.qualifyingProperties = value;
-			}
+			id = value;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public XadesObject()
-		{
-			this.qualifyingProperties = new QualifyingProperties();
-		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (this.id != null && this.id != "")
-			{
-				retVal = true;
-			}
-
-			if (this.qualifyingProperties != null && this.qualifyingProperties.HasChanged())
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		/// <param name="counterSignedXmlElement">Element containing parent signature (needed if there are counter signatures)</param>
-		public void LoadXml(XmlElement xmlElement, XmlElement counterSignedXmlElement)
-		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-			if (xmlElement.HasAttribute("Id"))
-			{
-				this.id = xmlElement.GetAttribute("Id");
-			}
-			else
-			{
-				this.id = "";
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
-
-			xmlNodeList = xmlElement.SelectNodes("xades:QualifyingProperties", xmlNamespaceManager);
-			if (xmlNodeList.Count == 0)
-			{
-				throw new CryptographicException("QualifyingProperties missing");
-			}
-			this.qualifyingProperties = new QualifyingProperties();
-			this.qualifyingProperties.LoadXml((XmlElement)xmlNodeList.Item(0), counterSignedXmlElement);
-
-			xmlNodeList = xmlElement.SelectNodes("xades:QualifyingPropertiesReference", xmlNamespaceManager);
-			if (xmlNodeList.Count != 0)
-			{
-				throw new CryptographicException("Current implementation can't handle QualifyingPropertiesReference element");
-			}
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement("ds", "Object", SignedXml.XmlDsigNamespaceUrl);
-			if (this.id != null && this.id != "")
-			{
-				retVal.SetAttribute("Id", this.id);
-			}
-
-			if (this.qualifyingProperties != null && this.qualifyingProperties.HasChanged())
-			{
-				retVal.AppendChild(creationXmlDocument.ImportNode(this.qualifyingProperties.GetXml(), true));
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+
+	/// <summary>
+	/// The QualifyingProperties element acts as a container element for
+	/// all the qualifying information that should be added to an XML
+	/// signature.
+	/// </summary>
+	public QualifyingProperties QualifyingProperties
+	{
+		get
+		{
+			return qualifyingProperties;
+		}
+		set
+		{
+			qualifyingProperties = value;
+		}
+	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public XadesObject()
+	{
+		qualifyingProperties = new QualifyingProperties();
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (id != null && id != "")
+		{
+			retVal = true;
+		}
+
+		if (qualifyingProperties != null && qualifyingProperties.HasChanged())
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	/// <param name="counterSignedXmlElement">Element containing parent signature (needed if there are counter signatures)</param>
+	public void LoadXml(XmlElement xmlElement, XmlElement counterSignedXmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+		if (xmlElement.HasAttribute("Id"))
+		{
+			id = xmlElement.GetAttribute("Id");
+		}
+		else
+		{
+			id = "";
+		}
+
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
+
+		xmlNodeList = xmlElement.SelectNodes("xades:QualifyingProperties", xmlNamespaceManager);
+		if (xmlNodeList.Count == 0)
+		{
+			throw new CryptographicException("QualifyingProperties missing");
+		}
+		qualifyingProperties = new QualifyingProperties();
+		qualifyingProperties.LoadXml((XmlElement)xmlNodeList.Item(0), counterSignedXmlElement);
+
+		xmlNodeList = xmlElement.SelectNodes("xades:QualifyingPropertiesReference", xmlNamespaceManager);
+		if (xmlNodeList.Count != 0)
+		{
+			throw new CryptographicException("Current implementation can't handle QualifyingPropertiesReference element");
+		}
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement("ds", "Object", SignedXml.XmlDsigNamespaceUrl);
+		if (id != null && id != "")
+		{
+			retVal.SetAttribute("Id", id);
+		}
+
+		if (qualifyingProperties != null && qualifyingProperties.HasChanged())
+		{
+			retVal.AppendChild(creationXmlDocument.ImportNode(qualifyingProperties.GetXml(), true));
+		}
+
+		return retVal;
+	}
+	#endregion
 }

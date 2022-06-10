@@ -23,10 +23,9 @@
 
 using FirmaXadesNetCore.Crypto;
 
-namespace FirmaXadesNetCore.Clients
+namespace FirmaXadesNetCore.Clients;
+
+public interface ITimeStampClient
 {
-	public interface ITimeStampClient
-	{
-		byte[] GetTimeStamp(byte[] hash, DigestMethod digestMethod, bool certReq);
-	}
+	byte[] GetTimeStamp(byte[] hash, DigestMethod digestMethod, bool certReq);
 }

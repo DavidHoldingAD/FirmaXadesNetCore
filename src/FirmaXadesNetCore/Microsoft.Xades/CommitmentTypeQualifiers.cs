@@ -20,137 +20,134 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System;
 using System.Collections;
 using System.Xml;
 
-namespace Microsoft.Xades
+namespace Microsoft.Xades;
+
+/// <summary>
+/// The CommitmentTypeQualifier element provides means to include
+/// additional qualifying information on the commitment made by the signer
+/// </summary>
+public class CommitmentTypeQualifiers
 {
+	#region Private variables
+	private CommitmentTypeQualifierCollection commitmentTypeQualifierCollection;
+	#endregion
+
+	#region Public properties
 	/// <summary>
-	/// The CommitmentTypeQualifier element provides means to include
-	/// additional qualifying information on the commitment made by the signer
+	/// Collection of commitment type qualifiers
 	/// </summary>
-	public class CommitmentTypeQualifiers
+	public CommitmentTypeQualifierCollection CommitmentTypeQualifierCollection
 	{
-		#region Private variables
-		private CommitmentTypeQualifierCollection commitmentTypeQualifierCollection;
-		#endregion
-
-		#region Public properties
-		/// <summary>
-		/// Collection of commitment type qualifiers
-		/// </summary>
-		public CommitmentTypeQualifierCollection CommitmentTypeQualifierCollection
+		get
 		{
-			get
-			{
-				return this.commitmentTypeQualifierCollection;
-			}
-			set
-			{
-				this.commitmentTypeQualifierCollection = value;
-			}
+			return commitmentTypeQualifierCollection;
 		}
-		#endregion
-
-		#region Constructors
-		/// <summary>
-		/// Default constructor
-		/// </summary>
-		public CommitmentTypeQualifiers()
+		set
 		{
-			this.commitmentTypeQualifierCollection = new CommitmentTypeQualifierCollection();
+			commitmentTypeQualifierCollection = value;
 		}
-		#endregion
-
-		#region Public methods
-		/// <summary>
-		/// Check to see if something has changed in this instance and needs to be serialized
-		/// </summary>
-		/// <returns>Flag indicating if a member needs serialization</returns>
-		public bool HasChanged()
-		{
-			bool retVal = false;
-
-			if (this.commitmentTypeQualifierCollection.Count > 0)
-			{
-				retVal = true;
-			}
-
-			return retVal;
-		}
-
-		/// <summary>
-		/// Load state from an XML element
-		/// </summary>
-		/// <param name="xmlElement">XML element containing new state</param>
-		public void LoadXml(System.Xml.XmlElement xmlElement)
-		{
-			XmlNamespaceManager xmlNamespaceManager;
-			XmlNodeList xmlNodeList;
-			IEnumerator enumerator;
-			XmlElement iterationXmlElement;
-			CommitmentTypeQualifier newCommitmentTypeQualifier;
-
-			if (xmlElement == null)
-			{
-				throw new ArgumentNullException("xmlElement");
-			}
-
-			xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
-
-			this.commitmentTypeQualifierCollection.Clear();
-			xmlNodeList = xmlElement.SelectNodes("xsd:CommitmentTypeQualifier", xmlNamespaceManager);
-			enumerator = xmlNodeList.GetEnumerator();
-			try
-			{
-				while (enumerator.MoveNext())
-				{
-					iterationXmlElement = enumerator.Current as XmlElement;
-					if (iterationXmlElement != null)
-					{
-						newCommitmentTypeQualifier = new CommitmentTypeQualifier();
-						newCommitmentTypeQualifier.LoadXml(iterationXmlElement);
-						this.commitmentTypeQualifierCollection.Add(newCommitmentTypeQualifier);
-					}
-				}
-			}
-			finally
-			{
-				IDisposable disposable = enumerator as IDisposable;
-				if (disposable != null)
-				{
-					disposable.Dispose();
-				}
-			}
-		}
-
-		/// <summary>
-		/// Returns the XML representation of the this object
-		/// </summary>
-		/// <returns>XML element containing the state of this object</returns>
-		public XmlElement GetXml()
-		{
-			XmlDocument creationXmlDocument;
-			XmlElement retVal;
-
-			creationXmlDocument = new XmlDocument();
-			retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CommitmentTypeQualifiers", XadesSignedXml.XadesNamespaceUri);
-
-			if (this.commitmentTypeQualifierCollection.Count > 0)
-			{
-				foreach (CommitmentTypeQualifier commitmentTypeQualifier in this.commitmentTypeQualifierCollection)
-				{
-					if (commitmentTypeQualifier.HasChanged())
-					{
-						retVal.AppendChild(creationXmlDocument.ImportNode(commitmentTypeQualifier.GetXml(), true));
-					}
-				}
-			}
-
-			return retVal;
-		}
-		#endregion
 	}
+	#endregion
+
+	#region Constructors
+	/// <summary>
+	/// Default constructor
+	/// </summary>
+	public CommitmentTypeQualifiers()
+	{
+		commitmentTypeQualifierCollection = new CommitmentTypeQualifierCollection();
+	}
+	#endregion
+
+	#region Public methods
+	/// <summary>
+	/// Check to see if something has changed in this instance and needs to be serialized
+	/// </summary>
+	/// <returns>Flag indicating if a member needs serialization</returns>
+	public bool HasChanged()
+	{
+		bool retVal = false;
+
+		if (commitmentTypeQualifierCollection.Count > 0)
+		{
+			retVal = true;
+		}
+
+		return retVal;
+	}
+
+	/// <summary>
+	/// Load state from an XML element
+	/// </summary>
+	/// <param name="xmlElement">XML element containing new state</param>
+	public void LoadXml(XmlElement xmlElement)
+	{
+		XmlNamespaceManager xmlNamespaceManager;
+		XmlNodeList xmlNodeList;
+		IEnumerator enumerator;
+		XmlElement iterationXmlElement;
+		CommitmentTypeQualifier newCommitmentTypeQualifier;
+
+		if (xmlElement == null)
+		{
+			throw new ArgumentNullException("xmlElement");
+		}
+
+		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+
+		commitmentTypeQualifierCollection.Clear();
+		xmlNodeList = xmlElement.SelectNodes("xsd:CommitmentTypeQualifier", xmlNamespaceManager);
+		enumerator = xmlNodeList.GetEnumerator();
+		try
+		{
+			while (enumerator.MoveNext())
+			{
+				iterationXmlElement = enumerator.Current as XmlElement;
+				if (iterationXmlElement != null)
+				{
+					newCommitmentTypeQualifier = new CommitmentTypeQualifier();
+					newCommitmentTypeQualifier.LoadXml(iterationXmlElement);
+					commitmentTypeQualifierCollection.Add(newCommitmentTypeQualifier);
+				}
+			}
+		}
+		finally
+		{
+			if (enumerator is IDisposable disposable)
+			{
+				disposable.Dispose();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Returns the XML representation of the this object
+	/// </summary>
+	/// <returns>XML element containing the state of this object</returns>
+	public XmlElement GetXml()
+	{
+		XmlDocument creationXmlDocument;
+		XmlElement retVal;
+
+		creationXmlDocument = new XmlDocument();
+		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CommitmentTypeQualifiers", XadesSignedXml.XadesNamespaceUri);
+
+		if (commitmentTypeQualifierCollection.Count > 0)
+		{
+			foreach (CommitmentTypeQualifier commitmentTypeQualifier in commitmentTypeQualifierCollection)
+			{
+				if (commitmentTypeQualifier.HasChanged())
+				{
+					retVal.AppendChild(creationXmlDocument.ImportNode(commitmentTypeQualifier.GetXml(), true));
+				}
+			}
+		}
+
+		return retVal;
+	}
+	#endregion
 }

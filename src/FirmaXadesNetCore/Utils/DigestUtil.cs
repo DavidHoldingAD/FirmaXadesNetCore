@@ -23,29 +23,28 @@
 
 using Microsoft.Xades;
 
-namespace FirmaXadesNetCore.Utils
+namespace FirmaXadesNetCore.Utils;
+
+class DigestUtil
 {
-	class DigestUtil
+	#region Public methods
+
+	public static void SetCertDigest(byte[] rawCert, Crypto.DigestMethod digestMethod, DigestAlgAndValueType destination)
 	{
-		#region Public methods
-
-		public static void SetCertDigest(byte[] rawCert, FirmaXadesNetCore.Crypto.DigestMethod digestMethod, DigestAlgAndValueType destination)
+		using (System.Security.Cryptography.HashAlgorithm hashAlg = digestMethod.GetHashAlgorithm())
 		{
-			using (var hashAlg = digestMethod.GetHashAlgorithm())
-			{
-				destination.DigestMethod.Algorithm = digestMethod.URI;
-				destination.DigestValue = hashAlg.ComputeHash(rawCert);
-			}
+			destination.DigestMethod.Algorithm = digestMethod.URI;
+			destination.DigestValue = hashAlg.ComputeHash(rawCert);
 		}
-
-		public static byte[] ComputeHashValue(byte[] value, FirmaXadesNetCore.Crypto.DigestMethod digestMethod)
-		{
-			using (var alg = digestMethod.GetHashAlgorithm())
-			{
-				return alg.ComputeHash(value);
-			}
-		}
-
-		#endregion
 	}
+
+	public static byte[] ComputeHashValue(byte[] value, Crypto.DigestMethod digestMethod)
+	{
+		using (System.Security.Cryptography.HashAlgorithm alg = digestMethod.GetHashAlgorithm())
+		{
+			return alg.ComputeHash(value);
+		}
+	}
+
+	#endregion
 }
