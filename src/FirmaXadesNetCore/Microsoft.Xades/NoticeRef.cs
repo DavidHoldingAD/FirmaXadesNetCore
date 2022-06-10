@@ -1,10 +1,10 @@
-// NoticeRef.cs
+ï»¿// NoticeRef.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -33,41 +33,19 @@ namespace Microsoft.Xades;
 public class NoticeRef
 {
 	#region Private variables
-	private string organization;
-	private NoticeNumbers noticeNumbers;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Organization issuing the signature policy
 	/// </summary>
-	public string Organization
-	{
-		get
-		{
-			return organization;
-		}
-		set
-		{
-			organization = value;
-		}
-	}
+	public string Organization { get; set; }
 
 	/// <summary>
 	/// Numerical identification of textual statements prepared by the organization,
 	/// so that the application can get the explicit notices from a notices file.
 	/// </summary>
-	public NoticeNumbers NoticeNumbers
-	{
-		get
-		{
-			return noticeNumbers;
-		}
-		set
-		{
-			noticeNumbers = value;
-		}
-	}
+	public NoticeNumbers NoticeNumbers { get; set; }
 	#endregion
 
 	#region Constructors
@@ -76,7 +54,7 @@ public class NoticeRef
 	/// </summary>
 	public NoticeRef()
 	{
-		noticeNumbers = new NoticeNumbers();
+		NoticeNumbers = new NoticeNumbers();
 	}
 	#endregion
 
@@ -89,12 +67,12 @@ public class NoticeRef
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(organization))
+		if (!string.IsNullOrEmpty(Organization))
 		{
 			retVal = true;
 		}
 
-		if (noticeNumbers != null && noticeNumbers.HasChanged())
+		if (NoticeNumbers != null && NoticeNumbers.HasChanged())
 		{
 			retVal = true;
 		}
@@ -124,15 +102,15 @@ public class NoticeRef
 		{
 			throw new CryptographicException("Organization missing");
 		}
-		organization = xmlNodeList.Item(0).InnerText;
+		Organization = xmlNodeList.Item(0).InnerText;
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:NoticeNumbers", xmlNamespaceManager);
 		if (xmlNodeList.Count == 0)
 		{
 			throw new CryptographicException("NoticeNumbers missing");
 		}
-		noticeNumbers = new NoticeNumbers();
-		noticeNumbers.LoadXml((XmlElement)xmlNodeList.Item(0));
+		NoticeNumbers = new NoticeNumbers();
+		NoticeNumbers.LoadXml((XmlElement)xmlNodeList.Item(0));
 	}
 
 	/// <summary>
@@ -148,19 +126,19 @@ public class NoticeRef
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement("NoticeRef", XadesSignedXml.XadesNamespaceUri);
 
-		if (organization == null)
+		if (Organization == null)
 		{
 			throw new CryptographicException("Organization can't be null");
 		}
 		bufferXmlElement = creationXmlDocument.CreateElement("Organization", XadesSignedXml.XadesNamespaceUri);
-		bufferXmlElement.InnerText = organization;
+		bufferXmlElement.InnerText = Organization;
 		retVal.AppendChild(bufferXmlElement);
 
-		if (noticeNumbers == null)
+		if (NoticeNumbers == null)
 		{
 			throw new CryptographicException("NoticeNumbers can't be null");
 		}
-		retVal.AppendChild(creationXmlDocument.ImportNode(noticeNumbers.GetXml(), true));
+		retVal.AppendChild(creationXmlDocument.ImportNode(NoticeNumbers.GetXml(), true));
 
 		return retVal;
 	}

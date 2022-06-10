@@ -1,10 +1,10 @@
-// Transforms.cs
+ï»¿// Transforms.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -32,24 +32,13 @@ namespace Microsoft.Xades;
 public class Transforms
 {
 	#region Private variables
-	private TransformCollection transformCollection;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// A collection of transforms
 	/// </summary>
-	public TransformCollection TransformCollection
-	{
-		get
-		{
-			return transformCollection;
-		}
-		set
-		{
-			transformCollection = value;
-		}
-	}
+	public TransformCollection TransformCollection { get; set; }
 	#endregion
 
 	#region Constructors
@@ -58,7 +47,7 @@ public class Transforms
 	/// </summary>
 	public Transforms()
 	{
-		transformCollection = new TransformCollection();
+		TransformCollection = new TransformCollection();
 	}
 	#endregion
 
@@ -71,7 +60,7 @@ public class Transforms
 	{
 		bool retVal = false;
 
-		if (transformCollection.Count > 0)
+		if (TransformCollection.Count > 0)
 		{
 			retVal = true;
 		}
@@ -99,7 +88,7 @@ public class Transforms
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
 
-		transformCollection.Clear();
+		TransformCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("ds:Transform", xmlNamespaceManager);
 		enumerator = xmlNodeList.GetEnumerator();
 		try
@@ -111,7 +100,7 @@ public class Transforms
 				{
 					newTransform = new Transform();
 					newTransform.LoadXml(iterationXmlElement);
-					transformCollection.Add(newTransform);
+					TransformCollection.Add(newTransform);
 				}
 			}
 		}
@@ -136,9 +125,9 @@ public class Transforms
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement("Transforms", XadesSignedXml.XadesNamespaceUri);
 
-		if (transformCollection.Count > 0)
+		if (TransformCollection.Count > 0)
 		{
-			foreach (Transform transform in transformCollection)
+			foreach (Transform transform in TransformCollection)
 			{
 				if (transform.HasChanged())
 				{

@@ -1,10 +1,10 @@
-// EncapsulatedPKIData.cs
+ï»¿// EncapsulatedPKIData.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -34,57 +34,24 @@ namespace Microsoft.Xades;
 public class EncapsulatedPKIData
 {
 	#region Private variables
-	private string tagName;
-	private string id;
-	private byte[] pkiData;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// The name of the element when serializing
 	/// </summary>
-	public string TagName
-	{
-		get
-		{
-			return tagName;
-		}
-		set
-		{
-			tagName = value;
-		}
-	}
+	public string TagName { get; set; }
 
 	/// <summary>
 	/// The optional ID attribute can be used to make a reference to an element
 	/// of this data type.
 	/// </summary>
-	public string Id
-	{
-		get
-		{
-			return id;
-		}
-		set
-		{
-			id = value;
-		}
-	}
+	public string Id { get; set; }
 
 	/// <summary>
 	/// Base64 encoded content of this data type 
 	/// </summary>
-	public byte[] PkiData
-	{
-		get
-		{
-			return pkiData;
-		}
-		set
-		{
-			pkiData = value;
-		}
-	}
+	public byte[] PkiData { get; set; }
 	#endregion
 
 	#region Constructors
@@ -101,7 +68,7 @@ public class EncapsulatedPKIData
 	/// <param name="tagName">Name of the tag when serializing with GetXml</param>
 	public EncapsulatedPKIData(string tagName)
 	{
-		this.tagName = tagName;
+		TagName = tagName;
 	}
 	#endregion
 
@@ -114,12 +81,12 @@ public class EncapsulatedPKIData
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(id))
+		if (!string.IsNullOrEmpty(Id))
 		{
 			retVal = true;
 		}
 
-		if (pkiData != null && pkiData.Length > 0)
+		if (PkiData != null && PkiData.Length > 0)
 		{
 			retVal = true;
 		}
@@ -140,14 +107,14 @@ public class EncapsulatedPKIData
 
 		if (xmlElement.HasAttribute("Id"))
 		{
-			id = xmlElement.GetAttribute("Id");
+			Id = xmlElement.GetAttribute("Id");
 		}
 		else
 		{
-			id = "";
+			Id = "";
 		}
 
-		pkiData = Convert.FromBase64String(xmlElement.InnerText);
+		PkiData = Convert.FromBase64String(xmlElement.InnerText);
 	}
 
 	/// <summary>
@@ -160,17 +127,17 @@ public class EncapsulatedPKIData
 		XmlElement retVal;
 
 		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, tagName, XadesSignedXml.XadesNamespaceUri);
+		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, TagName, XadesSignedXml.XadesNamespaceUri);
 		retVal.SetAttribute("Encoding", "http://uri.etsi.org/01903/v1.2.2#DER");
 
-		if (!string.IsNullOrEmpty(id))
+		if (!string.IsNullOrEmpty(Id))
 		{
-			retVal.SetAttribute("Id", id);
+			retVal.SetAttribute("Id", Id);
 		}
 
-		if (pkiData != null && pkiData.Length > 0)
+		if (PkiData != null && PkiData.Length > 0)
 		{
-			retVal.InnerText = Convert.ToBase64String(pkiData, Base64FormattingOptions.InsertLineBreaks);
+			retVal.InnerText = Convert.ToBase64String(PkiData, Base64FormattingOptions.InsertLineBreaks);
 		}
 
 		return retVal;

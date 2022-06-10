@@ -37,14 +37,8 @@ public class ObjectReferenceCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new ObjectReference this[int index]
 	{
-		get
-		{
-			return (ObjectReference)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (ObjectReference)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class ObjectReferenceCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public ObjectReference Add()
-	{
-		return Add(new ObjectReference());
-	}
+	public ObjectReference Add() => Add(new ObjectReference());
 }

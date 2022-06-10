@@ -27,7 +27,6 @@ public class SignatureCommitmentType
 {
 	#region Private variables
 
-	private string _uri;
 
 	#endregion
 
@@ -40,13 +39,7 @@ public class SignatureCommitmentType
 	public static SignatureCommitmentType ProofOfApproval = new SignatureCommitmentType("http://uri.etsi.org/01903/v1.2.2#ProofOfApproval");
 	public static SignatureCommitmentType ProofOfCreation = new SignatureCommitmentType("http://uri.etsi.org/01903/v1.2.2#ProofOfCreation");
 
-	public string URI
-	{
-		get
-		{
-			return _uri;
-		}
-	}
+	public string URI { get; }
 
 	#endregion
 
@@ -54,7 +47,7 @@ public class SignatureCommitmentType
 
 	public SignatureCommitmentType(string uri)
 	{
-		_uri = uri;
+		URI = uri;
 	}
 
 	#endregion

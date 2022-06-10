@@ -1,10 +1,10 @@
-// SignaturePolicyIdentifier.cs
+ï»¿// SignaturePolicyIdentifier.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -31,8 +31,8 @@ namespace Microsoft.Xades;
 public class SignaturePolicyIdentifier
 {
 	#region Private variables
-	private SignaturePolicyId signaturePolicyId;
-	private bool signaturePolicyImplied;
+	private SignaturePolicyId _signaturePolicyId;
+	private bool _signaturePolicyImplied;
 	#endregion
 
 	#region Public properties
@@ -47,14 +47,11 @@ public class SignaturePolicyIdentifier
 	/// </summary>
 	public SignaturePolicyId SignaturePolicyId
 	{
-		get
-		{
-			return signaturePolicyId;
-		}
+		get => _signaturePolicyId;
 		set
 		{
-			signaturePolicyId = value;
-			signaturePolicyImplied = false;
+			_signaturePolicyId = value;
+			_signaturePolicyImplied = false;
 		}
 	}
 
@@ -65,16 +62,13 @@ public class SignaturePolicyIdentifier
 	/// </summary>
 	public bool SignaturePolicyImplied
 	{
-		get
-		{
-			return signaturePolicyImplied;
-		}
+		get => _signaturePolicyImplied;
 		set
 		{
-			signaturePolicyImplied = value;
-			if (signaturePolicyImplied == true)
+			_signaturePolicyImplied = value;
+			if (_signaturePolicyImplied == true)
 			{
-				signaturePolicyId = null;
+				_signaturePolicyId = null;
 			}
 		}
 	}
@@ -86,8 +80,8 @@ public class SignaturePolicyIdentifier
 	/// </summary>
 	public SignaturePolicyIdentifier()
 	{
-		signaturePolicyId = new SignaturePolicyId();
-		signaturePolicyImplied = false;
+		_signaturePolicyId = new SignaturePolicyId();
+		_signaturePolicyImplied = false;
 	}
 	#endregion
 
@@ -100,12 +94,12 @@ public class SignaturePolicyIdentifier
 	{
 		bool retVal = false;
 
-		if (signaturePolicyId != null && signaturePolicyId.HasChanged())
+		if (_signaturePolicyId != null && _signaturePolicyId.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (signaturePolicyImplied)
+		if (_signaturePolicyImplied)
 		{
 			retVal = true;
 		}
@@ -133,17 +127,17 @@ public class SignaturePolicyIdentifier
 		xmlNodeList = xmlElement.SelectNodes("xsd:SignaturePolicyId", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			signaturePolicyId = new SignaturePolicyId();
-			signaturePolicyId.LoadXml((XmlElement)xmlNodeList.Item(0));
-			signaturePolicyImplied = false;
+			_signaturePolicyId = new SignaturePolicyId();
+			_signaturePolicyId.LoadXml((XmlElement)xmlNodeList.Item(0));
+			_signaturePolicyImplied = false;
 		}
 		else
 		{
 			xmlNodeList = xmlElement.SelectNodes("xsd:SignaturePolicyImplied", xmlNamespaceManager);
 			if (xmlNodeList.Count != 0)
 			{
-				signaturePolicyImplied = true;
-				signaturePolicyId = null;
+				_signaturePolicyImplied = true;
+				_signaturePolicyId = null;
 			}
 			else
 			{
@@ -165,16 +159,16 @@ public class SignaturePolicyIdentifier
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignaturePolicyIdentifier", XadesSignedXml.XadesNamespaceUri);
 
-		if (signaturePolicyImplied)
+		if (_signaturePolicyImplied)
 		{ //Append empty element as required
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignaturePolicyImplied", XadesSignedXml.XadesNamespaceUri);
 			retVal.AppendChild(bufferXmlElement);
 		}
 		else
 		{
-			if (signaturePolicyId != null && signaturePolicyId.HasChanged())
+			if (_signaturePolicyId != null && _signaturePolicyId.HasChanged())
 			{
-				retVal.AppendChild(creationXmlDocument.ImportNode(signaturePolicyId.GetXml(), true));
+				retVal.AppendChild(creationXmlDocument.ImportNode(_signaturePolicyId.GetXml(), true));
 			}
 			else
 			{

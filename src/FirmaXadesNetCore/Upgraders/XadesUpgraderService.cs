@@ -38,11 +38,9 @@ public class XadesUpgraderService
 
 	public void Upgrade(SignatureDocument sigDocument, SignatureFormat toFormat, UpgradeParameters parameters)
 	{
-		XadesTUpgrader xadesTUpgrader = null;
-		XadesXLUpgrader xadesXLUpgrader = null;
-
 		SignatureDocument.CheckSignatureDocument(sigDocument);
 
+		XadesTUpgrader xadesTUpgrader;
 		if (toFormat == SignatureFormat.XAdES_T)
 		{
 			xadesTUpgrader = new XadesTUpgrader();
@@ -56,7 +54,7 @@ public class XadesUpgraderService
 				xadesTUpgrader.Upgrade(sigDocument, parameters);
 			}
 
-			xadesXLUpgrader = new XadesXLUpgrader();
+			var xadesXLUpgrader = new XadesXLUpgrader();
 			xadesXLUpgrader.Upgrade(sigDocument, parameters);
 		}
 	}

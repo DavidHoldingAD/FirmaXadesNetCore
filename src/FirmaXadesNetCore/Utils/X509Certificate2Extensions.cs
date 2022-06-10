@@ -54,8 +54,5 @@ static class X509Certificate2Extensions
 		return new string(cArr);
 	}
 
-	public static Org.BouncyCastle.X509.X509Certificate ToBouncyX509Certificate(this X509Certificate2 certificate)
-	{
-		return new Org.BouncyCastle.X509.X509CertificateParser().ReadCertificate(certificate.GetRawCertData());
-	}
+	public static Org.BouncyCastle.X509.X509Certificate ToBouncyX509Certificate(this X509Certificate2 certificate) => new Org.BouncyCastle.X509.X509CertificateParser().ReadCertificate(certificate.GetRawCertData());
 }

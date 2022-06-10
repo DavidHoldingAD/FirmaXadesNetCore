@@ -37,14 +37,8 @@ public class CRLValueCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new CRLValue this[int index]
 	{
-		get
-		{
-			return (CRLValue)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (CRLValue)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class CRLValueCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public CRLValue Add()
-	{
-		return Add(new CRLValue());
-	}
+	public CRLValue Add() => Add(new CRLValue());
 }

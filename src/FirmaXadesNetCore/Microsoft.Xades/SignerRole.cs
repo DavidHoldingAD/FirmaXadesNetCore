@@ -1,10 +1,10 @@
-// SignerRole.cs
+ï»¿// SignerRole.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -40,8 +40,6 @@ namespace Microsoft.Xades;
 public class SignerRole
 {
 	#region Private variables
-	private ClaimedRoles claimedRoles;
-	private CertifiedRoles certifiedRoles;
 	#endregion
 
 	#region Public properties
@@ -52,33 +50,13 @@ public class SignerRole
 	/// The namespaces given to the corresponding XML schemas will allow
 	/// their unambiguous identification in the case these roles use XML.
 	/// </summary>
-	public ClaimedRoles ClaimedRoles
-	{
-		get
-		{
-			return claimedRoles;
-		}
-		set
-		{
-			claimedRoles = value;
-		}
-	}
+	public ClaimedRoles ClaimedRoles { get; set; }
 
 	/// <summary>
 	/// The CertifiedRoles element contains one or more wrapped attribute
 	/// certificates for the signer
 	/// </summary>
-	public CertifiedRoles CertifiedRoles
-	{
-		get
-		{
-			return certifiedRoles;
-		}
-		set
-		{
-			certifiedRoles = value;
-		}
-	}
+	public CertifiedRoles CertifiedRoles { get; set; }
 	#endregion
 
 	#region Constructors
@@ -87,8 +65,8 @@ public class SignerRole
 	/// </summary>
 	public SignerRole()
 	{
-		claimedRoles = new ClaimedRoles();
-		certifiedRoles = new CertifiedRoles();
+		ClaimedRoles = new ClaimedRoles();
+		CertifiedRoles = new CertifiedRoles();
 	}
 	#endregion
 
@@ -101,12 +79,12 @@ public class SignerRole
 	{
 		bool retVal = false;
 
-		if (claimedRoles != null && claimedRoles.HasChanged())
+		if (ClaimedRoles != null && ClaimedRoles.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (certifiedRoles != null && certifiedRoles.HasChanged())
+		if (CertifiedRoles != null && CertifiedRoles.HasChanged())
 		{
 			retVal = true;
 		}
@@ -134,15 +112,15 @@ public class SignerRole
 		xmlNodeList = xmlElement.SelectNodes("xsd:ClaimedRoles", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			claimedRoles = new ClaimedRoles();
-			claimedRoles.LoadXml((XmlElement)xmlNodeList.Item(0));
+			ClaimedRoles = new ClaimedRoles();
+			ClaimedRoles.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:CertifiedRoles", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			certifiedRoles = new CertifiedRoles();
-			certifiedRoles.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CertifiedRoles = new CertifiedRoles();
+			CertifiedRoles.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 	}
 
@@ -158,14 +136,14 @@ public class SignerRole
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignerRole", XadesSignedXml.XadesNamespaceUri);
 
-		if (claimedRoles != null && claimedRoles.HasChanged())
+		if (ClaimedRoles != null && ClaimedRoles.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(claimedRoles.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(ClaimedRoles.GetXml(), true));
 		}
 
-		if (certifiedRoles != null && certifiedRoles.HasChanged())
+		if (CertifiedRoles != null && CertifiedRoles.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(certifiedRoles.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(CertifiedRoles.GetXml(), true));
 		}
 
 		return retVal;

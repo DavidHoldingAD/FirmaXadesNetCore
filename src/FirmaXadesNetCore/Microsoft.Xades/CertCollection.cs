@@ -37,14 +37,8 @@ public class CertCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new Cert this[int index]
 	{
-		get
-		{
-			return (Cert)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (Cert)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class CertCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public Cert Add()
-	{
-		return Add(new Cert());
-	}
+	public Cert Add() => Add(new Cert());
 }

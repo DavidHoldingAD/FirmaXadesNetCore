@@ -37,14 +37,8 @@ public class DataObjectFormatCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new DataObjectFormat this[int index]
 	{
-		get
-		{
-			return (DataObjectFormat)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (DataObjectFormat)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class DataObjectFormatCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public DataObjectFormat Add()
-	{
-		return Add(new DataObjectFormat());
-	}
+	public DataObjectFormat Add() => Add(new DataObjectFormat());
 }

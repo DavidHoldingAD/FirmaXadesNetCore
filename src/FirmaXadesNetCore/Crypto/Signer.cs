@@ -31,28 +31,14 @@ public class Signer : IDisposable
 	#region Private variables
 
 	private bool _disposeCryptoProvider;
-	private X509Certificate2 _signingCertificate;
-	private AsymmetricAlgorithm _signingKey;
 
 	#endregion
 
 	#region Public properties
 
-	public X509Certificate2 Certificate
-	{
-		get
-		{
-			return _signingCertificate;
-		}
-	}
+	public X509Certificate2 Certificate { get; }
 
-	public AsymmetricAlgorithm SigningKey
-	{
-		get
-		{
-			return _signingKey;
-		}
-	}
+	public AsymmetricAlgorithm SigningKey { get; private set; }
 
 	#endregion
 
@@ -70,9 +56,9 @@ public class Signer : IDisposable
 			throw new Exception("El certificado no contiene ninguna clave privada");
 		}
 
-		_signingCertificate = certificate;
+		Certificate = certificate;
 
-		SetSigningKey(_signingCertificate);
+		SetSigningKey(Certificate);
 	}
 
 	#endregion
@@ -81,9 +67,9 @@ public class Signer : IDisposable
 
 	public void Dispose()
 	{
-		if (_disposeCryptoProvider && _signingKey != null)
+		if (_disposeCryptoProvider && SigningKey != null)
 		{
-			_signingKey.Dispose();
+			SigningKey.Dispose();
 		}
 	}
 
@@ -94,7 +80,7 @@ public class Signer : IDisposable
 	private void SetSigningKey(X509Certificate2 certificate)
 	{
 		RSA key = certificate.GetRSAPrivateKey();
-		_signingKey = key;
+		SigningKey = key;
 		_disposeCryptoProvider = false;
 	}
 

@@ -37,14 +37,8 @@ public class DocumentationReferenceCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new DocumentationReference this[int index]
 	{
-		get
-		{
-			return (DocumentationReference)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (DocumentationReference)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class DocumentationReferenceCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public DocumentationReference Add()
-	{
-		return Add(new DocumentationReference());
-	}
+	public DocumentationReference Add() => Add(new DocumentationReference());
 }

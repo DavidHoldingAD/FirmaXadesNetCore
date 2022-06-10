@@ -20,7 +20,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 
 namespace Microsoft.Xades;
@@ -86,8 +85,6 @@ namespace Microsoft.Xades;
 ///         method can be called to create the necessary OID registrations.
 ///     </para>
 /// </summary>
-[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "RSAPKCS", Justification = "This casing is to match the existing RSAPKCS1SHA1SignatureDescription type")]
-[SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "SHA", Justification = "This casing is to match the use of SHA throughout the framework")]
 public sealed class RSAPKCS1SHA256SignatureDescription : SignatureDescription
 {
 	/// <summary>
@@ -111,7 +108,9 @@ public sealed class RSAPKCS1SHA256SignatureDescription : SignatureDescription
 	public override AsymmetricSignatureDeformatter CreateDeformatter(AsymmetricAlgorithm key)
 	{
 		if (key == null)
+		{
 			throw new ArgumentNullException("key");
+		}
 
 		var deformatter = new RSAPKCS1SignatureDeformatter(key);
 		deformatter.SetHashAlgorithm("SHA256");
@@ -121,7 +120,9 @@ public sealed class RSAPKCS1SHA256SignatureDescription : SignatureDescription
 	public override AsymmetricSignatureFormatter CreateFormatter(AsymmetricAlgorithm key)
 	{
 		if (key == null)
+		{
 			throw new ArgumentNullException("key");
+		}
 
 		var formatter = new RSAPKCS1SignatureFormatter(key);
 		formatter.SetHashAlgorithm("SHA256");

@@ -1,10 +1,10 @@
-// SigPolicyQualifier.cs
+ï»¿// SigPolicyQualifier.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -31,7 +31,7 @@ namespace Microsoft.Xades;
 public class SigPolicyQualifier
 {
 	#region Private variables
-	private XmlElement anyXmlElement;
+	private XmlElement _anyXmlElement;
 	#endregion
 
 	#region Public properties
@@ -40,14 +40,8 @@ public class SigPolicyQualifier
 	/// </summary>
 	public virtual XmlElement AnyXmlElement
 	{
-		get
-		{
-			return anyXmlElement;
-		}
-		set
-		{
-			anyXmlElement = value;
-		}
+		get => _anyXmlElement;
+		set => _anyXmlElement = value;
 	}
 	#endregion
 
@@ -69,7 +63,7 @@ public class SigPolicyQualifier
 	{
 		bool retVal = false;
 
-		if (anyXmlElement != null)
+		if (_anyXmlElement != null)
 		{
 			retVal = true;
 		}
@@ -81,10 +75,7 @@ public class SigPolicyQualifier
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public virtual void LoadXml(XmlElement xmlElement)
-	{
-		anyXmlElement = xmlElement;
-	}
+	public virtual void LoadXml(XmlElement xmlElement) => _anyXmlElement = xmlElement;
 
 	/// <summary>
 	/// Returns the XML representation of the this object
@@ -98,9 +89,9 @@ public class SigPolicyQualifier
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SigPolicyQualifier", XadesSignedXml.XadesNamespaceUri);
 
-		if (anyXmlElement != null)
+		if (_anyXmlElement != null)
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(anyXmlElement, true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(_anyXmlElement, true));
 		}
 
 		return retVal;

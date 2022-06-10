@@ -37,14 +37,8 @@ public class OtherValueCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new OtherValue this[int index]
 	{
-		get
-		{
-			return (OtherValue)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (OtherValue)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class OtherValueCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public OtherValue Add()
-	{
-		return Add(new OtherValue());
-	}
+	public OtherValue Add() => Add(new OtherValue());
 }

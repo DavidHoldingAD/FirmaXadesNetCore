@@ -27,7 +27,6 @@ public class SignatureXPathExpression
 {
 	#region Private variables
 
-	private Dictionary<string, string> _namespaces;
 
 	#endregion
 
@@ -35,13 +34,7 @@ public class SignatureXPathExpression
 
 	public string XPathExpression { get; set; }
 
-	public Dictionary<string, string> Namespaces
-	{
-		get
-		{
-			return _namespaces;
-		}
-	}
+	public Dictionary<string, string> Namespaces { get; }
 
 	#endregion
 
@@ -49,7 +42,7 @@ public class SignatureXPathExpression
 
 	public SignatureXPathExpression()
 	{
-		_namespaces = new Dictionary<string, string>();
+		Namespaces = new Dictionary<string, string>();
 	}
 
 	#endregion

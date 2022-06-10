@@ -37,14 +37,8 @@ public class UnsignedDataObjectPropertyCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new UnsignedDataObjectProperty this[int index]
 	{
-		get
-		{
-			return (UnsignedDataObjectProperty)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (UnsignedDataObjectProperty)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class UnsignedDataObjectPropertyCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public UnsignedDataObjectProperty Add()
-	{
-		return Add(new UnsignedDataObjectProperty());
-	}
+	public UnsignedDataObjectProperty Add() => Add(new UnsignedDataObjectProperty());
 }

@@ -1,10 +1,10 @@
-// CompleteRevocationRefs.cs
+ï»¿// CompleteRevocationRefs.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -36,72 +36,28 @@ namespace Microsoft.Xades;
 public class CompleteRevocationRefs
 {
 	#region Private variables
-	private string id;
-	private CRLRefs crlRefs;
-	private OCSPRefs ocspRefs;
-	private OtherRefs otherRefs;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// The optional Id attribute can be used to make a reference to the CompleteRevocationRefs element
 	/// </summary>
-	public string Id
-	{
-		get
-		{
-			return id;
-		}
-		set
-		{
-			id = value;
-		}
-	}
+	public string Id { get; set; }
 
 	/// <summary>
 	/// Sequences of references to CRLs
 	/// </summary>
-	public CRLRefs CRLRefs
-	{
-		get
-		{
-			return crlRefs;
-		}
-		set
-		{
-			crlRefs = value;
-		}
-	}
+	public CRLRefs CRLRefs { get; set; }
 
 	/// <summary>
 	/// Sequences of references to OCSP responses
 	/// </summary>
-	public OCSPRefs OCSPRefs
-	{
-		get
-		{
-			return ocspRefs;
-		}
-		set
-		{
-			ocspRefs = value;
-		}
-	}
+	public OCSPRefs OCSPRefs { get; set; }
 
 	/// <summary>
 	/// Other references to alternative forms of revocation data
 	/// </summary>
-	public OtherRefs OtherRefs
-	{
-		get
-		{
-			return otherRefs;
-		}
-		set
-		{
-			otherRefs = value;
-		}
-	}
+	public OtherRefs OtherRefs { get; set; }
 	#endregion
 
 	#region Constructors
@@ -110,9 +66,9 @@ public class CompleteRevocationRefs
 	/// </summary>
 	public CompleteRevocationRefs()
 	{
-		crlRefs = new CRLRefs();
-		ocspRefs = new OCSPRefs();
-		otherRefs = new OtherRefs();
+		CRLRefs = new CRLRefs();
+		OCSPRefs = new OCSPRefs();
+		OtherRefs = new OtherRefs();
 	}
 	#endregion
 
@@ -125,19 +81,19 @@ public class CompleteRevocationRefs
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(id))
+		if (!string.IsNullOrEmpty(Id))
 		{
 			retVal = true;
 		}
-		if (crlRefs != null && crlRefs.HasChanged())
+		if (CRLRefs != null && CRLRefs.HasChanged())
 		{
 			retVal = true;
 		}
-		if (ocspRefs != null && ocspRefs.HasChanged())
+		if (OCSPRefs != null && OCSPRefs.HasChanged())
 		{
 			retVal = true;
 		}
-		if (otherRefs != null && otherRefs.HasChanged())
+		if (OtherRefs != null && OtherRefs.HasChanged())
 		{
 			retVal = true;
 		}
@@ -160,11 +116,11 @@ public class CompleteRevocationRefs
 		}
 		if (xmlElement.HasAttribute("Id"))
 		{
-			id = xmlElement.GetAttribute("Id");
+			Id = xmlElement.GetAttribute("Id");
 		}
 		else
 		{
-			id = "";
+			Id = "";
 		}
 
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
@@ -173,20 +129,20 @@ public class CompleteRevocationRefs
 		xmlNodeList = xmlElement.SelectNodes("xsd:CRLRefs", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			crlRefs = new CRLRefs();
-			crlRefs.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CRLRefs = new CRLRefs();
+			CRLRefs.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 		xmlNodeList = xmlElement.SelectNodes("xsd:OCSPRefs", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			ocspRefs = new OCSPRefs();
-			ocspRefs.LoadXml((XmlElement)xmlNodeList.Item(0));
+			OCSPRefs = new OCSPRefs();
+			OCSPRefs.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 		xmlNodeList = xmlElement.SelectNodes("xsd:OtherRefs", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			otherRefs = new OtherRefs();
-			otherRefs.LoadXml((XmlElement)xmlNodeList.Item(0));
+			OtherRefs = new OtherRefs();
+			OtherRefs.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 	}
 
@@ -203,21 +159,21 @@ public class CompleteRevocationRefs
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CompleteRevocationRefs", XadesSignedXml.XadesNamespaceUri);
 		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
 
-		if (!string.IsNullOrEmpty(id))
+		if (!string.IsNullOrEmpty(Id))
 		{
-			retVal.SetAttribute("Id", id);
+			retVal.SetAttribute("Id", Id);
 		}
-		if (crlRefs != null && crlRefs.HasChanged())
+		if (CRLRefs != null && CRLRefs.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(crlRefs.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(CRLRefs.GetXml(), true));
 		}
-		if (ocspRefs != null && ocspRefs.HasChanged())
+		if (OCSPRefs != null && OCSPRefs.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(ocspRefs.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(OCSPRefs.GetXml(), true));
 		}
-		if (otherRefs != null && otherRefs.HasChanged())
+		if (OtherRefs != null && OtherRefs.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(otherRefs.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(OtherRefs.GetXml(), true));
 		}
 
 		return retVal;

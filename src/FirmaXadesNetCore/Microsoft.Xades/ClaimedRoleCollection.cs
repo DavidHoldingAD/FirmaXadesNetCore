@@ -37,14 +37,8 @@ public class ClaimedRoleCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new ClaimedRole this[int index]
 	{
-		get
-		{
-			return (ClaimedRole)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (ClaimedRole)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class ClaimedRoleCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public ClaimedRole Add()
-	{
-		return Add(new ClaimedRole());
-	}
+	public ClaimedRole Add() => Add(new ClaimedRole());
 }

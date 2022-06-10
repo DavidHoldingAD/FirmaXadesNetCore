@@ -37,14 +37,8 @@ public class CommitmentTypeQualifierCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new CommitmentTypeQualifier this[int index]
 	{
-		get
-		{
-			return (CommitmentTypeQualifier)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (CommitmentTypeQualifier)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class CommitmentTypeQualifierCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public CommitmentTypeQualifier Add()
-	{
-		return Add(new CommitmentTypeQualifier());
-	}
+	public CommitmentTypeQualifier Add() => Add(new CommitmentTypeQualifier());
 }

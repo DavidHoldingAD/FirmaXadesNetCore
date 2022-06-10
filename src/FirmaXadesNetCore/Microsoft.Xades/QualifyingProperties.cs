@@ -1,10 +1,10 @@
-// QualifyingProperties.cs
+ï»¿// QualifyingProperties.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -34,10 +34,7 @@ namespace Microsoft.Xades;
 public class QualifyingProperties
 {
 	#region Private variables
-	private string id;
-	private string target;
-	private SignedProperties signedProperties;
-	private UnsignedProperties unsignedProperties;
+	private UnsignedProperties _unsignedProperties;
 	#endregion
 
 	#region Public properties
@@ -45,49 +42,19 @@ public class QualifyingProperties
 	/// The optional Id attribute can be used to make a reference to the
 	/// QualifyingProperties container.
 	/// </summary>
-	public string Id
-	{
-		get
-		{
-			return id;
-		}
-		set
-		{
-			id = value;
-		}
-	}
+	public string Id { get; set; }
 
 	/// <summary>
 	/// The mandatory Target attribute refers to the XML signature with which the
 	/// qualifying properties are associated.
 	/// </summary>
-	public string Target
-	{
-		get
-		{
-			return target;
-		}
-		set
-		{
-			target = value;
-		}
-	}
+	public string Target { get; set; }
 
 	/// <summary>
 	/// The SignedProperties element contains a number of properties that are
 	/// collectively signed by the XMLDSIG signature
 	/// </summary>
-	public SignedProperties SignedProperties
-	{
-		get
-		{
-			return signedProperties;
-		}
-		set
-		{
-			signedProperties = value;
-		}
-	}
+	public SignedProperties SignedProperties { get; set; }
 
 	/// <summary>
 	/// The UnsignedProperties element contains a number of properties that are
@@ -95,14 +62,8 @@ public class QualifyingProperties
 	/// </summary>
 	public UnsignedProperties UnsignedProperties
 	{
-		get
-		{
-			return unsignedProperties;
-		}
-		set
-		{
-			unsignedProperties = value;
-		}
+		get => _unsignedProperties;
+		set => _unsignedProperties = value;
 	}
 	#endregion
 
@@ -112,8 +73,8 @@ public class QualifyingProperties
 	/// </summary>
 	public QualifyingProperties()
 	{
-		signedProperties = new SignedProperties();
-		unsignedProperties = new UnsignedProperties();
+		SignedProperties = new SignedProperties();
+		_unsignedProperties = new UnsignedProperties();
 	}
 	#endregion
 
@@ -126,22 +87,22 @@ public class QualifyingProperties
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(id))
+		if (!string.IsNullOrEmpty(Id))
 		{
 			retVal = true;
 		}
 
-		if (!string.IsNullOrEmpty(target))
+		if (!string.IsNullOrEmpty(Target))
 		{
 			retVal = true;
 		}
 
-		if (signedProperties != null && signedProperties.HasChanged())
+		if (SignedProperties != null && SignedProperties.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (unsignedProperties != null && unsignedProperties.HasChanged())
+		if (_unsignedProperties != null && _unsignedProperties.HasChanged())
 		{
 			retVal = true;
 		}
@@ -165,20 +126,20 @@ public class QualifyingProperties
 		}
 		if (xmlElement.HasAttribute("Id"))
 		{
-			id = xmlElement.GetAttribute("Id");
+			Id = xmlElement.GetAttribute("Id");
 		}
 		else
 		{
-			id = "";
+			Id = "";
 		}
 
 		if (xmlElement.HasAttribute("Target"))
 		{
-			target = xmlElement.GetAttribute("Target");
+			Target = xmlElement.GetAttribute("Target");
 		}
 		else
 		{
-			target = "";
+			Target = "";
 			throw new CryptographicException("Target attribute missing");
 		}
 
@@ -190,14 +151,14 @@ public class QualifyingProperties
 		{
 			throw new CryptographicException("SignedProperties missing");
 		}
-		signedProperties = new SignedProperties();
-		signedProperties.LoadXml((XmlElement)xmlNodeList.Item(0));
+		SignedProperties = new SignedProperties();
+		SignedProperties.LoadXml((XmlElement)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:UnsignedProperties", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			unsignedProperties = new UnsignedProperties();
-			unsignedProperties.LoadXml((XmlElement)xmlNodeList.Item(0), counterSignedXmlElement);
+			_unsignedProperties = new UnsignedProperties();
+			_unsignedProperties.LoadXml((XmlElement)xmlNodeList.Item(0), counterSignedXmlElement);
 		}
 	}
 
@@ -213,27 +174,27 @@ public class QualifyingProperties
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "QualifyingProperties", XadesSignedXml.XadesNamespaceUri);
 
-		if (!string.IsNullOrEmpty(id))
+		if (!string.IsNullOrEmpty(Id))
 		{
-			retVal.SetAttribute("Id", id);
+			retVal.SetAttribute("Id", Id);
 		}
 
-		if (!string.IsNullOrEmpty(target))
+		if (!string.IsNullOrEmpty(Target))
 		{
-			retVal.SetAttribute("Target", target);
+			retVal.SetAttribute("Target", Target);
 		}
 		else
 		{
 			throw new CryptographicException("QualifyingProperties Target attribute has no value");
 		}
 
-		if (signedProperties != null && signedProperties.HasChanged())
+		if (SignedProperties != null && SignedProperties.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(signedProperties.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(SignedProperties.GetXml(), true));
 		}
-		if (unsignedProperties != null && unsignedProperties.HasChanged())
+		if (_unsignedProperties != null && _unsignedProperties.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(unsignedProperties.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(_unsignedProperties.GetXml(), true));
 		}
 
 		return retVal;

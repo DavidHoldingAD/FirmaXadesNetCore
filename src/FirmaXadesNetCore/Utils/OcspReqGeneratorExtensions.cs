@@ -46,13 +46,10 @@ static class OcspReqGeneratorExtensions
 		var requests = new Asn1EncodableVector();
 		DerObjectIdentifier signingAlgorithm = PkcsObjectIdentifiers.Sha1WithRsaEncryption;
 
-		IList list = null;
-
 		Type OcspReqGeneratorInfo_Type = typeof(OcspReqGenerator);
 
 		FieldInfo ListInfo_m_parameters = OcspReqGeneratorInfo_Type.GetField("list", BindingFlags.NonPublic | BindingFlags.Instance);
-		list = (IList)ListInfo_m_parameters.GetValue(ocspRegGenerator);
-
+		var list = (IList)ListInfo_m_parameters.GetValue(ocspRegGenerator);
 		Type RequestObjectType = OcspReqGeneratorInfo_Type.GetNestedType("RequestObject", BindingFlags.NonPublic | BindingFlags.Instance);
 		MethodInfo toRequestMethod = RequestObjectType.GetMethod("ToRequest");
 
@@ -73,11 +70,8 @@ static class OcspReqGeneratorExtensions
 		FieldInfo GeneralNameInfo_m_parameters = OcspReqGeneratorInfo_Type.GetField("requestorName", BindingFlags.NonPublic | BindingFlags.Instance);
 		requestorName = (GeneralName)GeneralNameInfo_m_parameters.GetValue(ocspRegGenerator);
 
-		X509Extensions requestExtensions = null;
-
 		FieldInfo requestExtensions_parameters = OcspReqGeneratorInfo_Type.GetField("requestExtensions", BindingFlags.NonPublic | BindingFlags.Instance);
-		requestExtensions = (X509Extensions)requestExtensions_parameters.GetValue(ocspRegGenerator);
-
+		var requestExtensions = (X509Extensions)requestExtensions_parameters.GetValue(ocspRegGenerator);
 		var tbsReq = new TbsRequest(requestorName, new DerSequence(requests), requestExtensions);
 
 		Org.BouncyCastle.Asn1.Ocsp.Signature signature = null;
@@ -89,8 +83,7 @@ static class OcspReqGeneratorExtensions
 				throw new OcspException("requestorName must be specified if request is signed.");
 			}
 
-			DerBitString bitSig = null;
-
+			DerBitString bitSig;
 			try
 			{
 				byte[] encoded = tbsReq.GetEncoded();

@@ -1,10 +1,10 @@
-// OtherValues.cs
+ï»¿// OtherValues.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -31,24 +31,13 @@ namespace Microsoft.Xades;
 public class OtherValues
 {
 	#region Private variables
-	private OtherValueCollection otherValueCollection;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Collection of other values
 	/// </summary>
-	public OtherValueCollection OtherValueCollection
-	{
-		get
-		{
-			return otherValueCollection;
-		}
-		set
-		{
-			otherValueCollection = value;
-		}
-	}
+	public OtherValueCollection OtherValueCollection { get; set; }
 	#endregion
 
 	#region Constructors
@@ -57,7 +46,7 @@ public class OtherValues
 	/// </summary>
 	public OtherValues()
 	{
-		otherValueCollection = new OtherValueCollection();
+		OtherValueCollection = new OtherValueCollection();
 	}
 	#endregion
 
@@ -70,7 +59,7 @@ public class OtherValues
 	{
 		bool retVal = false;
 
-		if (otherValueCollection.Count > 0)
+		if (OtherValueCollection.Count > 0)
 		{
 			retVal = true;
 		}
@@ -98,7 +87,7 @@ public class OtherValues
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		otherValueCollection.Clear();
+		OtherValueCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xsd:OtherValue", xmlNamespaceManager);
 		enumerator = xmlNodeList.GetEnumerator();
 		try
@@ -110,7 +99,7 @@ public class OtherValues
 				{
 					newOtherValue = new OtherValue();
 					newOtherValue.LoadXml(iterationXmlElement);
-					otherValueCollection.Add(newOtherValue);
+					OtherValueCollection.Add(newOtherValue);
 				}
 			}
 		}
@@ -135,9 +124,9 @@ public class OtherValues
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement("OtherValues", XadesSignedXml.XadesNamespaceUri);
 
-		if (otherValueCollection.Count > 0)
+		if (OtherValueCollection.Count > 0)
 		{
-			foreach (OtherValue otherValue in otherValueCollection)
+			foreach (OtherValue otherValue in OtherValueCollection)
 			{
 				if (otherValue.HasChanged())
 				{

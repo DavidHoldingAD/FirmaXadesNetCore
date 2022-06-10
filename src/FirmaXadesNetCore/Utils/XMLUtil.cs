@@ -44,14 +44,10 @@ class XMLUtil
 	{
 		byte[] buffer = Encoding.UTF8.GetBytes(element.OuterXml);
 
-		using (var ms = new MemoryStream(buffer))
-		{
-			transform.LoadInput(ms);
-			using (var transformedStream = (MemoryStream)transform.GetOutput(typeof(Stream)))
-			{
-				return transformedStream.ToArray();
-			}
-		}
+		using var ms = new MemoryStream(buffer);
+		transform.LoadInput(ms);
+		using var transformedStream = (MemoryStream)transform.GetOutput(typeof(Stream));
+		return transformedStream.ToArray();
 	}
 
 	/// <summary>
@@ -60,10 +56,7 @@ class XMLUtil
 	/// <param name="xadesSignedXml"></param>
 	/// <param name="elementXpaths"></param>
 	/// <returns></returns>
-	public static byte[] ComputeValueOfElementList(XadesSignedXml xadesSignedXml, ArrayList elementXpaths)
-	{
-		return ComputeValueOfElementList(xadesSignedXml, elementXpaths, new XmlDsigC14NTransform());
-	}
+	public static byte[] ComputeValueOfElementList(XadesSignedXml xadesSignedXml, ArrayList elementXpaths) => ComputeValueOfElementList(xadesSignedXml, elementXpaths, new XmlDsigC14NTransform());
 
 	/// <summary>
 	/// Obtiene el valor canonicalizado de los elementos especificados en elementXpaths
@@ -86,35 +79,33 @@ class XMLUtil
 		xmlNamespaceManager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
 		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 
-		using (var msResult = new MemoryStream())
+		using var msResult = new MemoryStream();
+		foreach (string elementXpath in elementXpaths)
 		{
-			foreach (string elementXpath in elementXpaths)
+			searchXmlNodeList = signatureXmlElement.SelectNodes(elementXpath, xmlNamespaceManager);
+
+			if (searchXmlNodeList.Count == 0)
 			{
-				searchXmlNodeList = signatureXmlElement.SelectNodes(elementXpath, xmlNamespaceManager);
-
-				if (searchXmlNodeList.Count == 0)
-				{
-					throw new CryptographicException("Element " + elementXpath + " not found while calculating hash");
-				}
-
-				foreach (XmlNode xmlNode in searchXmlNodeList)
-				{
-					var clonedElement = (XmlElement)xmlNode.Clone();
-
-					clonedElement.SetAttribute("xmlns:" + XadesSignedXml.XmlDSigPrefix, XadesSignedXml.XmlDsigNamespaceUrl);
-
-					foreach (XmlAttribute attr in namespaces)
-					{
-						clonedElement.SetAttribute(attr.Name, attr.Value);
-					}
-
-					byte[] canonicalizedElement = ApplyTransform(clonedElement, transform);
-					msResult.Write(canonicalizedElement, 0, canonicalizedElement.Length);
-				}
+				throw new CryptographicException("Element " + elementXpath + " not found while calculating hash");
 			}
 
-			return msResult.ToArray();
+			foreach (XmlNode xmlNode in searchXmlNodeList)
+			{
+				var clonedElement = (XmlElement)xmlNode.Clone();
+
+				clonedElement.SetAttribute("xmlns:" + XadesSignedXml.XmlDSigPrefix, XadesSignedXml.XmlDsigNamespaceUrl);
+
+				foreach (XmlAttribute attr in namespaces)
+				{
+					clonedElement.SetAttribute(attr.Name, attr.Value);
+				}
+
+				byte[] canonicalizedElement = ApplyTransform(clonedElement, transform);
+				msResult.Write(canonicalizedElement, 0, canonicalizedElement.Length);
+			}
 		}
+
+		return msResult.ToArray();
 	}
 
 
@@ -125,8 +116,10 @@ class XMLUtil
 	/// <returns></returns>
 	public static XmlDocument LoadDocument(Stream input)
 	{
-		var document = new XmlDocument();
-		document.PreserveWhitespace = true;
+		var document = new XmlDocument
+		{
+			PreserveWhitespace = true
+		};
 		document.Load(input);
 
 		return document;

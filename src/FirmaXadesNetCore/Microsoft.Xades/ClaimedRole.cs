@@ -1,10 +1,10 @@
-// ClaimedRole.cs
+ï»¿// ClaimedRole.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -31,38 +31,15 @@ namespace Microsoft.Xades;
 public class ClaimedRole
 {
 	#region Private variables
-	private XmlElement anyXmlElement;
-	private string innerText;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// The generic XML element that represents a claimed role
 	/// </summary>
-	public XmlElement AnyXmlElement
-	{
-		get
-		{
-			return anyXmlElement;
-		}
-		set
-		{
-			anyXmlElement = value;
-		}
-	}
+	public XmlElement AnyXmlElement { get; set; }
 
-	public string InnerText
-	{
-		get
-		{
-			return innerText;
-		}
-
-		set
-		{
-			innerText = value;
-		}
-	}
+	public string InnerText { get; set; }
 	#endregion
 
 	#region Constructors
@@ -83,12 +60,12 @@ public class ClaimedRole
 	{
 		bool retVal = false;
 
-		if (anyXmlElement != null)
+		if (AnyXmlElement != null)
 		{
 			retVal = true;
 		}
 
-		if (!string.IsNullOrEmpty(innerText))
+		if (!string.IsNullOrEmpty(InnerText))
 		{
 			retVal = true;
 		}
@@ -102,8 +79,8 @@ public class ClaimedRole
 	/// <param name="xmlElement">XML element containing new state</param>
 	public void LoadXml(XmlElement xmlElement)
 	{
-		anyXmlElement = xmlElement;
-		innerText = xmlElement.InnerText;
+		AnyXmlElement = xmlElement;
+		InnerText = xmlElement.InnerText;
 	}
 
 	/// <summary>
@@ -118,14 +95,14 @@ public class ClaimedRole
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "ClaimedRole", XadesSignedXml.XadesNamespaceUri);
 
-		if (!string.IsNullOrEmpty(innerText))
+		if (!string.IsNullOrEmpty(InnerText))
 		{
-			retVal.InnerText = innerText;
+			retVal.InnerText = InnerText;
 		}
 
-		if (anyXmlElement != null)
+		if (AnyXmlElement != null)
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(anyXmlElement, true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(AnyXmlElement, true));
 		}
 
 		return retVal;

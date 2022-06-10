@@ -68,8 +68,7 @@ class XadesValidator
 			byte[] tsHashValue = token.TimeStampInfo.GetMessageImprintDigest();
 			var tsDigestMethod = Crypto.DigestMethod.GetByOid(token.TimeStampInfo.HashAlgorithm.Algorithm.Id);
 
-			System.Security.Cryptography.Xml.Transform transform = null;
-
+			System.Security.Cryptography.Xml.Transform transform;
 			if (timeStamp.CanonicalizationMethod != null)
 			{
 				transform = CryptoConfig.CreateFromName(timeStamp.CanonicalizationMethod.Algorithm) as System.Security.Cryptography.Xml.Transform;

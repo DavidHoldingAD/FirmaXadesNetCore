@@ -1,10 +1,10 @@
-// CertRefs.cs
+ï»¿// CertRefs.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -32,24 +32,13 @@ namespace Microsoft.Xades;
 public class CertRefs
 {
 	#region Private variables
-	private CertCollection certCollection;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Collection of Certs
 	/// </summary>
-	public CertCollection CertCollection
-	{
-		get
-		{
-			return certCollection;
-		}
-		set
-		{
-			certCollection = value;
-		}
-	}
+	public CertCollection CertCollection { get; set; }
 	#endregion
 
 	#region Constructors
@@ -58,7 +47,7 @@ public class CertRefs
 	/// </summary>
 	public CertRefs()
 	{
-		certCollection = new CertCollection();
+		CertCollection = new CertCollection();
 	}
 	#endregion
 
@@ -71,7 +60,7 @@ public class CertRefs
 	{
 		bool retVal = false;
 
-		if (certCollection.Count > 0)
+		if (CertCollection.Count > 0)
 		{
 			retVal = true;
 		}
@@ -99,7 +88,7 @@ public class CertRefs
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		certCollection.Clear();
+		CertCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xsd:Cert", xmlNamespaceManager);
 		enumerator = xmlNodeList.GetEnumerator();
 		try
@@ -111,7 +100,7 @@ public class CertRefs
 				{
 					newCert = new Cert();
 					newCert.LoadXml(iterationXmlElement);
-					certCollection.Add(newCert);
+					CertCollection.Add(newCert);
 				}
 			}
 		}
@@ -137,9 +126,9 @@ public class CertRefs
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CertRefs", XadesSignedXml.XadesNamespaceUri);
 		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
 
-		if (certCollection.Count > 0)
+		if (CertCollection.Count > 0)
 		{
-			foreach (Cert cert in certCollection)
+			foreach (Cert cert in CertCollection)
 			{
 				if (cert.HasChanged())
 				{

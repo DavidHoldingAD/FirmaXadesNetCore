@@ -37,14 +37,8 @@ public class CommitmentTypeIndicationCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new CommitmentTypeIndication this[int index]
 	{
-		get
-		{
-			return (CommitmentTypeIndication)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (CommitmentTypeIndication)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class CommitmentTypeIndicationCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public CommitmentTypeIndication Add()
-	{
-		return Add(new CommitmentTypeIndication());
-	}
+	public CommitmentTypeIndication Add() => Add(new CommitmentTypeIndication());
 }

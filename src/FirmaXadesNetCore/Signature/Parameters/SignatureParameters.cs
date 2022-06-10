@@ -38,8 +38,8 @@ public class SignatureParameters
 {
 	#region Private variables
 
-	private SignatureMethod _defaultSignatureMethod = SignatureMethod.RSAwithSHA256;
-	private DigestMethod _defaultDigestMethod = DigestMethod.SHA256;
+	private readonly SignatureMethod _defaultSignatureMethod = SignatureMethod.RSAwithSHA256;
+	private readonly DigestMethod _defaultDigestMethod = DigestMethod.SHA256;
 
 	#endregion
 

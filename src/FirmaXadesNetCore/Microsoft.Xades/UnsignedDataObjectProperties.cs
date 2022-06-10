@@ -1,10 +1,10 @@
-// UnsignedDataObjectProperties.cs
+ï»¿// UnsignedDataObjectProperties.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -32,24 +32,13 @@ namespace Microsoft.Xades;
 public class UnsignedDataObjectProperties
 {
 	#region Private variables
-	private UnsignedDataObjectPropertyCollection unsignedDataObjectPropertyCollection;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// A collection of unsigned data object properties
 	/// </summary>
-	public UnsignedDataObjectPropertyCollection UnsignedDataObjectPropertyCollection
-	{
-		get
-		{
-			return unsignedDataObjectPropertyCollection;
-		}
-		set
-		{
-			unsignedDataObjectPropertyCollection = value;
-		}
-	}
+	public UnsignedDataObjectPropertyCollection UnsignedDataObjectPropertyCollection { get; set; }
 	#endregion
 
 	#region Constructors
@@ -58,7 +47,7 @@ public class UnsignedDataObjectProperties
 	/// </summary>
 	public UnsignedDataObjectProperties()
 	{
-		unsignedDataObjectPropertyCollection = new UnsignedDataObjectPropertyCollection();
+		UnsignedDataObjectPropertyCollection = new UnsignedDataObjectPropertyCollection();
 	}
 	#endregion
 
@@ -71,7 +60,7 @@ public class UnsignedDataObjectProperties
 	{
 		bool retVal = false;
 
-		if (unsignedDataObjectPropertyCollection.Count > 0)
+		if (UnsignedDataObjectPropertyCollection.Count > 0)
 		{
 			retVal = true;
 		}
@@ -99,7 +88,7 @@ public class UnsignedDataObjectProperties
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		unsignedDataObjectPropertyCollection.Clear();
+		UnsignedDataObjectPropertyCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xsd:UnsignedDataObjectProperty", xmlNamespaceManager);
 		enumerator = xmlNodeList.GetEnumerator();
 		try
@@ -111,7 +100,7 @@ public class UnsignedDataObjectProperties
 				{
 					newUnsignedDataObjectProperty = new UnsignedDataObjectProperty();
 					newUnsignedDataObjectProperty.LoadXml(iterationXmlElement);
-					unsignedDataObjectPropertyCollection.Add(newUnsignedDataObjectProperty);
+					UnsignedDataObjectPropertyCollection.Add(newUnsignedDataObjectProperty);
 				}
 			}
 		}
@@ -136,9 +125,9 @@ public class UnsignedDataObjectProperties
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement("UnsignedDataObjectProperties", XadesSignedXml.XadesNamespaceUri);
 
-		if (unsignedDataObjectPropertyCollection.Count > 0)
+		if (UnsignedDataObjectPropertyCollection.Count > 0)
 		{
-			foreach (UnsignedDataObjectProperty unsignedDataObjectProperty in unsignedDataObjectPropertyCollection)
+			foreach (UnsignedDataObjectProperty unsignedDataObjectProperty in UnsignedDataObjectPropertyCollection)
 			{
 				if (unsignedDataObjectProperty.HasChanged())
 				{

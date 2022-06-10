@@ -1,10 +1,10 @@
-// SigPolicyQualifiers.cs
+ï»¿// SigPolicyQualifiers.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -31,24 +31,13 @@ namespace Microsoft.Xades;
 public class SigPolicyQualifiers
 {
 	#region Private variables
-	private SigPolicyQualifierCollection sigPolicyQualifierCollection;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// A collection of sig policy qualifiers
 	/// </summary>
-	public SigPolicyQualifierCollection SigPolicyQualifierCollection
-	{
-		get
-		{
-			return sigPolicyQualifierCollection;
-		}
-		set
-		{
-			sigPolicyQualifierCollection = value;
-		}
-	}
+	public SigPolicyQualifierCollection SigPolicyQualifierCollection { get; set; }
 	#endregion
 
 	#region Constructors
@@ -57,7 +46,7 @@ public class SigPolicyQualifiers
 	/// </summary>
 	public SigPolicyQualifiers()
 	{
-		sigPolicyQualifierCollection = new SigPolicyQualifierCollection();
+		SigPolicyQualifierCollection = new SigPolicyQualifierCollection();
 	}
 	#endregion
 
@@ -70,7 +59,7 @@ public class SigPolicyQualifiers
 	{
 		bool retVal = false;
 
-		if (sigPolicyQualifierCollection.Count > 0)
+		if (SigPolicyQualifierCollection.Count > 0)
 		{
 			retVal = true;
 		}
@@ -101,7 +90,7 @@ public class SigPolicyQualifiers
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		sigPolicyQualifierCollection.Clear();
+		SigPolicyQualifierCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xsd:SigPolicyQualifier", xmlNamespaceManager);
 		enumerator = xmlNodeList.GetEnumerator();
 		try
@@ -116,7 +105,7 @@ public class SigPolicyQualifiers
 					{
 						newSPUri = new SPUri();
 						newSPUri.LoadXml(iterationXmlElement);
-						sigPolicyQualifierCollection.Add(newSPUri);
+						SigPolicyQualifierCollection.Add(newSPUri);
 					}
 					else
 					{
@@ -125,13 +114,13 @@ public class SigPolicyQualifiers
 						{
 							newSPUserNotice = new SPUserNotice();
 							newSPUserNotice.LoadXml(iterationXmlElement);
-							sigPolicyQualifierCollection.Add(newSPUserNotice);
+							SigPolicyQualifierCollection.Add(newSPUserNotice);
 						}
 						else
 						{
 							newSigPolicyQualifier = new SigPolicyQualifier();
 							newSigPolicyQualifier.LoadXml(iterationXmlElement);
-							sigPolicyQualifierCollection.Add(newSigPolicyQualifier);
+							SigPolicyQualifierCollection.Add(newSigPolicyQualifier);
 						}
 					}
 				}
@@ -158,9 +147,9 @@ public class SigPolicyQualifiers
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SigPolicyQualifiers", XadesSignedXml.XadesNamespaceUri);
 
-		if (sigPolicyQualifierCollection.Count > 0)
+		if (SigPolicyQualifierCollection.Count > 0)
 		{
-			foreach (SigPolicyQualifier sigPolicyQualifier in sigPolicyQualifierCollection)
+			foreach (SigPolicyQualifier sigPolicyQualifier in SigPolicyQualifierCollection)
 			{
 				if (sigPolicyQualifier.HasChanged())
 				{

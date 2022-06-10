@@ -1,10 +1,10 @@
-// IssuerSerial.cs
+ï»¿// IssuerSerial.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -33,40 +33,18 @@ namespace Microsoft.Xades;
 public class IssuerSerial
 {
 	#region Private variables
-	private string x509IssuerName;
-	private string x509SerialNumber;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Name of the X509 certificate issuer
 	/// </summary>
-	public string X509IssuerName
-	{
-		get
-		{
-			return x509IssuerName;
-		}
-		set
-		{
-			x509IssuerName = value;
-		}
-	}
+	public string X509IssuerName { get; set; }
 
 	/// <summary>
 	/// Serial number of the X509 certificate
 	/// </summary>
-	public string X509SerialNumber
-	{
-		get
-		{
-			return x509SerialNumber;
-		}
-		set
-		{
-			x509SerialNumber = value;
-		}
-	}
+	public string X509SerialNumber { get; set; }
 	#endregion
 
 	#region Constructors
@@ -87,12 +65,12 @@ public class IssuerSerial
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(x509IssuerName))
+		if (!string.IsNullOrEmpty(X509IssuerName))
 		{
 			retVal = true;
 		}
 
-		if (!string.IsNullOrEmpty(x509SerialNumber))
+		if (!string.IsNullOrEmpty(X509SerialNumber))
 		{
 			retVal = true;
 		}
@@ -122,14 +100,14 @@ public class IssuerSerial
 		{
 			throw new CryptographicException("X509IssuerName missing");
 		}
-		x509IssuerName = xmlNodeList.Item(0).InnerText;
+		X509IssuerName = xmlNodeList.Item(0).InnerText;
 
 		xmlNodeList = xmlElement.SelectNodes("ds:X509SerialNumber", xmlNamespaceManager);
 		if (xmlNodeList.Count == 0)
 		{
 			throw new CryptographicException("X509SerialNumber missing");
 		}
-		x509SerialNumber = xmlNodeList.Item(0).InnerText;
+		X509SerialNumber = xmlNodeList.Item(0).InnerText;
 	}
 
 	/// <summary>
@@ -148,12 +126,12 @@ public class IssuerSerial
 
 		bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlDSigPrefix, "X509IssuerName", SignedXml.XmlDsigNamespaceUrl);
 		bufferXmlElement.SetAttribute("xmlns:xades", XadesSignedXml.XadesNamespaceUri);
-		bufferXmlElement.InnerText = x509IssuerName;
+		bufferXmlElement.InnerText = X509IssuerName;
 		retVal.AppendChild(bufferXmlElement);
 
 		bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlDSigPrefix, "X509SerialNumber", SignedXml.XmlDsigNamespaceUrl);
 		bufferXmlElement.SetAttribute("xmlns:xades", XadesSignedXml.XadesNamespaceUri);
-		bufferXmlElement.InnerText = x509SerialNumber;
+		bufferXmlElement.InnerText = X509SerialNumber;
 
 		retVal.AppendChild(bufferXmlElement);
 

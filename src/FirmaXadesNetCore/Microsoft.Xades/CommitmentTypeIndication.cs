@@ -1,10 +1,10 @@
-// CommitmentTypeIndication.cs
+ï»¿// CommitmentTypeIndication.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -41,10 +41,8 @@ namespace Microsoft.Xades;
 public class CommitmentTypeIndication
 {
 	#region Private variables
-	private ObjectIdentifier commitmentTypeId;
-	private ObjectReferenceCollection objectReferenceCollection;
-	private bool allSignedDataObjects;
-	private CommitmentTypeQualifiers commitmentTypeQualifiers;
+	private ObjectReferenceCollection _objectReferenceCollection;
+	private bool _allSignedDataObjects;
 	#endregion
 
 	#region Public properties
@@ -52,35 +50,22 @@ public class CommitmentTypeIndication
 	/// The CommitmentTypeId element univocally identifies the type of commitment made by the signer.
 	/// A number of commitments have been already identified and assigned corresponding OIDs.
 	/// </summary>
-	public ObjectIdentifier CommitmentTypeId
-	{
-		get
-		{
-			return commitmentTypeId;
-		}
-		set
-		{
-			commitmentTypeId = value;
-		}
-	}
+	public ObjectIdentifier CommitmentTypeId { get; set; }
 
 	/// <summary>
 	/// Collection of object references
 	/// </summary>
 	public ObjectReferenceCollection ObjectReferenceCollection
 	{
-		get
-		{
-			return objectReferenceCollection;
-		}
+		get => _objectReferenceCollection;
 		set
 		{
-			objectReferenceCollection = value;
-			if (objectReferenceCollection != null)
+			_objectReferenceCollection = value;
+			if (_objectReferenceCollection != null)
 			{
-				if (objectReferenceCollection.Count > 0)
+				if (_objectReferenceCollection.Count > 0)
 				{
-					allSignedDataObjects = false;
+					_allSignedDataObjects = false;
 				}
 			}
 		}
@@ -92,16 +77,13 @@ public class CommitmentTypeIndication
 	/// </summary>
 	public bool AllSignedDataObjects
 	{
-		get
-		{
-			return allSignedDataObjects;
-		}
+		get => _allSignedDataObjects;
 		set
 		{
-			allSignedDataObjects = value;
-			if (allSignedDataObjects)
+			_allSignedDataObjects = value;
+			if (_allSignedDataObjects)
 			{
-				objectReferenceCollection.Clear();
+				_objectReferenceCollection.Clear();
 			}
 		}
 	}
@@ -110,17 +92,7 @@ public class CommitmentTypeIndication
 	/// The CommitmentTypeQualifiers element provides means to include additional
 	/// qualifying information on the commitment made by the signer.
 	/// </summary>
-	public CommitmentTypeQualifiers CommitmentTypeQualifiers
-	{
-		get
-		{
-			return commitmentTypeQualifiers;
-		}
-		set
-		{
-			commitmentTypeQualifiers = value;
-		}
-	}
+	public CommitmentTypeQualifiers CommitmentTypeQualifiers { get; set; }
 	#endregion
 
 	#region Constructors
@@ -129,10 +101,10 @@ public class CommitmentTypeIndication
 	/// </summary>
 	public CommitmentTypeIndication()
 	{
-		commitmentTypeId = new ObjectIdentifier("CommitmentTypeId");
-		objectReferenceCollection = new ObjectReferenceCollection();
-		allSignedDataObjects = true;
-		commitmentTypeQualifiers = new CommitmentTypeQualifiers();
+		CommitmentTypeId = new ObjectIdentifier("CommitmentTypeId");
+		_objectReferenceCollection = new ObjectReferenceCollection();
+		_allSignedDataObjects = true;
+		CommitmentTypeQualifiers = new CommitmentTypeQualifiers();
 	}
 	#endregion
 
@@ -145,17 +117,17 @@ public class CommitmentTypeIndication
 	{
 		bool retVal = false;
 
-		if (commitmentTypeId != null && commitmentTypeId.HasChanged())
+		if (CommitmentTypeId != null && CommitmentTypeId.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (objectReferenceCollection.Count > 0)
+		if (_objectReferenceCollection.Count > 0)
 		{
 			retVal = true;
 		}
 
-		if (commitmentTypeQualifiers != null && commitmentTypeQualifiers.HasChanged())
+		if (CommitmentTypeQualifiers != null && CommitmentTypeQualifiers.HasChanged())
 		{
 			retVal = true;
 		}
@@ -186,20 +158,20 @@ public class CommitmentTypeIndication
 		xmlNodeList = xmlElement.SelectNodes("xsd:CommitmentTypeId", xmlNamespaceManager);
 		if (xmlNodeList.Count == 0)
 		{
-			commitmentTypeId = null;
+			CommitmentTypeId = null;
 			throw new CryptographicException("CommitmentTypeId missing");
 		}
 		else
 		{
-			commitmentTypeId = new ObjectIdentifier("CommitmentTypeId");
-			commitmentTypeId.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CommitmentTypeId = new ObjectIdentifier("CommitmentTypeId");
+			CommitmentTypeId.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:ObjectReference", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			objectReferenceCollection.Clear();
-			allSignedDataObjects = false;
+			_objectReferenceCollection.Clear();
+			_allSignedDataObjects = false;
 			enumerator = xmlNodeList.GetEnumerator();
 			try
 			{
@@ -210,7 +182,7 @@ public class CommitmentTypeIndication
 					{
 						newObjectReference = new ObjectReference();
 						newObjectReference.LoadXml(iterationXmlElement);
-						objectReferenceCollection.Add(newObjectReference);
+						_objectReferenceCollection.Add(newObjectReference);
 					}
 				}
 			}
@@ -225,15 +197,15 @@ public class CommitmentTypeIndication
 		}
 		else
 		{
-			objectReferenceCollection.Clear();
-			allSignedDataObjects = true;
+			_objectReferenceCollection.Clear();
+			_allSignedDataObjects = true;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:CommitmentTypeQualifiers", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			commitmentTypeQualifiers = new CommitmentTypeQualifiers();
-			commitmentTypeQualifiers.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CommitmentTypeQualifiers = new CommitmentTypeQualifiers();
+			CommitmentTypeQualifiers.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 	}
 
@@ -250,25 +222,25 @@ public class CommitmentTypeIndication
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CommitmentTypeIndication", XadesSignedXml.XadesNamespaceUri);
 
-		if (commitmentTypeId != null && commitmentTypeId.HasChanged())
+		if (CommitmentTypeId != null && CommitmentTypeId.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(commitmentTypeId.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(CommitmentTypeId.GetXml(), true));
 		}
 		else
 		{
 			throw new CryptographicException("CommitmentTypeId element missing");
 		}
 
-		if (allSignedDataObjects)
+		if (_allSignedDataObjects)
 		{ //Add emty element as required
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "AllSignedDataObjects", XadesSignedXml.XadesNamespaceUri);
 			retVal.AppendChild(bufferXmlElement);
 		}
 		else
 		{
-			if (objectReferenceCollection.Count > 0)
+			if (_objectReferenceCollection.Count > 0)
 			{
-				foreach (ObjectReference objectReference in objectReferenceCollection)
+				foreach (ObjectReference objectReference in _objectReferenceCollection)
 				{
 					if (objectReference.HasChanged())
 					{
@@ -278,9 +250,9 @@ public class CommitmentTypeIndication
 			}
 		}
 
-		if (commitmentTypeQualifiers != null && commitmentTypeQualifiers.HasChanged())
+		if (CommitmentTypeQualifiers != null && CommitmentTypeQualifiers.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(commitmentTypeQualifiers.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(CommitmentTypeQualifiers.GetXml(), true));
 		}
 
 		return retVal;

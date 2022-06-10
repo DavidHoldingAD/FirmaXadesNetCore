@@ -1,10 +1,10 @@
-// DataObjectFormat.cs
+ï»¿// DataObjectFormat.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -37,11 +37,7 @@ namespace Microsoft.Xades;
 public class DataObjectFormat
 {
 	#region Private variables
-	private string objectReferenceAttribute;
-	private string description;
-	private ObjectIdentifier objectIdentifier;
-	private string mimeType;
-	private string encoding;
+	private string _encoding;
 	#endregion
 
 	#region Public properties
@@ -50,76 +46,30 @@ public class DataObjectFormat
 	/// of the signature corresponding with the data object qualified by this
 	/// property.
 	/// </summary>
-	public string ObjectReferenceAttribute
-	{
-		get
-		{
-			return objectReferenceAttribute;
-		}
-		set
-		{
-			objectReferenceAttribute = value;
-		}
-	}
+	public string ObjectReferenceAttribute { get; set; }
 
 	/// <summary>
 	/// Textual information related to the signed data object
 	/// </summary>
-	public string Description
-	{
-		get
-		{
-			return description;
-		}
-		set
-		{
-			description = value;
-		}
-	}
+	public string Description { get; set; }
 
 	/// <summary>
 	/// An identifier indicating the type of the signed data object
 	/// </summary>
-	public ObjectIdentifier ObjectIdentifier
-	{
-		get
-		{
-			return objectIdentifier;
-		}
-		set
-		{
-			objectIdentifier = value;
-		}
-	}
+	public ObjectIdentifier ObjectIdentifier { get; set; }
 
 	/// <summary>
 	/// An indication of the MIME type of the signed data object
 	/// </summary>
-	public string MimeType
-	{
-		get
-		{
-			return mimeType;
-		}
-		set
-		{
-			mimeType = value;
-		}
-	}
+	public string MimeType { get; set; }
 
 	/// <summary>
 	/// An indication of the encoding format of the signed data object
 	/// </summary>
 	public string Encoding
 	{
-		get
-		{
-			return encoding;
-		}
-		set
-		{
-			encoding = value;
-		}
+		get => _encoding;
+		set => _encoding = value;
 	}
 	#endregion
 
@@ -129,7 +79,7 @@ public class DataObjectFormat
 	/// </summary>
 	public DataObjectFormat()
 	{
-		objectIdentifier = new ObjectIdentifier("ObjectIdentifier");
+		ObjectIdentifier = new ObjectIdentifier("ObjectIdentifier");
 	}
 	#endregion
 
@@ -142,27 +92,27 @@ public class DataObjectFormat
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(objectReferenceAttribute))
+		if (!string.IsNullOrEmpty(ObjectReferenceAttribute))
 		{
 			retVal = true;
 		}
 
-		if (!string.IsNullOrEmpty(description))
+		if (!string.IsNullOrEmpty(Description))
 		{
 			retVal = true;
 		}
 
-		if (objectIdentifier != null && objectIdentifier.HasChanged())
+		if (ObjectIdentifier != null && ObjectIdentifier.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (!string.IsNullOrEmpty(mimeType))
+		if (!string.IsNullOrEmpty(MimeType))
 		{
 			retVal = true;
 		}
 
-		if (!string.IsNullOrEmpty(encoding))
+		if (!string.IsNullOrEmpty(_encoding))
 		{
 			retVal = true;
 		}
@@ -186,11 +136,11 @@ public class DataObjectFormat
 
 		if (xmlElement.HasAttribute("ObjectReference"))
 		{
-			objectReferenceAttribute = xmlElement.GetAttribute("ObjectReference");
+			ObjectReferenceAttribute = xmlElement.GetAttribute("ObjectReference");
 		}
 		else
 		{
-			objectReferenceAttribute = "";
+			ObjectReferenceAttribute = "";
 			throw new CryptographicException("ObjectReference attribute missing");
 		}
 
@@ -200,26 +150,26 @@ public class DataObjectFormat
 		xmlNodeList = xmlElement.SelectNodes("xsd:Description", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			description = xmlNodeList.Item(0).InnerText;
+			Description = xmlNodeList.Item(0).InnerText;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:ObjectIdentifier", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			objectIdentifier = new ObjectIdentifier("ObjectIdentifier");
-			objectIdentifier.LoadXml((XmlElement)xmlNodeList.Item(0));
+			ObjectIdentifier = new ObjectIdentifier("ObjectIdentifier");
+			ObjectIdentifier.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:MimeType", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			mimeType = xmlNodeList.Item(0).InnerText;
+			MimeType = xmlNodeList.Item(0).InnerText;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:Encoding", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			encoding = xmlNodeList.Item(0).InnerText;
+			_encoding = xmlNodeList.Item(0).InnerText;
 		}
 	}
 
@@ -236,38 +186,38 @@ public class DataObjectFormat
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "DataObjectFormat", XadesSignedXml.XadesNamespaceUri);
 
-		if ((objectReferenceAttribute != null) && ((objectReferenceAttribute != "")))
+		if ((ObjectReferenceAttribute != null) && ((ObjectReferenceAttribute != "")))
 		{
-			retVal.SetAttribute("ObjectReference", objectReferenceAttribute);
+			retVal.SetAttribute("ObjectReference", ObjectReferenceAttribute);
 		}
 		else
 		{
 			throw new CryptographicException("Attribute ObjectReference missing");
 		}
 
-		if (!string.IsNullOrEmpty(description))
+		if (!string.IsNullOrEmpty(Description))
 		{
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "Description", XadesSignedXml.XadesNamespaceUri);
-			bufferXmlElement.InnerText = description;
+			bufferXmlElement.InnerText = Description;
 			retVal.AppendChild(bufferXmlElement);
 		}
 
-		if (objectIdentifier != null && objectIdentifier.HasChanged())
+		if (ObjectIdentifier != null && ObjectIdentifier.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(objectIdentifier.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(ObjectIdentifier.GetXml(), true));
 		}
 
-		if (!string.IsNullOrEmpty(mimeType))
+		if (!string.IsNullOrEmpty(MimeType))
 		{
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "MimeType", XadesSignedXml.XadesNamespaceUri);
-			bufferXmlElement.InnerText = mimeType;
+			bufferXmlElement.InnerText = MimeType;
 			retVal.AppendChild(bufferXmlElement);
 		}
 
-		if (!string.IsNullOrEmpty(encoding))
+		if (!string.IsNullOrEmpty(_encoding))
 		{
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "Encoding", XadesSignedXml.XadesNamespaceUri);
-			bufferXmlElement.InnerText = encoding;
+			bufferXmlElement.InnerText = _encoding;
 			retVal.AppendChild(bufferXmlElement);
 		}
 

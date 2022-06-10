@@ -49,24 +49,27 @@ class XadesXLUpgrader : IXadesUpgrader
 
 	public void Upgrade(SignatureDocument signatureDocument, UpgradeParameters parameters)
 	{
-		UnsignedProperties unsignedProperties = null;
-		CertificateValues certificateValues = null;
-
 		X509Certificate2 signingCertificate = signatureDocument.XadesSignature.GetSigningCertificate();
 
-		unsignedProperties = signatureDocument.XadesSignature.UnsignedProperties;
-		unsignedProperties.UnsignedSignatureProperties.CompleteCertificateRefs = new CompleteCertificateRefs();
-		unsignedProperties.UnsignedSignatureProperties.CompleteCertificateRefs.Id = "CompleteCertificates-" + Guid.NewGuid().ToString();
+		UnsignedProperties unsignedProperties = signatureDocument.XadesSignature.UnsignedProperties;
+		unsignedProperties.UnsignedSignatureProperties.CompleteCertificateRefs = new CompleteCertificateRefs
+		{
+			Id = "CompleteCertificates-" + Guid.NewGuid().ToString()
+		};
 
 		unsignedProperties.UnsignedSignatureProperties.CertificateValues = new CertificateValues();
-		certificateValues = unsignedProperties.UnsignedSignatureProperties.CertificateValues;
+		CertificateValues certificateValues = unsignedProperties.UnsignedSignatureProperties.CertificateValues;
 		certificateValues.Id = "CertificatesValues-" + Guid.NewGuid().ToString();
 
-		unsignedProperties.UnsignedSignatureProperties.CompleteRevocationRefs = new CompleteRevocationRefs();
-		unsignedProperties.UnsignedSignatureProperties.CompleteRevocationRefs.Id = "CompleteRev-" + Guid.NewGuid().ToString();
+		unsignedProperties.UnsignedSignatureProperties.CompleteRevocationRefs = new CompleteRevocationRefs
+		{
+			Id = "CompleteRev-" + Guid.NewGuid().ToString()
+		};
 
-		unsignedProperties.UnsignedSignatureProperties.RevocationValues = new RevocationValues();
-		unsignedProperties.UnsignedSignatureProperties.RevocationValues.Id = "RevocationValues-" + Guid.NewGuid().ToString();
+		unsignedProperties.UnsignedSignatureProperties.RevocationValues = new RevocationValues
+		{
+			Id = "RevocationValues-" + Guid.NewGuid().ToString()
+		};
 
 		AddCertificate(signingCertificate, unsignedProperties, false, parameters.OCSPServers, parameters.CRL, parameters.DigestMethod, parameters.GetOcspUrlFromCertificate);
 
@@ -114,9 +117,7 @@ class XadesXLUpgrader : IXadesUpgrader
 	/// <param name="other"></param>
 	/// <returns></returns>
 	private bool EquivalentDN(X500DistinguishedName dn, X500DistinguishedName other)
-	{
-		return X509Name.GetInstance(Asn1Object.FromByteArray(dn.RawData)).Equivalent(X509Name.GetInstance(Asn1Object.FromByteArray(other.RawData)));
-	}
+		=> X509Name.GetInstance(Asn1Object.FromByteArray(dn.RawData)).Equivalent(X509Name.GetInstance(Asn1Object.FromByteArray(other.RawData)));
 
 	/// <summary>
 	/// Determina si un certificado ya ha sido añadido a la colección de certificados
@@ -165,9 +166,11 @@ class XadesXLUpgrader : IXadesUpgrader
 			chainCert.URI = "#Cert" + guidCert;
 			unsignedProperties.UnsignedSignatureProperties.CompleteCertificateRefs.CertRefs.CertCollection.Add(chainCert);
 
-			var encapsulatedX509Certificate = new EncapsulatedX509Certificate();
-			encapsulatedX509Certificate.Id = "Cert" + guidCert;
-			encapsulatedX509Certificate.PkiData = cert.GetRawCertData();
+			var encapsulatedX509Certificate = new EncapsulatedX509Certificate
+			{
+				Id = "Cert" + guidCert,
+				PkiData = cert.GetRawCertData()
+			};
 			unsignedProperties.UnsignedSignatureProperties.CertificateValues.EncapsulatedX509CertificateCollection.Add(encapsulatedX509Certificate);
 		}
 
@@ -261,9 +264,11 @@ class XadesXLUpgrader : IXadesUpgrader
 						byte[] crlEncoded = crlEntry.GetEncoded();
 						DigestUtil.SetCertDigest(crlEncoded, digestMethod, crlRef.CertDigest);
 
-						var crlValue = new CRLValue();
-						crlValue.PkiData = crlEncoded;
-						crlValue.Id = idCrlValue;
+						var crlValue = new CRLValue
+						{
+							PkiData = crlEncoded,
+							Id = idCrlValue
+						};
 
 						unsignedProperties.UnsignedSignatureProperties.CompleteRevocationRefs.CRLRefs.CRLRefCollection.Add(crlRef);
 						unsignedProperties.UnsignedSignatureProperties.RevocationValues.CRLValues.CRLValueCollection.Add(crlValue);
@@ -336,9 +341,11 @@ class XadesXLUpgrader : IXadesUpgrader
 				ocspRef.OCSPIdentifier.ProducedAt = or.ProducedAt.ToLocalTime();
 				unsignedProperties.UnsignedSignatureProperties.CompleteRevocationRefs.OCSPRefs.OCSPRefCollection.Add(ocspRef);
 
-				var ocspValue = new OCSPValue();
-				ocspValue.PkiData = rEncoded;
-				ocspValue.Id = "OcspValue" + guidOcsp;
+				var ocspValue = new OCSPValue
+				{
+					PkiData = rEncoded,
+					Id = "OcspValue" + guidOcsp
+				};
 				unsignedProperties.UnsignedSignatureProperties.RevocationValues.OCSPValues.OCSPValueCollection.Add(ocspValue);
 
 				return (from cert in or.GetCerts()
@@ -381,8 +388,6 @@ class XadesXLUpgrader : IXadesUpgrader
 		var token = new TimeStampToken(new CmsSignedData(unsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection[0].EncapsulatedTimeStamp.PkiData));
 		IX509Store store = token.GetCertificates("Collection");
 
-		SignerID signerId = token.SignerID;
-
 		var tsaCerts = new List<X509Certificate2>();
 		foreach (object tsaCert in store.GetMatches(null))
 		{
@@ -413,17 +418,21 @@ class XadesXLUpgrader : IXadesUpgrader
 			signatureDocument.UpdateDocument();
 		}
 
-		signatureValueElementXpaths = new ArrayList();
-		signatureValueElementXpaths.Add("ds:SignatureValue");
-		signatureValueElementXpaths.Add("ds:Object/xades:QualifyingProperties/xades:UnsignedProperties/xades:UnsignedSignatureProperties/xades:SignatureTimeStamp");
-		signatureValueElementXpaths.Add("ds:Object/xades:QualifyingProperties/xades:UnsignedProperties/xades:UnsignedSignatureProperties/xades:CompleteCertificateRefs");
-		signatureValueElementXpaths.Add("ds:Object/xades:QualifyingProperties/xades:UnsignedProperties/xades:UnsignedSignatureProperties/xades:CompleteRevocationRefs");
+		signatureValueElementXpaths = new ArrayList
+		{
+			"ds:SignatureValue",
+			"ds:Object/xades:QualifyingProperties/xades:UnsignedProperties/xades:UnsignedSignatureProperties/xades:SignatureTimeStamp",
+			"ds:Object/xades:QualifyingProperties/xades:UnsignedProperties/xades:UnsignedSignatureProperties/xades:CompleteCertificateRefs",
+			"ds:Object/xades:QualifyingProperties/xades:UnsignedProperties/xades:UnsignedSignatureProperties/xades:CompleteRevocationRefs",
+		};
 		signatureValueHash = DigestUtil.ComputeHashValue(XMLUtil.ComputeValueOfElementList(signatureDocument.XadesSignature, signatureValueElementXpaths), parameters.DigestMethod);
 
 		byte[] tsa = parameters.TimeStampClient.GetTimeStamp(signatureValueHash, parameters.DigestMethod, true);
 
-		xadesXTimeStamp = new TimeStamp("SigAndRefsTimeStamp");
-		xadesXTimeStamp.Id = "SigAndRefsStamp-" + signatureDocument.XadesSignature.Signature.Id;
+		xadesXTimeStamp = new TimeStamp("SigAndRefsTimeStamp")
+		{
+			Id = "SigAndRefsStamp-" + signatureDocument.XadesSignature.Signature.Id
+		};
 		xadesXTimeStamp.EncapsulatedTimeStamp.PkiData = tsa;
 		xadesXTimeStamp.EncapsulatedTimeStamp.Id = "SigAndRefsStamp-" + Guid.NewGuid().ToString();
 		UnsignedProperties unsignedProperties = signatureDocument.XadesSignature.UnsignedProperties;

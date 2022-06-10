@@ -1,16 +1,18 @@
-﻿namespace System.Security;
+﻿using System.Resources;
 
-using System;
-using System.Resources;
+namespace System.Security;
 
 internal static class SecurityResources
 {
-	private static volatile ResourceManager s_resMgr;
+	private static volatile ResourceManager _resMgr;
 
 	internal static string GetResourceString(string key)
 	{
-		if (s_resMgr == null)
-			s_resMgr = new ResourceManager("system.security", typeof(SecurityResources).Assembly);
-		return s_resMgr.GetString(key, null);
+		if (_resMgr == null)
+		{
+			_resMgr = new ResourceManager("system.security", typeof(SecurityResources).Assembly);
+		}
+
+		return _resMgr.GetString(key, null);
 	}
 }

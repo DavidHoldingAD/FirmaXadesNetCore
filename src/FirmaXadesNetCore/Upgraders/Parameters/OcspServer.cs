@@ -49,8 +49,5 @@ public class OcspServer
 		Url = url;
 	}
 
-	public void SetRequestorName(int tag, string name)
-	{
-		RequestorName = new GeneralName(tag, name);
-	}
+	public void SetRequestorName(int tag, string name) => RequestorName = new GeneralName(tag, name);
 }

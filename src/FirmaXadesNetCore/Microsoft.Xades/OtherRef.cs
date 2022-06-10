@@ -1,10 +1,10 @@
-// OtherRef.cs
+ï»¿// OtherRef.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -30,24 +30,13 @@ namespace Microsoft.Xades;
 public class OtherRef
 {
 	#region Private variables
-	private XmlElement anyXmlElement;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// The generic XML element that represents any other type of ref
 	/// </summary>
-	public XmlElement AnyXmlElement
-	{
-		get
-		{
-			return anyXmlElement;
-		}
-		set
-		{
-			anyXmlElement = value;
-		}
-	}
+	public XmlElement AnyXmlElement { get; set; }
 	#endregion
 
 	#region Constructors
@@ -68,7 +57,7 @@ public class OtherRef
 	{
 		bool retVal = false;
 
-		if (anyXmlElement != null)
+		if (AnyXmlElement != null)
 		{
 			retVal = true;
 		}
@@ -80,10 +69,7 @@ public class OtherRef
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
-	{
-		anyXmlElement = xmlElement;
-	}
+	public void LoadXml(XmlElement xmlElement) => AnyXmlElement = xmlElement;
 
 	/// <summary>
 	/// Returns the XML representation of the this object
@@ -97,9 +83,9 @@ public class OtherRef
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement("OtherRef", XadesSignedXml.XadesNamespaceUri);
 
-		if (anyXmlElement != null)
+		if (AnyXmlElement != null)
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(anyXmlElement, true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(AnyXmlElement, true));
 		}
 
 		return retVal;

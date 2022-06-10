@@ -1,10 +1,10 @@
-// CompleteCertificateRefs.cs
+ï»¿// CompleteCertificateRefs.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -37,41 +37,19 @@ namespace Microsoft.Xades;
 public class CompleteCertificateRefs
 {
 	#region Private variables
-	private string id;
-	private CertRefs certRefs;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// The optional Id attribute can be used to make a reference to the CompleteCertificateRefs element
 	/// </summary>
-	public string Id
-	{
-		get
-		{
-			return id;
-		}
-		set
-		{
-			id = value;
-		}
-	}
+	public string Id { get; set; }
 
 	/// <summary>
 	/// The CertRefs element contains a sequence of Cert elements, incorporating the
 	/// digest of each certificate and optionally the issuer and serial number identifier.
 	/// </summary>
-	public CertRefs CertRefs
-	{
-		get
-		{
-			return certRefs;
-		}
-		set
-		{
-			certRefs = value;
-		}
-	}
+	public CertRefs CertRefs { get; set; }
 	#endregion
 
 	#region Constructors
@@ -80,7 +58,7 @@ public class CompleteCertificateRefs
 	/// </summary>
 	public CompleteCertificateRefs()
 	{
-		certRefs = new CertRefs();
+		CertRefs = new CertRefs();
 	}
 	#endregion
 
@@ -93,11 +71,11 @@ public class CompleteCertificateRefs
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(id))
+		if (!string.IsNullOrEmpty(Id))
 		{
 			retVal = true;
 		}
-		if (certRefs != null && certRefs.HasChanged())
+		if (CertRefs != null && CertRefs.HasChanged())
 		{
 			retVal = true;
 		}
@@ -120,11 +98,11 @@ public class CompleteCertificateRefs
 		}
 		if (xmlElement.HasAttribute("Id"))
 		{
-			id = xmlElement.GetAttribute("Id");
+			Id = xmlElement.GetAttribute("Id");
 		}
 		else
 		{
-			id = "";
+			Id = "";
 		}
 
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
@@ -133,8 +111,8 @@ public class CompleteCertificateRefs
 		xmlNodeList = xmlElement.SelectNodes("xsd:CertRefs", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			certRefs = new CertRefs();
-			certRefs.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CertRefs = new CertRefs();
+			CertRefs.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 	}
 
@@ -151,14 +129,14 @@ public class CompleteCertificateRefs
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CompleteCertificateRefs", XadesSignedXml.XadesNamespaceUri);
 		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
 
-		if (!string.IsNullOrEmpty(id))
+		if (!string.IsNullOrEmpty(Id))
 		{
-			retVal.SetAttribute("Id", id);
+			retVal.SetAttribute("Id", Id);
 		}
 
-		if (certRefs != null && certRefs.HasChanged())
+		if (CertRefs != null && CertRefs.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(certRefs.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(CertRefs.GetXml(), true));
 		}
 
 		return retVal;

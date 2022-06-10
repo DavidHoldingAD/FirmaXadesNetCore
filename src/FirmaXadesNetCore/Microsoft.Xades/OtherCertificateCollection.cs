@@ -37,14 +37,8 @@ public class OtherCertificateCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new OtherCertificate this[int index]
 	{
-		get
-		{
-			return (OtherCertificate)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (OtherCertificate)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class OtherCertificateCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public OtherCertificate Add()
-	{
-		return Add(new OtherCertificate());
-	}
+	public OtherCertificate Add() => Add(new OtherCertificate());
 }

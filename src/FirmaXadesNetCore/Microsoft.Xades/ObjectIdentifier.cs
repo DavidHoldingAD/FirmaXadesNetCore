@@ -1,10 +1,10 @@
-// ObjectIdentifier.cs
+ï»¿// ObjectIdentifier.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -33,73 +33,29 @@ namespace Microsoft.Xades;
 public class ObjectIdentifier
 {
 	#region Private variables
-	private string tagName;
-	private Identifier identifier;
-	private string description;
-	private DocumentationReferences documentationReferences;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// The name of the element when serializing
 	/// </summary>
-	public string TagName
-	{
-		get
-		{
-			return tagName;
-		}
-		set
-		{
-			tagName = value;
-		}
-	}
+	public string TagName { get; set; }
 
 	/// <summary>
 	/// Specification of an unique and permanent identifier
 	/// </summary>
-	public Identifier Identifier
-	{
-		get
-		{
-			return identifier;
-		}
-		set
-		{
-			identifier = value;
-		}
-	}
+	public Identifier Identifier { get; set; }
 
 	/// <summary>
 	/// Textual description of the nature of the data object
 	/// </summary>
-	public string Description
-	{
-		get
-		{
-			return description;
-		}
-		set
-		{
-			description = value;
-		}
-	}
+	public string Description { get; set; }
 
 	/// <summary>
 	/// References to documents where additional information about the
 	/// nature of the data object can be found
 	/// </summary>
-	public DocumentationReferences DocumentationReferences
-	{
-		get
-		{
-			return documentationReferences;
-		}
-		set
-		{
-			documentationReferences = value;
-		}
-	}
+	public DocumentationReferences DocumentationReferences { get; set; }
 	#endregion
 
 	#region Constructors
@@ -108,8 +64,8 @@ public class ObjectIdentifier
 	/// </summary>
 	public ObjectIdentifier()
 	{
-		identifier = new Identifier();
-		documentationReferences = new DocumentationReferences();
+		Identifier = new Identifier();
+		DocumentationReferences = new DocumentationReferences();
 	}
 
 	/// <summary>
@@ -118,7 +74,7 @@ public class ObjectIdentifier
 	/// <param name="tagName">Name of the tag when serializing with GetXml</param>
 	public ObjectIdentifier(string tagName) : this()
 	{
-		this.tagName = tagName;
+		TagName = tagName;
 	}
 	#endregion
 
@@ -131,17 +87,17 @@ public class ObjectIdentifier
 	{
 		bool retVal = false;
 
-		if (identifier != null && identifier.HasChanged())
+		if (Identifier != null && Identifier.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (!string.IsNullOrEmpty(description))
+		if (!string.IsNullOrEmpty(Description))
 		{
 			retVal = true;
 		}
 
-		if (documentationReferences != null && documentationReferences.HasChanged())
+		if (DocumentationReferences != null && DocumentationReferences.HasChanged())
 		{
 			retVal = true;
 		}
@@ -171,20 +127,20 @@ public class ObjectIdentifier
 		{
 			throw new CryptographicException("Identifier missing");
 		}
-		identifier = new Identifier();
-		identifier.LoadXml((XmlElement)xmlNodeList.Item(0));
+		Identifier = new Identifier();
+		Identifier.LoadXml((XmlElement)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:Description", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			description = xmlNodeList.Item(0).InnerText;
+			Description = xmlNodeList.Item(0).InnerText;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:DocumentationReferences", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			documentationReferences = new DocumentationReferences();
-			documentationReferences.LoadXml((XmlElement)xmlNodeList.Item(0));
+			DocumentationReferences = new DocumentationReferences();
+			DocumentationReferences.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 	}
 
@@ -199,11 +155,11 @@ public class ObjectIdentifier
 		XmlElement bufferXmlElement;
 
 		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, tagName, XadesSignedXml.XadesNamespaceUri);
+		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, TagName, XadesSignedXml.XadesNamespaceUri);
 
-		if (identifier != null && identifier.HasChanged())
+		if (Identifier != null && Identifier.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(identifier.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(Identifier.GetXml(), true));
 		}
 		else
 		{
@@ -211,12 +167,12 @@ public class ObjectIdentifier
 		}
 
 		bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "Description", XadesSignedXml.XadesNamespaceUri);
-		bufferXmlElement.InnerText = description;
+		bufferXmlElement.InnerText = Description;
 		retVal.AppendChild(bufferXmlElement);
 
-		if (documentationReferences != null && documentationReferences.HasChanged())
+		if (DocumentationReferences != null && DocumentationReferences.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(documentationReferences.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(DocumentationReferences.GetXml(), true));
 		}
 
 		return retVal;

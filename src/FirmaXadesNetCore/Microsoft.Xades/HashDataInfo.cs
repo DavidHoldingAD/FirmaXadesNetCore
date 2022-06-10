@@ -1,10 +1,10 @@
-// HashDataInfo.cs
+ï»¿// HashDataInfo.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -36,40 +36,18 @@ namespace Microsoft.Xades;
 public class HashDataInfo
 {
 	#region Private variables
-	private string uriAttribute;
-	private Transforms transforms;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Uri referencing a data object
 	/// </summary>
-	public string UriAttribute
-	{
-		get
-		{
-			return uriAttribute;
-		}
-		set
-		{
-			uriAttribute = value;
-		}
-	}
+	public string UriAttribute { get; set; }
 
 	/// <summary>
 	/// Transformations to make to this data object
 	/// </summary>
-	public Transforms Transforms
-	{
-		get
-		{
-			return transforms;
-		}
-		set
-		{
-			transforms = value;
-		}
-	}
+	public Transforms Transforms { get; set; }
 	#endregion
 
 	#region Constructors
@@ -78,7 +56,7 @@ public class HashDataInfo
 	/// </summary>
 	public HashDataInfo()
 	{
-		transforms = new Transforms();
+		Transforms = new Transforms();
 	}
 	#endregion
 
@@ -91,12 +69,12 @@ public class HashDataInfo
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(uriAttribute))
+		if (!string.IsNullOrEmpty(UriAttribute))
 		{
 			retVal = true;
 		}
 
-		if (transforms != null && transforms.HasChanged())
+		if (Transforms != null && Transforms.HasChanged())
 		{
 			retVal = true;
 		}
@@ -119,11 +97,11 @@ public class HashDataInfo
 		}
 		if (xmlElement.HasAttribute("uri"))
 		{
-			uriAttribute = xmlElement.GetAttribute("uri");
+			UriAttribute = xmlElement.GetAttribute("uri");
 		}
 		else
 		{
-			uriAttribute = "";
+			UriAttribute = "";
 			throw new CryptographicException("uri attribute missing");
 		}
 
@@ -133,8 +111,8 @@ public class HashDataInfo
 		xmlNodeList = xmlElement.SelectNodes("xsd:Transforms", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			transforms = new Transforms();
-			transforms.LoadXml((XmlElement)xmlNodeList.Item(0));
+			Transforms = new Transforms();
+			Transforms.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 	}
 
@@ -150,11 +128,11 @@ public class HashDataInfo
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement("HashDataInfo", XadesSignedXml.XadesNamespaceUri);
 
-		retVal.SetAttribute("uri", uriAttribute);
+		retVal.SetAttribute("uri", UriAttribute);
 
-		if (transforms != null && transforms.HasChanged())
+		if (Transforms != null && Transforms.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(transforms.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(Transforms.GetXml(), true));
 		}
 
 		return retVal;

@@ -1,10 +1,10 @@
-// ClaimedRoles.cs
+ï»¿// ClaimedRoles.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -35,24 +35,13 @@ namespace Microsoft.Xades;
 public class ClaimedRoles
 {
 	#region Private variables
-	private ClaimedRoleCollection claimedRoleCollection;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Collection of claimed roles
 	/// </summary>
-	public ClaimedRoleCollection ClaimedRoleCollection
-	{
-		get
-		{
-			return claimedRoleCollection;
-		}
-		set
-		{
-			claimedRoleCollection = value;
-		}
-	}
+	public ClaimedRoleCollection ClaimedRoleCollection { get; set; }
 	#endregion
 
 	#region Constructors
@@ -61,7 +50,7 @@ public class ClaimedRoles
 	/// </summary>
 	public ClaimedRoles()
 	{
-		claimedRoleCollection = new ClaimedRoleCollection();
+		ClaimedRoleCollection = new ClaimedRoleCollection();
 	}
 	#endregion
 
@@ -74,7 +63,7 @@ public class ClaimedRoles
 	{
 		bool retVal = false;
 
-		if (claimedRoleCollection.Count > 0)
+		if (ClaimedRoleCollection.Count > 0)
 		{
 			retVal = true;
 		}
@@ -102,7 +91,7 @@ public class ClaimedRoles
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		claimedRoleCollection.Clear();
+		ClaimedRoleCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xsd:ClaimedRole", xmlNamespaceManager);
 		enumerator = xmlNodeList.GetEnumerator();
 		try
@@ -114,7 +103,7 @@ public class ClaimedRoles
 				{
 					newClaimedRole = new ClaimedRole();
 					newClaimedRole.LoadXml(iterationXmlElement);
-					claimedRoleCollection.Add(newClaimedRole);
+					ClaimedRoleCollection.Add(newClaimedRole);
 				}
 			}
 		}
@@ -139,9 +128,9 @@ public class ClaimedRoles
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "ClaimedRoles", XadesSignedXml.XadesNamespaceUri);
 
-		if (claimedRoleCollection.Count > 0)
+		if (ClaimedRoleCollection.Count > 0)
 		{
-			foreach (ClaimedRole claimedRole in claimedRoleCollection)
+			foreach (ClaimedRole claimedRole in ClaimedRoleCollection)
 			{
 				if (claimedRole.HasChanged())
 				{

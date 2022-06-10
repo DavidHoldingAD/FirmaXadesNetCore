@@ -1,10 +1,10 @@
-// CRLIdentifier.cs
+ï»¿// CRLIdentifier.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -35,10 +35,7 @@ namespace Microsoft.Xades;
 public class CRLIdentifier
 {
 	#region Private variables
-	private string uriAttribute;
-	private string issuer;
-	private DateTime issueTime;
-	private long number;
+	private long _number;
 	#endregion
 
 	#region Public properties
@@ -46,61 +43,25 @@ public class CRLIdentifier
 	/// The optional URI attribute could serve to indicate where the OCSP
 	/// response identified is archived.
 	/// </summary>
-	public string UriAttribute
-	{
-		get
-		{
-			return uriAttribute;
-		}
-		set
-		{
-			uriAttribute = value;
-		}
-	}
+	public string UriAttribute { get; set; }
 
 	/// <summary>
 	/// Issuer of the CRL
 	/// </summary>
-	public string Issuer
-	{
-		get
-		{
-			return issuer;
-		}
-		set
-		{
-			issuer = value;
-		}
-	}
+	public string Issuer { get; set; }
 
 	/// <summary>
 	/// Date of issue of the CRL
 	/// </summary>
-	public DateTime IssueTime
-	{
-		get
-		{
-			return issueTime;
-		}
-		set
-		{
-			issueTime = value;
-		}
-	}
+	public DateTime IssueTime { get; set; }
 
 	/// <summary>
 	/// Optional number of the CRL
 	/// </summary>
 	public long Number
 	{
-		get
-		{
-			return number;
-		}
-		set
-		{
-			number = value;
-		}
+		get => _number;
+		set => _number = value;
 	}
 	#endregion
 
@@ -110,8 +71,8 @@ public class CRLIdentifier
 	/// </summary>
 	public CRLIdentifier()
 	{
-		issueTime = DateTime.MinValue;
-		number = long.MinValue; //Impossible value
+		IssueTime = DateTime.MinValue;
+		_number = long.MinValue; //Impossible value
 	}
 	#endregion
 
@@ -124,22 +85,22 @@ public class CRLIdentifier
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(uriAttribute))
+		if (!string.IsNullOrEmpty(UriAttribute))
 		{
 			retVal = true;
 		}
 
-		if (!string.IsNullOrEmpty(issuer))
+		if (!string.IsNullOrEmpty(Issuer))
 		{
 			retVal = true;
 		}
 
-		if (issueTime != DateTime.MinValue)
+		if (IssueTime != DateTime.MinValue)
 		{
 			retVal = true;
 		}
 
-		if (number != long.MinValue)
+		if (_number != long.MinValue)
 		{
 			retVal = true;
 		}
@@ -162,7 +123,7 @@ public class CRLIdentifier
 		}
 		if (xmlElement.HasAttribute("URI"))
 		{
-			uriAttribute = xmlElement.GetAttribute("URI");
+			UriAttribute = xmlElement.GetAttribute("URI");
 		}
 
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
@@ -171,19 +132,19 @@ public class CRLIdentifier
 		xmlNodeList = xmlElement.SelectNodes("xsd:Issuer", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			issuer = xmlNodeList.Item(0).InnerText;
+			Issuer = xmlNodeList.Item(0).InnerText;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:IssueTime", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			issueTime = XmlConvert.ToDateTime(xmlNodeList.Item(0).InnerText, XmlDateTimeSerializationMode.Local);
+			IssueTime = XmlConvert.ToDateTime(xmlNodeList.Item(0).InnerText, XmlDateTimeSerializationMode.Local);
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:Number", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			number = long.Parse(xmlNodeList.Item(0).InnerText);
+			_number = long.Parse(xmlNodeList.Item(0).InnerText);
 		}
 	}
 
@@ -200,30 +161,30 @@ public class CRLIdentifier
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CRLIdentifier", XadesSignedXml.XadesNamespaceUri);
 
-		retVal.SetAttribute("URI", uriAttribute);
+		retVal.SetAttribute("URI", UriAttribute);
 
-		if (!string.IsNullOrEmpty(issuer))
+		if (!string.IsNullOrEmpty(Issuer))
 		{
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "Issuer", XadesSignedXml.XadesNamespaceUri);
-			bufferXmlElement.InnerText = issuer;
+			bufferXmlElement.InnerText = Issuer;
 			retVal.AppendChild(bufferXmlElement);
 		}
 
-		if (issueTime != DateTime.MinValue)
+		if (IssueTime != DateTime.MinValue)
 		{
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "IssueTime", XadesSignedXml.XadesNamespaceUri);
 
-			DateTime truncatedDateTime = issueTime.AddTicks(-(issueTime.Ticks % TimeSpan.TicksPerSecond));
+			DateTime truncatedDateTime = IssueTime.AddTicks(-(IssueTime.Ticks % TimeSpan.TicksPerSecond));
 
 			bufferXmlElement.InnerText = XmlConvert.ToString(truncatedDateTime, XmlDateTimeSerializationMode.Local);
 
 			retVal.AppendChild(bufferXmlElement);
 		}
 
-		if (number != long.MinValue)
+		if (_number != long.MinValue)
 		{
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "Number", XadesSignedXml.XadesNamespaceUri);
-			bufferXmlElement.InnerText = number.ToString();
+			bufferXmlElement.InnerText = _number.ToString();
 			retVal.AppendChild(bufferXmlElement);
 		}
 

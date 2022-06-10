@@ -1,10 +1,10 @@
-// SPUserNotice.cs
+ï»¿// SPUserNotice.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -32,8 +32,6 @@ namespace Microsoft.Xades;
 public class SPUserNotice : SigPolicyQualifier
 {
 	#region Private variables
-	private NoticeRef noticeRef;
-	private string explicitText;
 	#endregion
 
 	#region Public properties
@@ -42,46 +40,20 @@ public class SPUserNotice : SigPolicyQualifier
 	/// numbers a group of textual statements prepared by that organization,
 	/// so that the application could get the explicit notices from a notices file.
 	/// </summary>
-	public NoticeRef NoticeRef
-	{
-		get
-		{
-			return noticeRef;
-		}
-		set
-		{
-			noticeRef = value;
-		}
-	}
+	public NoticeRef NoticeRef { get; set; }
 
 	/// <summary>
 	/// The	ExplicitText element contains the text of the notice to be displayed
 	/// </summary>
-	public string ExplicitText
-	{
-		get
-		{
-			return explicitText;
-		}
-		set
-		{
-			explicitText = value;
-		}
-	}
+	public string ExplicitText { get; set; }
 
 	/// <summary>
 	/// Inherited generic element, not used in the SPUserNotice class
 	/// </summary>
 	public override XmlElement AnyXmlElement
 	{
-		get
-		{
-			return null; //This does not make sense for SPUserNotice
-		}
-		set
-		{
-			throw new CryptographicException("Setting AnyXmlElement on a SPUserNotice is not supported");
-		}
+		get => null; //This does not make sense for SPUserNotice
+		set => throw new CryptographicException("Setting AnyXmlElement on a SPUserNotice is not supported");
 	}
 	#endregion
 
@@ -91,7 +63,7 @@ public class SPUserNotice : SigPolicyQualifier
 	/// </summary>
 	public SPUserNotice()
 	{
-		noticeRef = new NoticeRef();
+		NoticeRef = new NoticeRef();
 	}
 	#endregion
 
@@ -104,12 +76,12 @@ public class SPUserNotice : SigPolicyQualifier
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(explicitText))
+		if (!string.IsNullOrEmpty(ExplicitText))
 		{
 			retVal = true;
 		}
 
-		if (noticeRef != null && noticeRef.HasChanged())
+		if (NoticeRef != null && NoticeRef.HasChanged())
 		{
 			retVal = true;
 		}
@@ -137,14 +109,14 @@ public class SPUserNotice : SigPolicyQualifier
 		xmlNodeList = xmlElement.SelectNodes("xsd:SPUserNotice/xsd:NoticeRef", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			noticeRef = new NoticeRef();
-			noticeRef.LoadXml((XmlElement)xmlNodeList.Item(0));
+			NoticeRef = new NoticeRef();
+			NoticeRef.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:SPUserNotice/xsd:ExplicitText", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			explicitText = xmlNodeList.Item(0).InnerText;
+			ExplicitText = xmlNodeList.Item(0).InnerText;
 		}
 	}
 
@@ -163,14 +135,14 @@ public class SPUserNotice : SigPolicyQualifier
 		retVal = creationXmlDocument.CreateElement("SigPolicyQualifier", XadesSignedXml.XadesNamespaceUri);
 
 		bufferXmlElement = creationXmlDocument.CreateElement("SPUserNotice", XadesSignedXml.XadesNamespaceUri);
-		if (noticeRef != null && noticeRef.HasChanged())
+		if (NoticeRef != null && NoticeRef.HasChanged())
 		{
-			bufferXmlElement.AppendChild(creationXmlDocument.ImportNode(noticeRef.GetXml(), true));
+			bufferXmlElement.AppendChild(creationXmlDocument.ImportNode(NoticeRef.GetXml(), true));
 		}
-		if (!string.IsNullOrEmpty(explicitText))
+		if (!string.IsNullOrEmpty(ExplicitText))
 		{
 			bufferXmlElement2 = creationXmlDocument.CreateElement("ExplicitText", XadesSignedXml.XadesNamespaceUri);
-			bufferXmlElement2.InnerText = explicitText;
+			bufferXmlElement2.InnerText = ExplicitText;
 			bufferXmlElement.AppendChild(bufferXmlElement2);
 		}
 

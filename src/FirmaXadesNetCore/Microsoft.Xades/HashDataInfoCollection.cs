@@ -37,14 +37,8 @@ public class HashDataInfoCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new HashDataInfo this[int index]
 	{
-		get
-		{
-			return (HashDataInfo)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (HashDataInfo)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class HashDataInfoCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public HashDataInfo Add()
-	{
-		return Add(new HashDataInfo());
-	}
+	public HashDataInfo Add() => Add(new HashDataInfo());
 }

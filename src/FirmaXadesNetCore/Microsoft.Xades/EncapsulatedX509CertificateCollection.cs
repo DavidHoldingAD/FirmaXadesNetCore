@@ -37,14 +37,8 @@ public class EncapsulatedX509CertificateCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new EncapsulatedX509Certificate this[int index]
 	{
-		get
-		{
-			return (EncapsulatedX509Certificate)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (EncapsulatedX509Certificate)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class EncapsulatedX509CertificateCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public EncapsulatedX509Certificate Add()
-	{
-		return Add(new EncapsulatedX509Certificate());
-	}
+	public EncapsulatedX509Certificate Add() => Add(new EncapsulatedX509Certificate());
 }

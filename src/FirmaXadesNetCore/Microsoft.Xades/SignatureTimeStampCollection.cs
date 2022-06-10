@@ -37,14 +37,8 @@ public class SignatureTimeStampCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new TimeStamp this[int index]
 	{
-		get
-		{
-			return (TimeStamp)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (TimeStamp)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -64,8 +58,5 @@ public class SignatureTimeStampCollection : ArrayList
 	/// </summary>
 	/// <param name="tagName">Name of the tag when serializing into XML using GetXml()</param>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public TimeStamp Add(string tagName)
-	{
-		return Add(new TimeStamp(tagName));
-	}
+	public TimeStamp Add(string tagName) => Add(new TimeStamp(tagName));
 }

@@ -37,14 +37,8 @@ public class CounterSignatureCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new XadesSignedXml this[int index]
 	{
-		get
-		{
-			return (XadesSignedXml)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (XadesSignedXml)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class CounterSignatureCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public XadesSignedXml Add()
-	{
-		return Add(new XadesSignedXml());
-	}
+	public XadesSignedXml Add() => Add(new XadesSignedXml());
 }

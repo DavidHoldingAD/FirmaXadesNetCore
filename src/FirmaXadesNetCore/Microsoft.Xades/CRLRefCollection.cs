@@ -37,14 +37,8 @@ public class CRLRefCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new CRLRef this[int index]
 	{
-		get
-		{
-			return (CRLRef)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (CRLRef)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class CRLRefCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public CRLRef Add()
-	{
-		return Add(new CRLRef());
-	}
+	public CRLRef Add() => Add(new CRLRef());
 }

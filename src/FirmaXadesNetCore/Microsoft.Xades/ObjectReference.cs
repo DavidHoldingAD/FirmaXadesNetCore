@@ -1,10 +1,10 @@
-// ObjectReference.cs
+ï»¿// ObjectReference.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -35,24 +35,13 @@ namespace Microsoft.Xades;
 public class ObjectReference
 {
 	#region Private variables
-	private string objectReferenceUri;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Uri of the object reference
 	/// </summary>
-	public string ObjectReferenceUri
-	{
-		get
-		{
-			return objectReferenceUri;
-		}
-		set
-		{
-			objectReferenceUri = value;
-		}
-	}
+	public string ObjectReferenceUri { get; set; }
 	#endregion
 
 	#region Constructors
@@ -73,7 +62,7 @@ public class ObjectReference
 	{
 		bool retVal = false;
 
-		if (objectReferenceUri != null && objectReferenceUri != "")
+		if (ObjectReferenceUri != null && ObjectReferenceUri != "")
 		{
 			retVal = true;
 		}
@@ -92,7 +81,7 @@ public class ObjectReference
 			throw new ArgumentNullException("xmlElement");
 		}
 
-		objectReferenceUri = xmlElement.InnerText;
+		ObjectReferenceUri = xmlElement.InnerText;
 	}
 
 	/// <summary>
@@ -106,7 +95,7 @@ public class ObjectReference
 
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement("ObjectReference", XadesSignedXml.XadesNamespaceUri);
-		retVal.InnerText = objectReferenceUri;
+		retVal.InnerText = ObjectReferenceUri;
 
 		return retVal;
 	}

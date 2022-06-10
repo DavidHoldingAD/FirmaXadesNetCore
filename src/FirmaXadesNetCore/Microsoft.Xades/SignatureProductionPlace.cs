@@ -1,10 +1,10 @@
-// SignatureProductionPlace.cs
+ï»¿// SignatureProductionPlace.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -37,72 +37,28 @@ namespace Microsoft.Xades;
 public class SignatureProductionPlace
 {
 	#region Private variables
-	private string city;
-	private string stateOrProvince;
-	private string postalCode;
-	private string countryName;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// City where signature was produced
 	/// </summary>
-	public string City
-	{
-		get
-		{
-			return city;
-		}
-		set
-		{
-			city = value;
-		}
-	}
+	public string City { get; set; }
 
 	/// <summary>
 	/// State or province where signature was produced
 	/// </summary>
-	public string StateOrProvince
-	{
-		get
-		{
-			return stateOrProvince;
-		}
-		set
-		{
-			stateOrProvince = value;
-		}
-	}
+	public string StateOrProvince { get; set; }
 
 	/// <summary>
 	/// Postal code of place where signature was produced
 	/// </summary>
-	public string PostalCode
-	{
-		get
-		{
-			return postalCode;
-		}
-		set
-		{
-			postalCode = value;
-		}
-	}
+	public string PostalCode { get; set; }
 
 	/// <summary>
 	/// Country where signature was produced
 	/// </summary>
-	public string CountryName
-	{
-		get
-		{
-			return countryName;
-		}
-		set
-		{
-			countryName = value;
-		}
-	}
+	public string CountryName { get; set; }
 	#endregion
 
 	#region Constructors
@@ -123,22 +79,22 @@ public class SignatureProductionPlace
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(city))
+		if (!string.IsNullOrEmpty(City))
 		{
 			retVal = true;
 		}
 
-		if (!string.IsNullOrEmpty(stateOrProvince))
+		if (!string.IsNullOrEmpty(StateOrProvince))
 		{
 			retVal = true;
 		}
 
-		if (!string.IsNullOrEmpty(postalCode))
+		if (!string.IsNullOrEmpty(PostalCode))
 		{
 			retVal = true;
 		}
 
-		if (!string.IsNullOrEmpty(countryName))
+		if (!string.IsNullOrEmpty(CountryName))
 		{
 			retVal = true;
 		}
@@ -166,25 +122,25 @@ public class SignatureProductionPlace
 		xmlNodeList = xmlElement.SelectNodes("xsd:City", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			city = xmlNodeList.Item(0).InnerText;
+			City = xmlNodeList.Item(0).InnerText;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:PostalCode", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			postalCode = xmlNodeList.Item(0).InnerText;
+			PostalCode = xmlNodeList.Item(0).InnerText;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:StateOrProvince", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			stateOrProvince = xmlNodeList.Item(0).InnerText;
+			StateOrProvince = xmlNodeList.Item(0).InnerText;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:CountryName", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			countryName = xmlNodeList.Item(0).InnerText;
+			CountryName = xmlNodeList.Item(0).InnerText;
 		}
 	}
 
@@ -201,31 +157,31 @@ public class SignatureProductionPlace
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignatureProductionPlace", XadesSignedXml.XadesNamespaceUri);
 
-		if (!string.IsNullOrEmpty(city))
+		if (!string.IsNullOrEmpty(City))
 		{
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "City", XadesSignedXml.XadesNamespaceUri);
-			bufferXmlElement.InnerText = city;
+			bufferXmlElement.InnerText = City;
 			retVal.AppendChild(bufferXmlElement);
 		}
 
-		if (!string.IsNullOrEmpty(stateOrProvince))
+		if (!string.IsNullOrEmpty(StateOrProvince))
 		{
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "StateOrProvince", XadesSignedXml.XadesNamespaceUri);
-			bufferXmlElement.InnerText = stateOrProvince;
+			bufferXmlElement.InnerText = StateOrProvince;
 			retVal.AppendChild(bufferXmlElement);
 		}
 
-		if (!string.IsNullOrEmpty(postalCode))
+		if (!string.IsNullOrEmpty(PostalCode))
 		{
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "PostalCode", XadesSignedXml.XadesNamespaceUri);
-			bufferXmlElement.InnerText = postalCode;
+			bufferXmlElement.InnerText = PostalCode;
 			retVal.AppendChild(bufferXmlElement);
 		}
 
-		if (countryName != null && countryName != "")
+		if (CountryName != null && CountryName != "")
 		{
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CountryName", XadesSignedXml.XadesNamespaceUri);
-			bufferXmlElement.InnerText = countryName;
+			bufferXmlElement.InnerText = CountryName;
 			retVal.AppendChild(bufferXmlElement);
 		}
 

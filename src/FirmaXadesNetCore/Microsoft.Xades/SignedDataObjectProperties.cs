@@ -1,10 +1,10 @@
-// SignedDataObjectProperties.cs
+ï»¿// SignedDataObjectProperties.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -32,72 +32,28 @@ namespace Microsoft.Xades;
 public class SignedDataObjectProperties
 {
 	#region Private variables
-	private DataObjectFormatCollection dataObjectFormatCollection;
-	private CommitmentTypeIndicationCollection commitmentTypeIndicationCollection;
-	private AllDataObjectsTimeStampCollection allDataObjectsTimeStampCollection;
-	private IndividualDataObjectsTimeStampCollection individualDataObjectsTimeStampCollection;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Collection of signed data object formats
 	/// </summary>
-	public DataObjectFormatCollection DataObjectFormatCollection
-	{
-		get
-		{
-			return dataObjectFormatCollection;
-		}
-		set
-		{
-			dataObjectFormatCollection = value;
-		}
-	}
+	public DataObjectFormatCollection DataObjectFormatCollection { get; set; }
 
 	/// <summary>
 	/// Collection of commitment type indications
 	/// </summary>
-	public CommitmentTypeIndicationCollection CommitmentTypeIndicationCollection
-	{
-		get
-		{
-			return commitmentTypeIndicationCollection;
-		}
-		set
-		{
-			commitmentTypeIndicationCollection = value;
-		}
-	}
+	public CommitmentTypeIndicationCollection CommitmentTypeIndicationCollection { get; set; }
 
 	/// <summary>
 	/// Collection of all data object timestamps
 	/// </summary>
-	public AllDataObjectsTimeStampCollection AllDataObjectsTimeStampCollection
-	{
-		get
-		{
-			return allDataObjectsTimeStampCollection;
-		}
-		set
-		{
-			allDataObjectsTimeStampCollection = value;
-		}
-	}
+	public AllDataObjectsTimeStampCollection AllDataObjectsTimeStampCollection { get; set; }
 
 	/// <summary>
 	/// Collection of individual data object timestamps
 	/// </summary>
-	public IndividualDataObjectsTimeStampCollection IndividualDataObjectsTimeStampCollection
-	{
-		get
-		{
-			return individualDataObjectsTimeStampCollection;
-		}
-		set
-		{
-			individualDataObjectsTimeStampCollection = value;
-		}
-	}
+	public IndividualDataObjectsTimeStampCollection IndividualDataObjectsTimeStampCollection { get; set; }
 	#endregion
 
 	#region Constructors
@@ -106,10 +62,10 @@ public class SignedDataObjectProperties
 	/// </summary>
 	public SignedDataObjectProperties()
 	{
-		dataObjectFormatCollection = new DataObjectFormatCollection();
-		commitmentTypeIndicationCollection = new CommitmentTypeIndicationCollection();
-		allDataObjectsTimeStampCollection = new AllDataObjectsTimeStampCollection();
-		individualDataObjectsTimeStampCollection = new IndividualDataObjectsTimeStampCollection();
+		DataObjectFormatCollection = new DataObjectFormatCollection();
+		CommitmentTypeIndicationCollection = new CommitmentTypeIndicationCollection();
+		AllDataObjectsTimeStampCollection = new AllDataObjectsTimeStampCollection();
+		IndividualDataObjectsTimeStampCollection = new IndividualDataObjectsTimeStampCollection();
 	}
 	#endregion
 
@@ -122,22 +78,22 @@ public class SignedDataObjectProperties
 	{
 		bool retVal = false;
 
-		if (dataObjectFormatCollection.Count > 0)
+		if (DataObjectFormatCollection.Count > 0)
 		{
 			retVal = true;
 		}
 
-		if (commitmentTypeIndicationCollection.Count > 0)
+		if (CommitmentTypeIndicationCollection.Count > 0)
 		{
 			retVal = true;
 		}
 
-		if (allDataObjectsTimeStampCollection.Count > 0)
+		if (AllDataObjectsTimeStampCollection.Count > 0)
 		{
 			retVal = true;
 		}
 
-		if (individualDataObjectsTimeStampCollection.Count > 0)
+		if (IndividualDataObjectsTimeStampCollection.Count > 0)
 		{
 			retVal = true;
 		}
@@ -167,7 +123,7 @@ public class SignedDataObjectProperties
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		dataObjectFormatCollection.Clear();
+		DataObjectFormatCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xsd:DataObjectFormat", xmlNamespaceManager);
 		enumerator = xmlNodeList.GetEnumerator();
 		try
@@ -179,7 +135,7 @@ public class SignedDataObjectProperties
 				{
 					newDataObjectFormat = new DataObjectFormat();
 					newDataObjectFormat.LoadXml(iterationXmlElement);
-					dataObjectFormatCollection.Add(newDataObjectFormat);
+					DataObjectFormatCollection.Add(newDataObjectFormat);
 				}
 			}
 		}
@@ -203,7 +159,7 @@ public class SignedDataObjectProperties
 				{
 					newCommitmentTypeIndication = new CommitmentTypeIndication();
 					newCommitmentTypeIndication.LoadXml(iterationXmlElement);
-					commitmentTypeIndicationCollection.Add(newCommitmentTypeIndication);
+					CommitmentTypeIndicationCollection.Add(newCommitmentTypeIndication);
 				}
 			}
 		}
@@ -227,7 +183,7 @@ public class SignedDataObjectProperties
 				{
 					newTimeStamp = new TimeStamp("AllDataObjectsTimeStamp");
 					newTimeStamp.LoadXml(iterationXmlElement);
-					allDataObjectsTimeStampCollection.Add(newTimeStamp);
+					AllDataObjectsTimeStampCollection.Add(newTimeStamp);
 				}
 			}
 		}
@@ -251,7 +207,7 @@ public class SignedDataObjectProperties
 				{
 					newTimeStamp = new TimeStamp("IndividualDataObjectsTimeStamp");
 					newTimeStamp.LoadXml(iterationXmlElement);
-					individualDataObjectsTimeStampCollection.Add(newTimeStamp);
+					IndividualDataObjectsTimeStampCollection.Add(newTimeStamp);
 				}
 			}
 		}
@@ -276,9 +232,9 @@ public class SignedDataObjectProperties
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignedDataObjectProperties", XadesSignedXml.XadesNamespaceUri);
 
-		if (dataObjectFormatCollection.Count > 0)
+		if (DataObjectFormatCollection.Count > 0)
 		{
-			foreach (DataObjectFormat dataObjectFormat in dataObjectFormatCollection)
+			foreach (DataObjectFormat dataObjectFormat in DataObjectFormatCollection)
 			{
 				if (dataObjectFormat.HasChanged())
 				{
@@ -287,9 +243,9 @@ public class SignedDataObjectProperties
 			}
 		}
 
-		if (commitmentTypeIndicationCollection.Count > 0)
+		if (CommitmentTypeIndicationCollection.Count > 0)
 		{
-			foreach (CommitmentTypeIndication commitmentTypeIndication in commitmentTypeIndicationCollection)
+			foreach (CommitmentTypeIndication commitmentTypeIndication in CommitmentTypeIndicationCollection)
 			{
 				if (commitmentTypeIndication.HasChanged())
 				{
@@ -298,9 +254,9 @@ public class SignedDataObjectProperties
 			}
 		}
 
-		if (allDataObjectsTimeStampCollection.Count > 0)
+		if (AllDataObjectsTimeStampCollection.Count > 0)
 		{
-			foreach (TimeStamp timeStamp in allDataObjectsTimeStampCollection)
+			foreach (TimeStamp timeStamp in AllDataObjectsTimeStampCollection)
 			{
 				if (timeStamp.HasChanged())
 				{
@@ -309,9 +265,9 @@ public class SignedDataObjectProperties
 			}
 		}
 
-		if (individualDataObjectsTimeStampCollection.Count > 0)
+		if (IndividualDataObjectsTimeStampCollection.Count > 0)
 		{
-			foreach (TimeStamp timeStamp in individualDataObjectsTimeStampCollection)
+			foreach (TimeStamp timeStamp in IndividualDataObjectsTimeStampCollection)
 			{
 				if (timeStamp.HasChanged())
 				{

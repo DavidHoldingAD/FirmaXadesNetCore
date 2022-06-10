@@ -31,78 +31,25 @@ public class UpgradeParameters
 {
 	#region Private variables
 
-	private List<OcspServer> _ocspServers;
 
-	private List<X509Crl> _crls;
+	private readonly List<X509Crl> _crls;
+	private readonly X509CrlParser _crlParser;
 
-	private DigestMethod _digestMethod;
-
-	private ITimeStampClient _timeStampClient;
-
-	private X509CrlParser _crlParser;
-
-	private DigestMethod _defaultDigestMethod = DigestMethod.SHA1;
-
-	private bool _getOcspUrlFromCertificate;
+	private readonly DigestMethod _defaultDigestMethod = DigestMethod.SHA1;
 
 	#endregion
 
 	#region Public properties
 
-	public List<OcspServer> OCSPServers
-	{
-		get
-		{
-			return _ocspServers;
-		}
-	}
+	public List<OcspServer> OCSPServers { get; }
 
-	public IEnumerable<X509Crl> CRL
-	{
-		get
-		{
-			return _crls;
-		}
-	}
+	public IEnumerable<X509Crl> CRL => _crls;
 
-	public DigestMethod DigestMethod
-	{
-		get
-		{
-			return _digestMethod;
-		}
+	public DigestMethod DigestMethod { get; set; }
 
-		set
-		{
-			_digestMethod = value;
-		}
-	}
+	public ITimeStampClient TimeStampClient { get; set; }
 
-	public ITimeStampClient TimeStampClient
-	{
-		get
-		{
-			return _timeStampClient;
-		}
-
-		set
-		{
-			_timeStampClient = value;
-		}
-	}
-
-	public bool GetOcspUrlFromCertificate
-	{
-		get
-		{
-			return _getOcspUrlFromCertificate;
-		}
-
-		set
-		{
-			_getOcspUrlFromCertificate = value;
-		}
-	}
+	public bool GetOcspUrlFromCertificate { get; set; }
 
 	#endregion
 
@@ -110,11 +57,11 @@ public class UpgradeParameters
 
 	public UpgradeParameters()
 	{
-		_ocspServers = new List<OcspServer>();
+		OCSPServers = new List<OcspServer>();
 		_crls = new List<X509Crl>();
-		_digestMethod = _defaultDigestMethod;
+		DigestMethod = _defaultDigestMethod;
 		_crlParser = new X509CrlParser();
-		_getOcspUrlFromCertificate = true;
+		GetOcspUrlFromCertificate = true;
 	}
 
 	#endregion
@@ -128,10 +75,7 @@ public class UpgradeParameters
 		_crls.Add(x509crl);
 	}
 
-	public void ClearCRL()
-	{
-		_crls.Clear();
-	}
+	public void ClearCRL() => _crls.Clear();
 
 	#endregion
 }

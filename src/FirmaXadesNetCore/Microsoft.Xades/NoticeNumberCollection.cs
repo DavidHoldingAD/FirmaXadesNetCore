@@ -37,14 +37,8 @@ public class NoticeNumberCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new int this[int index]
 	{
-		get
-		{
-			return (int)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (int)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class NoticeNumberCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public int Add()
-	{
-		return Add(new int());
-	}
+	public int Add() => Add(new int());
 }

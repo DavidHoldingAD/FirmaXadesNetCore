@@ -29,7 +29,7 @@ public class SignaturePolicyInfo
 {
 	#region Private variables
 
-	private DigestMethod _defaultPolicyDigestAlgorithm = DigestMethod.SHA1;
+	private readonly DigestMethod _defaultPolicyDigestAlgorithm = DigestMethod.SHA1;
 
 	#endregion
 

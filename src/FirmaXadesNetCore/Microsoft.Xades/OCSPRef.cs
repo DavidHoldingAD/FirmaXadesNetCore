@@ -1,10 +1,10 @@
-// OCSPRef.cs
+ï»¿// OCSPRef.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -32,42 +32,20 @@ namespace Microsoft.Xades;
 public class OCSPRef
 {
 	#region Private variables
-	private OCSPIdentifier ocspIdentifier;
-	private DigestAlgAndValueType digestAlgAndValue;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Identification of one OCSP response
 	/// </summary>
-	public OCSPIdentifier OCSPIdentifier
-	{
-		get
-		{
-			return ocspIdentifier;
-		}
-		set
-		{
-			ocspIdentifier = value;
-		}
-	}
+	public OCSPIdentifier OCSPIdentifier { get; set; }
 
 	/// <summary>
 	/// The digest computed on the DER encoded OCSP response, since it may be
 	/// needed to differentiate between two OCSP responses by the same server
 	/// with their "ProducedAt" fields within the same second.
 	/// </summary>
-	public DigestAlgAndValueType CertDigest
-	{
-		get
-		{
-			return digestAlgAndValue;
-		}
-		set
-		{
-			digestAlgAndValue = value;
-		}
-	}
+	public DigestAlgAndValueType CertDigest { get; set; }
 	#endregion
 
 	#region Constructors
@@ -76,8 +54,8 @@ public class OCSPRef
 	/// </summary>
 	public OCSPRef()
 	{
-		ocspIdentifier = new OCSPIdentifier();
-		digestAlgAndValue = new DigestAlgAndValueType("DigestAlgAndValue");
+		OCSPIdentifier = new OCSPIdentifier();
+		CertDigest = new DigestAlgAndValueType("DigestAlgAndValue");
 	}
 	#endregion
 
@@ -90,12 +68,12 @@ public class OCSPRef
 	{
 		bool retVal = false;
 
-		if (ocspIdentifier != null && ocspIdentifier.HasChanged())
+		if (OCSPIdentifier != null && OCSPIdentifier.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (digestAlgAndValue != null && digestAlgAndValue.HasChanged())
+		if (CertDigest != null && CertDigest.HasChanged())
 		{
 			retVal = true;
 		}
@@ -125,18 +103,18 @@ public class OCSPRef
 		{
 			throw new CryptographicException("OCSPIdentifier missing");
 		}
-		ocspIdentifier = new OCSPIdentifier();
-		ocspIdentifier.LoadXml((XmlElement)xmlNodeList.Item(0));
+		OCSPIdentifier = new OCSPIdentifier();
+		OCSPIdentifier.LoadXml((XmlElement)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:DigestAlgAndValue", xmlNamespaceManager);
 		if (xmlNodeList.Count == 0)
 		{
-			digestAlgAndValue = null;
+			CertDigest = null;
 		}
 		else
 		{
-			digestAlgAndValue = new DigestAlgAndValueType("DigestAlgAndValue");
-			digestAlgAndValue.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CertDigest = new DigestAlgAndValueType("DigestAlgAndValue");
+			CertDigest.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 	}
 
@@ -153,18 +131,18 @@ public class OCSPRef
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "OCSPRef", XadesSignedXml.XadesNamespaceUri);
 		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
 
-		if (ocspIdentifier != null && ocspIdentifier.HasChanged())
+		if (OCSPIdentifier != null && OCSPIdentifier.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(ocspIdentifier.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(OCSPIdentifier.GetXml(), true));
 		}
 		else
 		{
 			throw new CryptographicException("OCSPIdentifier element missing in OCSPRef");
 		}
 
-		if (digestAlgAndValue != null && digestAlgAndValue.HasChanged())
+		if (CertDigest != null && CertDigest.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(digestAlgAndValue.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(CertDigest.GetXml(), true));
 		}
 
 		return retVal;

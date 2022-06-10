@@ -1,10 +1,10 @@
-// CRLRefs.cs
+ï»¿// CRLRefs.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -31,24 +31,13 @@ namespace Microsoft.Xades;
 public class CRLRefs
 {
 	#region Private variables
-	private CRLRefCollection crlRefCollection;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Collection of 
 	/// </summary>
-	public CRLRefCollection CRLRefCollection
-	{
-		get
-		{
-			return crlRefCollection;
-		}
-		set
-		{
-			crlRefCollection = value;
-		}
-	}
+	public CRLRefCollection CRLRefCollection { get; set; }
 	#endregion
 
 	#region Constructors
@@ -57,7 +46,7 @@ public class CRLRefs
 	/// </summary>
 	public CRLRefs()
 	{
-		crlRefCollection = new CRLRefCollection();
+		CRLRefCollection = new CRLRefCollection();
 	}
 	#endregion
 
@@ -70,7 +59,7 @@ public class CRLRefs
 	{
 		bool retVal = false;
 
-		if (crlRefCollection.Count > 0)
+		if (CRLRefCollection.Count > 0)
 		{
 			retVal = true;
 		}
@@ -98,7 +87,7 @@ public class CRLRefs
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 
-		crlRefCollection.Clear();
+		CRLRefCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xades:CRLRef", xmlNamespaceManager);
 		enumerator = xmlNodeList.GetEnumerator();
 		try
@@ -110,7 +99,7 @@ public class CRLRefs
 				{
 					newCRLRef = new CRLRef();
 					newCRLRef.LoadXml(iterationXmlElement);
-					crlRefCollection.Add(newCRLRef);
+					CRLRefCollection.Add(newCRLRef);
 				}
 			}
 		}
@@ -135,9 +124,9 @@ public class CRLRefs
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement("CRLRefs", XadesSignedXml.XadesNamespaceUri);
 
-		if (crlRefCollection.Count > 0)
+		if (CRLRefCollection.Count > 0)
 		{
-			foreach (CRLRef crlRef in crlRefCollection)
+			foreach (CRLRef crlRef in CRLRefCollection)
 			{
 				if (crlRef.HasChanged())
 				{

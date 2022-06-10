@@ -32,9 +32,9 @@ namespace FirmaXadesNetCore.Clients;
 public class TimeStampClient : ITimeStampClient
 {
 	#region Private variables
-	private string _url;
-	private string _user;
-	private string _password;
+	private readonly string _url;
+	private readonly string _user;
+	private readonly string _password;
 	#endregion
 
 	#region Constructors

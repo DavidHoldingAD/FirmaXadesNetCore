@@ -37,14 +37,8 @@ public class TransformCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new Transform this[int index]
 	{
-		get
-		{
-			return (Transform)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (Transform)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class TransformCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public Transform Add()
-	{
-		return Add(new Transform());
-	}
+	public Transform Add() => Add(new Transform());
 }

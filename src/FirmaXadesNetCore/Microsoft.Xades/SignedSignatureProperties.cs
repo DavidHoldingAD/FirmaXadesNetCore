@@ -1,10 +1,10 @@
-// SignedSignatureProperties.cs
+ï»¿// SignedSignatureProperties.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -32,11 +32,6 @@ namespace Microsoft.Xades;
 public class SignedSignatureProperties
 {
 	#region Private variables
-	private DateTime signingTime;
-	private SigningCertificate signingCertificate;
-	private SignaturePolicyIdentifier signaturePolicyIdentifier;
-	private SignatureProductionPlace signatureProductionPlace;
-	private SignerRole signerRole;
 	#endregion
 
 	#region Public properties
@@ -46,17 +41,7 @@ public class SignedSignatureProperties
 	/// qualifies the whole signature. An XML electronic signature aligned
 	/// with the present document MUST contain exactly one SigningTime element .
 	/// </summary>
-	public DateTime SigningTime
-	{
-		get
-		{
-			return signingTime;
-		}
-		set
-		{
-			signingTime = value;
-		}
-	}
+	public DateTime SigningTime { get; set; }
 
 	/// <summary>
 	/// The SigningCertificate property is designed to prevent the simple
@@ -69,17 +54,7 @@ public class SignedSignatureProperties
 	/// electronic signature aligned with the present document MUST contain
 	/// exactly one SigningCertificate.
 	/// </summary>
-	public SigningCertificate SigningCertificate
-	{
-		get
-		{
-			return signingCertificate;
-		}
-		set
-		{
-			signingCertificate = value;
-		}
-	}
+	public SigningCertificate SigningCertificate { get; set; }
 
 	/// <summary>
 	/// The signature policy is a set of rules for the creation and
@@ -90,17 +65,7 @@ public class SignedSignatureProperties
 	/// An XML electronic signature aligned with the present document MUST
 	/// contain exactly one SignaturePolicyIdentifier element.
 	/// </summary>
-	public SignaturePolicyIdentifier SignaturePolicyIdentifier
-	{
-		get
-		{
-			return signaturePolicyIdentifier;
-		}
-		set
-		{
-			signaturePolicyIdentifier = value;
-		}
-	}
+	public SignaturePolicyIdentifier SignaturePolicyIdentifier { get; set; }
 
 	/// <summary>
 	/// In some transactions the purported place where the signer was at the time
@@ -112,17 +77,7 @@ public class SignedSignatureProperties
 	/// An XML electronic signature aligned with the present document MAY contain
 	/// at most one SignatureProductionPlace element.
 	/// </summary>
-	public SignatureProductionPlace SignatureProductionPlace
-	{
-		get
-		{
-			return signatureProductionPlace;
-		}
-		set
-		{
-			signatureProductionPlace = value;
-		}
-	}
+	public SignatureProductionPlace SignatureProductionPlace { get; set; }
 
 	/// <summary>
 	/// According to what has been stated in the Introduction clause, an
@@ -137,17 +92,7 @@ public class SignedSignatureProperties
 	/// is not that important but being sure that the signer is empowered by his
 	/// company to be the Sales Director is fundamental.
 	/// </summary>
-	public SignerRole SignerRole
-	{
-		get
-		{
-			return signerRole;
-		}
-		set
-		{
-			signerRole = value;
-		}
-	}
+	public SignerRole SignerRole { get; set; }
 	#endregion
 
 	#region Constructors
@@ -156,11 +101,11 @@ public class SignedSignatureProperties
 	/// </summary>
 	public SignedSignatureProperties()
 	{
-		signingTime = DateTime.MinValue;
-		signingCertificate = new SigningCertificate();
-		signaturePolicyIdentifier = new SignaturePolicyIdentifier();
-		signatureProductionPlace = new SignatureProductionPlace();
-		signerRole = new SignerRole();
+		SigningTime = DateTime.MinValue;
+		SigningCertificate = new SigningCertificate();
+		SignaturePolicyIdentifier = new SignaturePolicyIdentifier();
+		SignatureProductionPlace = new SignatureProductionPlace();
+		SignerRole = new SignerRole();
 	}
 	#endregion
 
@@ -171,10 +116,8 @@ public class SignedSignatureProperties
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{ //Should always be serialized
-		bool retVal = false;
 
-		retVal = true;
-
+		bool retVal = true;
 		return retVal;
 	}
 
@@ -200,43 +143,43 @@ public class SignedSignatureProperties
 		{
 			throw new CryptographicException("SigningTime missing");
 		}
-		signingTime = XmlConvert.ToDateTime(xmlNodeList.Item(0).InnerText, XmlDateTimeSerializationMode.Local);
+		SigningTime = XmlConvert.ToDateTime(xmlNodeList.Item(0).InnerText, XmlDateTimeSerializationMode.Local);
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:SigningCertificate", xmlNamespaceManager);
 		if (xmlNodeList.Count == 0)
 		{
 			throw new CryptographicException("SigningCertificate missing");
 		}
-		signingCertificate = new SigningCertificate();
-		signingCertificate.LoadXml((XmlElement)xmlNodeList.Item(0));
+		SigningCertificate = new SigningCertificate();
+		SigningCertificate.LoadXml((XmlElement)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:SignaturePolicyIdentifier", xmlNamespaceManager);
 		if (xmlNodeList.Count > 0)
 		{
-			signaturePolicyIdentifier = new SignaturePolicyIdentifier();
-			signaturePolicyIdentifier.LoadXml((XmlElement)xmlNodeList.Item(0));
+			SignaturePolicyIdentifier = new SignaturePolicyIdentifier();
+			SignaturePolicyIdentifier.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:SignatureProductionPlace", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			signatureProductionPlace = new SignatureProductionPlace();
-			signatureProductionPlace.LoadXml((XmlElement)xmlNodeList.Item(0));
+			SignatureProductionPlace = new SignatureProductionPlace();
+			SignatureProductionPlace.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 		else
 		{
-			signatureProductionPlace = null;
+			SignatureProductionPlace = null;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:SignerRole", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			signerRole = new SignerRole();
-			signerRole.LoadXml((XmlElement)xmlNodeList.Item(0));
+			SignerRole = new SignerRole();
+			SignerRole.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 		else
 		{
-			signerRole = null;
+			SignerRole = null;
 		}
 	}
 
@@ -253,41 +196,41 @@ public class SignedSignatureProperties
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignedSignatureProperties", XadesSignedXml.XadesNamespaceUri);
 
-		if (signingTime == DateTime.MinValue)
+		if (SigningTime == DateTime.MinValue)
 		{ //SigningTime should be available
-			signingTime = DateTime.Now;
+			SigningTime = DateTime.Now;
 		}
 
 		bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SigningTime", XadesSignedXml.XadesNamespaceUri);
 
-		DateTime truncatedDateTime = signingTime.AddTicks(-(signingTime.Ticks % TimeSpan.TicksPerSecond));
+		DateTime truncatedDateTime = SigningTime.AddTicks(-(SigningTime.Ticks % TimeSpan.TicksPerSecond));
 
 		bufferXmlElement.InnerText = XmlConvert.ToString(truncatedDateTime, XmlDateTimeSerializationMode.Local);
 
 		retVal.AppendChild(bufferXmlElement);
 
-		if (signingCertificate != null && signingCertificate.HasChanged())
+		if (SigningCertificate != null && SigningCertificate.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(signingCertificate.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(SigningCertificate.GetXml(), true));
 		}
 		else
 		{
 			throw new CryptographicException("SigningCertificate element missing in SignedSignatureProperties");
 		}
 
-		if (signaturePolicyIdentifier != null && signaturePolicyIdentifier.HasChanged())
+		if (SignaturePolicyIdentifier != null && SignaturePolicyIdentifier.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(signaturePolicyIdentifier.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(SignaturePolicyIdentifier.GetXml(), true));
 		}
 
-		if (signatureProductionPlace != null && signatureProductionPlace.HasChanged())
+		if (SignatureProductionPlace != null && SignatureProductionPlace.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(signatureProductionPlace.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(SignatureProductionPlace.GetXml(), true));
 		}
 
-		if (signerRole != null && signerRole.HasChanged())
+		if (SignerRole != null && SignerRole.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(signerRole.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(SignerRole.GetXml(), true));
 		}
 
 		return retVal;

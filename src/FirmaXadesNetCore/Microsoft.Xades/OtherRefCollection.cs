@@ -37,14 +37,8 @@ public class OtherRefCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new OtherRef this[int index]
 	{
-		get
-		{
-			return (OtherRef)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (OtherRef)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class OtherRefCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public OtherRef Add()
-	{
-		return Add(new OtherRef());
-	}
+	public OtherRef Add() => Add(new OtherRef());
 }

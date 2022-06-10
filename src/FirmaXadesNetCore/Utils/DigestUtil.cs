@@ -31,19 +31,15 @@ class DigestUtil
 
 	public static void SetCertDigest(byte[] rawCert, Crypto.DigestMethod digestMethod, DigestAlgAndValueType destination)
 	{
-		using (System.Security.Cryptography.HashAlgorithm hashAlg = digestMethod.GetHashAlgorithm())
-		{
-			destination.DigestMethod.Algorithm = digestMethod.URI;
-			destination.DigestValue = hashAlg.ComputeHash(rawCert);
-		}
+		using System.Security.Cryptography.HashAlgorithm hashAlg = digestMethod.GetHashAlgorithm();
+		destination.DigestMethod.Algorithm = digestMethod.URI;
+		destination.DigestValue = hashAlg.ComputeHash(rawCert);
 	}
 
 	public static byte[] ComputeHashValue(byte[] value, Crypto.DigestMethod digestMethod)
 	{
-		using (System.Security.Cryptography.HashAlgorithm alg = digestMethod.GetHashAlgorithm())
-		{
-			return alg.ComputeHash(value);
-		}
+		using System.Security.Cryptography.HashAlgorithm alg = digestMethod.GetHashAlgorithm();
+		return alg.ComputeHash(value);
 	}
 
 	#endregion

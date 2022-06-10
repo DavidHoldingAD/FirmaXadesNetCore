@@ -1,10 +1,10 @@
-// XadesObject.cs
+ï»¿// XadesObject.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -33,42 +33,20 @@ namespace Microsoft.Xades;
 public class XadesObject
 {
 	#region Private variable
-	private string id;
-	private QualifyingProperties qualifyingProperties;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Id attribute of the XAdES object
 	/// </summary>
-	public string Id
-	{
-		get
-		{
-			return id;
-		}
-		set
-		{
-			id = value;
-		}
-	}
+	public string Id { get; set; }
 
 	/// <summary>
 	/// The QualifyingProperties element acts as a container element for
 	/// all the qualifying information that should be added to an XML
 	/// signature.
 	/// </summary>
-	public QualifyingProperties QualifyingProperties
-	{
-		get
-		{
-			return qualifyingProperties;
-		}
-		set
-		{
-			qualifyingProperties = value;
-		}
-	}
+	public QualifyingProperties QualifyingProperties { get; set; }
 	#endregion
 
 	#region Constructors
@@ -77,7 +55,7 @@ public class XadesObject
 	/// </summary>
 	public XadesObject()
 	{
-		qualifyingProperties = new QualifyingProperties();
+		QualifyingProperties = new QualifyingProperties();
 	}
 	#endregion
 
@@ -90,12 +68,12 @@ public class XadesObject
 	{
 		bool retVal = false;
 
-		if (id != null && id != "")
+		if (Id != null && Id != "")
 		{
 			retVal = true;
 		}
 
-		if (qualifyingProperties != null && qualifyingProperties.HasChanged())
+		if (QualifyingProperties != null && QualifyingProperties.HasChanged())
 		{
 			retVal = true;
 		}
@@ -119,11 +97,11 @@ public class XadesObject
 		}
 		if (xmlElement.HasAttribute("Id"))
 		{
-			id = xmlElement.GetAttribute("Id");
+			Id = xmlElement.GetAttribute("Id");
 		}
 		else
 		{
-			id = "";
+			Id = "";
 		}
 
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
@@ -134,8 +112,8 @@ public class XadesObject
 		{
 			throw new CryptographicException("QualifyingProperties missing");
 		}
-		qualifyingProperties = new QualifyingProperties();
-		qualifyingProperties.LoadXml((XmlElement)xmlNodeList.Item(0), counterSignedXmlElement);
+		QualifyingProperties = new QualifyingProperties();
+		QualifyingProperties.LoadXml((XmlElement)xmlNodeList.Item(0), counterSignedXmlElement);
 
 		xmlNodeList = xmlElement.SelectNodes("xades:QualifyingPropertiesReference", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
@@ -155,14 +133,14 @@ public class XadesObject
 
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement("ds", "Object", SignedXml.XmlDsigNamespaceUrl);
-		if (id != null && id != "")
+		if (Id != null && Id != "")
 		{
-			retVal.SetAttribute("Id", id);
+			retVal.SetAttribute("Id", Id);
 		}
 
-		if (qualifyingProperties != null && qualifyingProperties.HasChanged())
+		if (QualifyingProperties != null && QualifyingProperties.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(qualifyingProperties.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(QualifyingProperties.GetXml(), true));
 		}
 
 		return retVal;

@@ -1,10 +1,10 @@
-// Identifier.cs
+ï»¿// Identifier.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -52,8 +52,6 @@ public enum KnownQualifier
 public class Identifier
 {
 	#region Private variables
-	private KnownQualifier qualifier;
-	private string identifierUri;
 	#endregion
 
 	#region Public properties
@@ -61,32 +59,12 @@ public class Identifier
 	/// The optional Qualifier attribute can be used to provide a hint about the
 	/// applied encoding (values OIDAsURN or OIDAsURI)
 	/// </summary>
-	public KnownQualifier Qualifier
-	{
-		get
-		{
-			return qualifier;
-		}
-		set
-		{
-			qualifier = value;
-		}
-	}
+	public KnownQualifier Qualifier { get; set; }
 
 	/// <summary>
 	/// Identification of the XML environment object
 	/// </summary>
-	public string IdentifierUri
-	{
-		get
-		{
-			return identifierUri;
-		}
-		set
-		{
-			identifierUri = value;
-		}
-	}
+	public string IdentifierUri { get; set; }
 	#endregion
 
 	#region Constructors
@@ -95,7 +73,7 @@ public class Identifier
 	/// </summary>
 	public Identifier()
 	{
-		qualifier = KnownQualifier.Uninitalized;
+		Qualifier = KnownQualifier.Uninitalized;
 	}
 	#endregion
 
@@ -108,12 +86,12 @@ public class Identifier
 	{
 		bool retVal = false;
 
-		if (qualifier != KnownQualifier.Uninitalized)
+		if (Qualifier != KnownQualifier.Uninitalized)
 		{
 			retVal = true;
 		}
 
-		if (!string.IsNullOrEmpty(identifierUri))
+		if (!string.IsNullOrEmpty(IdentifierUri))
 		{
 			retVal = true;
 		}
@@ -134,14 +112,14 @@ public class Identifier
 
 		if (xmlElement.HasAttribute("Qualifier"))
 		{
-			qualifier = (KnownQualifier)KnownQualifier.Parse(typeof(KnownQualifier), xmlElement.GetAttribute("Qualifier"), true);
+			Qualifier = (KnownQualifier)KnownQualifier.Parse(typeof(KnownQualifier), xmlElement.GetAttribute("Qualifier"), true);
 		}
 		else
 		{
-			qualifier = KnownQualifier.Uninitalized;
+			Qualifier = KnownQualifier.Uninitalized;
 		}
 
-		identifierUri = xmlElement.InnerText;
+		IdentifierUri = xmlElement.InnerText;
 	}
 
 	/// <summary>
@@ -156,12 +134,12 @@ public class Identifier
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "Identifier", XadesSignedXml.XadesNamespaceUri);
 
-		if (qualifier != KnownQualifier.Uninitalized)
+		if (Qualifier != KnownQualifier.Uninitalized)
 		{
-			retVal.SetAttribute("Qualifier", qualifier.ToString());
+			retVal.SetAttribute("Qualifier", Qualifier.ToString());
 		}
 
-		retVal.InnerText = identifierUri;
+		retVal.InnerText = IdentifierUri;
 
 		return retVal;
 	}

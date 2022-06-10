@@ -1,10 +1,10 @@
-// DigestAlgAndValueType.cs
+ï»¿// DigestAlgAndValueType.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -33,56 +33,23 @@ namespace Microsoft.Xades;
 public class DigestAlgAndValueType
 {
 	#region Private variables
-	private string tagName;
-	private DigestMethod digestMethod;
-	private byte[] digestValue;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// The name of the element when serializing
 	/// </summary>
-	public string TagName
-	{
-		get
-		{
-			return tagName;
-		}
-		set
-		{
-			tagName = value;
-		}
-	}
+	public string TagName { get; set; }
 
 	/// <summary>
 	/// Indicates the digest algorithm
 	/// </summary>
-	public DigestMethod DigestMethod
-	{
-		get
-		{
-			return digestMethod;
-		}
-		set
-		{
-			digestMethod = value;
-		}
-	}
+	public DigestMethod DigestMethod { get; set; }
 
 	/// <summary>
 	/// Contains the value of the digest
 	/// </summary>
-	public byte[] DigestValue
-	{
-		get
-		{
-			return digestValue;
-		}
-		set
-		{
-			digestValue = value;
-		}
-	}
+	public byte[] DigestValue { get; set; }
 	#endregion
 
 	#region Constructors
@@ -91,8 +58,8 @@ public class DigestAlgAndValueType
 	/// </summary>
 	public DigestAlgAndValueType()
 	{
-		digestMethod = new DigestMethod();
-		digestValue = null;
+		DigestMethod = new DigestMethod();
+		DigestValue = null;
 	}
 
 	/// <summary>
@@ -101,7 +68,7 @@ public class DigestAlgAndValueType
 	/// <param name="tagName">Name of the tag when serializing with GetXml</param>
 	public DigestAlgAndValueType(string tagName) : this()
 	{
-		this.tagName = tagName;
+		TagName = tagName;
 	}
 	#endregion
 
@@ -114,12 +81,12 @@ public class DigestAlgAndValueType
 	{
 		bool retVal = false;
 
-		if (digestMethod != null && digestMethod.HasChanged())
+		if (DigestMethod != null && DigestMethod.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (digestValue != null && digestValue.Length > 0)
+		if (DigestValue != null && DigestValue.Length > 0)
 		{
 			retVal = true;
 		}
@@ -150,15 +117,15 @@ public class DigestAlgAndValueType
 		{
 			throw new CryptographicException("DigestMethod missing");
 		}
-		digestMethod = new DigestMethod();
-		digestMethod.LoadXml((XmlElement)xmlNodeList.Item(0));
+		DigestMethod = new DigestMethod();
+		DigestMethod.LoadXml((XmlElement)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("ds:DigestValue", xmlNamespaceManager);
 		if (xmlNodeList.Count == 0)
 		{
 			throw new CryptographicException("DigestValue missing");
 		}
-		digestValue = Convert.FromBase64String(xmlNodeList.Item(0).InnerText);
+		DigestValue = Convert.FromBase64String(xmlNodeList.Item(0).InnerText);
 	}
 
 	/// <summary>
@@ -172,25 +139,25 @@ public class DigestAlgAndValueType
 		XmlElement bufferXmlElement;
 
 		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, tagName, XadesSignedXml.XadesNamespaceUri);
+		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, TagName, XadesSignedXml.XadesNamespaceUri);
 		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
 
-		if (digestMethod != null && digestMethod.HasChanged())
+		if (DigestMethod != null && DigestMethod.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(digestMethod.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(DigestMethod.GetXml(), true));
 		}
 		else
 		{
 			throw new CryptographicException("DigestMethod element missing in DigestAlgAndValueType");
 		}
 
-		if (digestValue != null && digestValue.Length > 0)
+		if (DigestValue != null && DigestValue.Length > 0)
 		{
 			//bufferXmlElement = creationXmlDocument.CreateElement("DigestValue", XadesSignedXml.XadesNamespaceUri);
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlDSigPrefix, "DigestValue", SignedXml.XmlDsigNamespaceUrl);
 			bufferXmlElement.SetAttribute("xmlns:xades", XadesSignedXml.XadesNamespaceUri);
 
-			bufferXmlElement.InnerText = Convert.ToBase64String(digestValue);
+			bufferXmlElement.InnerText = Convert.ToBase64String(DigestValue);
 			retVal.AppendChild(bufferXmlElement);
 		}
 		else

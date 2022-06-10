@@ -1,10 +1,10 @@
-// CRLRef.cs
+ï»¿// CRLRef.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -31,25 +31,13 @@ namespace Microsoft.Xades;
 public class CRLRef
 {
 	#region Private variables
-	private DigestAlgAndValueType digestAlgAndValue;
-	private CRLIdentifier crlIdentifier;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// The digest of the entire DER encoded
 	/// </summary>
-	public DigestAlgAndValueType CertDigest
-	{
-		get
-		{
-			return digestAlgAndValue;
-		}
-		set
-		{
-			digestAlgAndValue = value;
-		}
-	}
+	public DigestAlgAndValueType CertDigest { get; set; }
 
 	/// <summary>
 	/// CRLIdentifier is a set of data including the issuer, the time when
@@ -57,17 +45,7 @@ public class CRLRef
 	/// The Identifier element can be dropped if the CRL could be inferred
 	/// from other information.
 	/// </summary>
-	public CRLIdentifier CRLIdentifier
-	{
-		get
-		{
-			return crlIdentifier;
-		}
-		set
-		{
-			crlIdentifier = value;
-		}
-	}
+	public CRLIdentifier CRLIdentifier { get; set; }
 	#endregion
 
 	#region Constructors
@@ -76,8 +54,8 @@ public class CRLRef
 	/// </summary>
 	public CRLRef()
 	{
-		digestAlgAndValue = new DigestAlgAndValueType("DigestAlgAndValue");
-		crlIdentifier = new CRLIdentifier();
+		CertDigest = new DigestAlgAndValueType("DigestAlgAndValue");
+		CRLIdentifier = new CRLIdentifier();
 	}
 	#endregion
 
@@ -90,12 +68,12 @@ public class CRLRef
 	{
 		bool retVal = false;
 
-		if (digestAlgAndValue != null && digestAlgAndValue.HasChanged())
+		if (CertDigest != null && CertDigest.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (crlIdentifier != null && crlIdentifier.HasChanged())
+		if (CRLIdentifier != null && CRLIdentifier.HasChanged())
 		{
 			retVal = true;
 		}
@@ -125,18 +103,18 @@ public class CRLRef
 		{
 			throw new CryptographicException("DigestAlgAndValue missing");
 		}
-		digestAlgAndValue = new DigestAlgAndValueType("DigestAlgAndValue");
-		digestAlgAndValue.LoadXml((XmlElement)xmlNodeList.Item(0));
+		CertDigest = new DigestAlgAndValueType("DigestAlgAndValue");
+		CertDigest.LoadXml((XmlElement)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:CRLIdentifier", xmlNamespaceManager);
 		if (xmlNodeList.Count == 0)
 		{
-			crlIdentifier = null;
+			CRLIdentifier = null;
 		}
 		else
 		{
-			crlIdentifier = new CRLIdentifier();
-			crlIdentifier.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CRLIdentifier = new CRLIdentifier();
+			CRLIdentifier.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 	}
 
@@ -152,18 +130,18 @@ public class CRLRef
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CRLRef", XadesSignedXml.XadesNamespaceUri);
 
-		if (digestAlgAndValue != null && digestAlgAndValue.HasChanged())
+		if (CertDigest != null && CertDigest.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(digestAlgAndValue.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(CertDigest.GetXml(), true));
 		}
 		else
 		{
 			throw new CryptographicException("DigestAlgAndValue element missing in CRLRef");
 		}
 
-		if (crlIdentifier != null && crlIdentifier.HasChanged())
+		if (CRLIdentifier != null && CRLIdentifier.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(crlIdentifier.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(CRLIdentifier.GetXml(), true));
 		}
 
 		return retVal;

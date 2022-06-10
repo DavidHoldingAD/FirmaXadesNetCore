@@ -41,9 +41,6 @@ namespace Microsoft.Xades;
 public class CertificateValues
 {
 	#region Private variables
-	private string _id;
-	private EncapsulatedX509CertificateCollection _encapsulatedX509CertificateCollection;
-	private OtherCertificateCollection _otherCertificateCollection;
 	#endregion
 
 	#region Public properties
@@ -51,29 +48,17 @@ public class CertificateValues
 	/// <summary>
 	/// Optional Id of the certificate values element
 	/// </summary>
-	public string Id
-	{
-		get => _id;
-		set => _id = value;
-	}
+	public string Id { get; set; }
 
 	/// <summary>
 	/// A collection of encapsulated X509 certificates
 	/// </summary>
-	public EncapsulatedX509CertificateCollection EncapsulatedX509CertificateCollection
-	{
-		get => _encapsulatedX509CertificateCollection;
-		set => _encapsulatedX509CertificateCollection = value;
-	}
+	public EncapsulatedX509CertificateCollection EncapsulatedX509CertificateCollection { get; set; }
 
 	/// <summary>
 	/// Collection of other certificates
 	/// </summary>
-	public OtherCertificateCollection OtherCertificateCollection
-	{
-		get => _otherCertificateCollection;
-		set => _otherCertificateCollection = value;
-	}
+	public OtherCertificateCollection OtherCertificateCollection { get; set; }
 	#endregion
 
 	#region Constructors
@@ -82,8 +67,8 @@ public class CertificateValues
 	/// </summary>
 	public CertificateValues()
 	{
-		_encapsulatedX509CertificateCollection = new EncapsulatedX509CertificateCollection();
-		_otherCertificateCollection = new OtherCertificateCollection();
+		EncapsulatedX509CertificateCollection = new EncapsulatedX509CertificateCollection();
+		OtherCertificateCollection = new OtherCertificateCollection();
 	}
 	#endregion
 
@@ -96,15 +81,15 @@ public class CertificateValues
 	{
 		bool retVal = false;
 
-		if (_id != null && _id != "")
+		if (Id != null && Id != "")
 		{
 			retVal = true;
 		}
-		if (_encapsulatedX509CertificateCollection.Count > 0)
+		if (EncapsulatedX509CertificateCollection.Count > 0)
 		{
 			retVal = true;
 		}
-		if (_otherCertificateCollection.Count > 0)
+		if (OtherCertificateCollection.Count > 0)
 		{
 			retVal = true;
 		}
@@ -131,18 +116,18 @@ public class CertificateValues
 		}
 		if (xmlElement.HasAttribute("Id"))
 		{
-			_id = xmlElement.GetAttribute("Id");
+			Id = xmlElement.GetAttribute("Id");
 		}
 		else
 		{
-			_id = "";
+			Id = "";
 		}
 
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 
-		_encapsulatedX509CertificateCollection.Clear();
-		_otherCertificateCollection.Clear();
+		EncapsulatedX509CertificateCollection.Clear();
+		OtherCertificateCollection.Clear();
 
 		xmlNodeList = xmlElement.SelectNodes("xades:EncapsulatedX509Certificate", xmlNamespaceManager);
 		enumerator = xmlNodeList.GetEnumerator();
@@ -155,7 +140,7 @@ public class CertificateValues
 				{
 					newEncapsulatedX509Certificate = new EncapsulatedX509Certificate();
 					newEncapsulatedX509Certificate.LoadXml(iterationXmlElement);
-					_encapsulatedX509CertificateCollection.Add(newEncapsulatedX509Certificate);
+					EncapsulatedX509CertificateCollection.Add(newEncapsulatedX509Certificate);
 				}
 			}
 		}
@@ -178,7 +163,7 @@ public class CertificateValues
 				{
 					newOtherCertificate = new OtherCertificate();
 					newOtherCertificate.LoadXml(iterationXmlElement);
-					_otherCertificateCollection.Add(newOtherCertificate);
+					OtherCertificateCollection.Add(newOtherCertificate);
 				}
 			}
 		}
@@ -204,14 +189,14 @@ public class CertificateValues
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CertificateValues", XadesSignedXml.XadesNamespaceUri);
 		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
 
-		if (_id != null && _id != "")
+		if (Id != null && Id != "")
 		{
-			retVal.SetAttribute("Id", _id);
+			retVal.SetAttribute("Id", Id);
 		}
 
-		if (_encapsulatedX509CertificateCollection.Count > 0)
+		if (EncapsulatedX509CertificateCollection.Count > 0)
 		{
-			foreach (EncapsulatedX509Certificate encapsulatedX509Certificate in _encapsulatedX509CertificateCollection)
+			foreach (EncapsulatedX509Certificate encapsulatedX509Certificate in EncapsulatedX509CertificateCollection)
 			{
 				if (encapsulatedX509Certificate.HasChanged())
 				{
@@ -219,9 +204,9 @@ public class CertificateValues
 				}
 			}
 		}
-		if (_otherCertificateCollection.Count > 0)
+		if (OtherCertificateCollection.Count > 0)
 		{
-			foreach (OtherCertificate otherCertificate in _otherCertificateCollection)
+			foreach (OtherCertificate otherCertificate in OtherCertificateCollection)
 			{
 				if (otherCertificate.HasChanged())
 				{

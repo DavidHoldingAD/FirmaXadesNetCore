@@ -1,10 +1,10 @@
-// UnsignedProperties.cs
+ï»¿// UnsignedProperties.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -31,9 +31,6 @@ namespace Microsoft.Xades;
 public class UnsignedProperties
 {
 	#region Private variables
-	private string id;
-	private UnsignedSignatureProperties unsignedSignatureProperties;
-	private UnsignedDataObjectProperties unsignedDataObjectProperties;
 	#endregion
 
 	#region Public properties
@@ -41,49 +38,19 @@ public class UnsignedProperties
 	/// The optional Id attribute can be used to make a reference to the
 	/// UnsignedProperties element
 	/// </summary>
-	public string Id
-	{
-		get
-		{
-			return id;
-		}
-		set
-		{
-			id = value;
-		}
-	}
+	public string Id { get; set; }
 
 	/// <summary>
 	/// UnsignedSignatureProperties may contain properties that qualify XML
 	/// signature itself or the signer
 	/// </summary>
-	public UnsignedSignatureProperties UnsignedSignatureProperties
-	{
-		get
-		{
-			return unsignedSignatureProperties;
-		}
-		set
-		{
-			unsignedSignatureProperties = value;
-		}
-	}
+	public UnsignedSignatureProperties UnsignedSignatureProperties { get; set; }
 
 	/// <summary>
 	/// The UnsignedDataObjectProperties element may contain properties that
 	/// qualify some of the signed data objects
 	/// </summary>
-	public UnsignedDataObjectProperties UnsignedDataObjectProperties
-	{
-		get
-		{
-			return unsignedDataObjectProperties;
-		}
-		set
-		{
-			unsignedDataObjectProperties = value;
-		}
-	}
+	public UnsignedDataObjectProperties UnsignedDataObjectProperties { get; set; }
 	#endregion
 
 	#region Constructors
@@ -93,7 +60,7 @@ public class UnsignedProperties
 	public UnsignedProperties()
 	{
 		UnsignedSignatureProperties = new UnsignedSignatureProperties();
-		unsignedDataObjectProperties = new UnsignedDataObjectProperties();
+		UnsignedDataObjectProperties = new UnsignedDataObjectProperties();
 	}
 	#endregion
 
@@ -106,17 +73,17 @@ public class UnsignedProperties
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(id))
+		if (!string.IsNullOrEmpty(Id))
 		{
 			retVal = true;
 		}
 
-		if (unsignedSignatureProperties != null && unsignedSignatureProperties.HasChanged())
+		if (UnsignedSignatureProperties != null && UnsignedSignatureProperties.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (unsignedDataObjectProperties != null && unsignedDataObjectProperties.HasChanged())
+		if (UnsignedDataObjectProperties != null && UnsignedDataObjectProperties.HasChanged())
 		{
 			retVal = true;
 		}
@@ -140,11 +107,11 @@ public class UnsignedProperties
 		}
 		if (xmlElement.HasAttribute("Id"))
 		{
-			id = xmlElement.GetAttribute("Id");
+			Id = xmlElement.GetAttribute("Id");
 		}
 		else
 		{
-			id = "";
+			Id = "";
 		}
 
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
@@ -153,15 +120,15 @@ public class UnsignedProperties
 		xmlNodeList = xmlElement.SelectNodes("xsd:UnsignedSignatureProperties", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			unsignedSignatureProperties = new UnsignedSignatureProperties();
-			unsignedSignatureProperties.LoadXml((XmlElement)xmlNodeList.Item(0), counterSignedXmlElement);
+			UnsignedSignatureProperties = new UnsignedSignatureProperties();
+			UnsignedSignatureProperties.LoadXml((XmlElement)xmlNodeList.Item(0), counterSignedXmlElement);
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:UnsignedDataObjectProperties", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			unsignedDataObjectProperties = new UnsignedDataObjectProperties();
-			unsignedDataObjectProperties.LoadXml((XmlElement)xmlNodeList.Item(0));
+			UnsignedDataObjectProperties = new UnsignedDataObjectProperties();
+			UnsignedDataObjectProperties.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 	}
 
@@ -177,18 +144,18 @@ public class UnsignedProperties
 		creationXmlDocument = new XmlDocument();
 		//retVal = creationXmlDocument.CreateElement("UnsignedProperties", XadesSignedXml.XadesNamespaceUri);
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "UnsignedProperties", "http://uri.etsi.org/01903/v1.3.2#");
-		if (!string.IsNullOrEmpty(id))
+		if (!string.IsNullOrEmpty(Id))
 		{
-			retVal.SetAttribute("Id", id);
+			retVal.SetAttribute("Id", Id);
 		}
 
-		if (unsignedSignatureProperties != null && unsignedSignatureProperties.HasChanged())
+		if (UnsignedSignatureProperties != null && UnsignedSignatureProperties.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(unsignedSignatureProperties.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(UnsignedSignatureProperties.GetXml(), true));
 		}
-		if (unsignedDataObjectProperties != null && unsignedDataObjectProperties.HasChanged())
+		if (UnsignedDataObjectProperties != null && UnsignedDataObjectProperties.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(unsignedDataObjectProperties.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(UnsignedDataObjectProperties.GetXml(), true));
 		}
 
 		return retVal;

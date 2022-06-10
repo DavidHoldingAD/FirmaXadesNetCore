@@ -67,17 +67,12 @@ public class XadesSignedXml : SignedXml
 		"_Id",
 		"_ID"
 	};
-
-	private KnownSignatureStandard _signatureStandard;
 	private XmlDocument _cachedXadesObjectDocument;
 	private string _signedPropertiesIdBuffer;
-	private string _signatureValueId;
 	private bool _validationErrorOccurred;
 	private string _validationErrorDescription;
 	private string _signedInfoIdBuffer;
 	private readonly XmlDocument _signatureDocument;
-	private XmlElement _contentElement;
-	private bool _addXadesNamespace;
 
 	#endregion
 
@@ -91,13 +86,7 @@ public class XadesSignedXml : SignedXml
 	/// <summary>
 	/// Property indicating the type of signature (XmlDsig or XAdES)
 	/// </summary>
-	public KnownSignatureStandard SignatureStandard
-	{
-		get
-		{
-			return _signatureStandard;
-		}
-	}
+	public KnownSignatureStandard SignatureStandard { get; private set; }
 
 	/// <summary>
 	/// Read-only property containing XAdES information
@@ -118,17 +107,7 @@ public class XadesSignedXml : SignedXml
 	/// Setting this property will add an ID attribute to the SignatureValue element.
 	/// This is required when constructing a XAdES-T signature.
 	/// </summary>
-	public string SignatureValueId
-	{
-		get
-		{
-			return _signatureValueId;
-		}
-		set
-		{
-			_signatureValueId = value;
-		}
-	}
+	public string SignatureValueId { get; set; }
 
 	/// <summary>
 	/// This property allows to access and modify the unsigned properties
@@ -175,7 +154,6 @@ public class XadesSignedXml : SignedXml
 
 		set
 		{
-			XmlElement dataObjectXmlElement = null;
 			DataObject xadesDataObject, newXadesDataObject;
 			XmlNamespaceManager xmlNamespaceManager;
 			XmlNodeList qualifyingPropertiesXmlNodeList;
@@ -184,7 +162,7 @@ public class XadesSignedXml : SignedXml
 			xadesDataObject = GetXadesDataObject();
 			if (xadesDataObject != null)
 			{
-				dataObjectXmlElement = xadesDataObject.GetXml();
+				XmlElement dataObjectXmlElement = xadesDataObject.GetXml();
 				xmlNamespaceManager = new XmlNamespaceManager(dataObjectXmlElement.OwnerDocument.NameTable);
 				xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 				qualifyingPropertiesXmlNodeList = dataObjectXmlElement.SelectNodes("xades:QualifyingProperties", xmlNamespaceManager);
@@ -208,33 +186,11 @@ public class XadesSignedXml : SignedXml
 		}
 	}
 
-	public XmlElement ContentElement
-	{
-		get
-		{
-			return _contentElement;
-		}
-
-		set
-		{
-			_contentElement = value;
-		}
-	}
+	public XmlElement ContentElement { get; set; }
 
 	public XmlElement SignatureNodeDestination { get; set; }
 
-	public bool AddXadesNamespace
-	{
-		get
-		{
-			return _addXadesNamespace;
-		}
-
-		set
-		{
-			_addXadesNamespace = value;
-		}
-	}
+	public bool AddXadesNamespace { get; set; }
 
 	#endregion
 
@@ -249,7 +205,7 @@ public class XadesSignedXml : SignedXml
 		XmlXadesPrefix = "xades";
 
 		_cachedXadesObjectDocument = null;
-		_signatureStandard = KnownSignatureStandard.XmlDsig;
+		SignatureStandard = KnownSignatureStandard.XmlDsig;
 	}
 
 	/// <summary>
@@ -289,7 +245,7 @@ public class XadesSignedXml : SignedXml
 	public new void LoadXml(XmlElement xmlElement)
 	{
 		_cachedXadesObjectDocument = null;
-		_signatureValueId = null;
+		SignatureValueId = null;
 		base.LoadXml(xmlElement);
 
 		// Get original prefix for namespaces
@@ -326,7 +282,7 @@ public class XadesSignedXml : SignedXml
 		{
 			if (((XmlElement)xmlNodeList[0]).HasAttribute("Id"))
 			{
-				_signatureValueId = ((XmlElement)xmlNodeList[0]).Attributes["Id"].Value;
+				SignatureValueId = ((XmlElement)xmlNodeList[0]).Attributes["Id"].Value;
 			}
 		}
 
@@ -391,14 +347,14 @@ public class XadesSignedXml : SignedXml
                 }
             }*/
 
-		if (_signatureValueId != null && _signatureValueId != "")
+		if (SignatureValueId != null && SignatureValueId != "")
 		{ //Id on Signature value is needed for XAdES-T. We inject it here.
 			xmlNamespaceManager = new XmlNamespaceManager(retVal.OwnerDocument.NameTable);
 			xmlNamespaceManager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
 			xmlNodeList = retVal.SelectNodes("ds:SignatureValue", xmlNamespaceManager);
 			if (xmlNodeList.Count > 0)
 			{
-				((XmlElement)xmlNodeList[0]).SetAttribute("Id", _signatureValueId);
+				((XmlElement)xmlNodeList[0]).SetAttribute("Id", SignatureValueId);
 			}
 		}
 
@@ -453,9 +409,11 @@ public class XadesSignedXml : SignedXml
 
 		if (SignatureStandard != KnownSignatureStandard.Xades)
 		{
-			dataObject = new DataObject();
-			dataObject.Id = xadesObject.Id;
-			dataObject.Data = xadesObject.GetXml().ChildNodes;
+			dataObject = new DataObject
+			{
+				Id = xadesObject.Id,
+				Data = xadesObject.GetXml().ChildNodes,
+			};
 			AddObject(dataObject); //Add the XAdES object                            
 
 			reference = new Reference();
@@ -473,7 +431,7 @@ public class XadesSignedXml : SignedXml
 			_cachedXadesObjectDocument.PreserveWhitespace = true;
 			_cachedXadesObjectDocument.LoadXml(bufferXmlElement.OuterXml); //Cache to XAdES object for later use
 
-			_signatureStandard = KnownSignatureStandard.Xades;
+			SignatureStandard = KnownSignatureStandard.Xades;
 		}
 		else
 		{
@@ -618,7 +576,6 @@ public class XadesSignedXml : SignedXml
 	/// <returns>If the function returns true the check was OK</returns>
 	public virtual bool CheckXmldsigSignature()
 	{
-		bool retVal = false;
 		IEnumerable<XmlAttribute> namespaces = GetAllNamespaces(GetSignatureElement());
 
 		if (KeyInfo == null)
@@ -630,7 +587,7 @@ public class XadesSignedXml : SignedXml
 		}
 
 
-		if (CryptoConfig.CreateFromName(SignedInfo.SignatureMethod) is not SignatureDescription description)
+		if (CryptoConfig.CreateFromName(SignedInfo.SignatureMethod) is not SignatureDescription)
 		{
 			if (SignedInfo.SignatureMethod == "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")
 			{
@@ -660,7 +617,7 @@ public class XadesSignedXml : SignedXml
 			}
 		}
 
-		retVal = CheckDigestedReferences();
+		bool retVal = CheckDigestedReferences();
 
 		if (retVal == false)
 		{
@@ -738,7 +695,10 @@ public class XadesSignedXml : SignedXml
 		try
 		{
 			while (reader.Read())
+			{
 				;
+			}
+
 			if (_validationErrorOccurred)
 			{
 				throw new CryptographicException("Schema validation error: " + _validationErrorDescription);
@@ -764,7 +724,6 @@ public class XadesSignedXml : SignedXml
 	/// <returns>If the function returns true the check was OK</returns>
 	public virtual bool CheckSameCertificate()
 	{
-		bool retVal = false;
 
 		//KeyInfoX509Data keyInfoX509Data = new KeyInfoX509Data();
 		//keyInfoX509Data.LoadXml(this.KeyInfo.GetXml());
@@ -789,7 +748,7 @@ public class XadesSignedXml : SignedXml
 		{
 			throw new CryptographicException("Certificate in XMLDSIG signature doesn't match certificate in SigningCertificate element");
 		}
-		retVal = true;
+		bool retVal = true;
 
 		return retVal;
 	}
@@ -807,7 +766,6 @@ public class XadesSignedXml : SignedXml
 		bool retVal;
 
 		allHashDataInfosExist = true;
-		retVal = false;
 		allDataObjectsTimeStampCollection = XadesObject.QualifyingProperties.SignedProperties.SignedDataObjectProperties.AllDataObjectsTimeStampCollection;
 		if (allDataObjectsTimeStampCollection.Count > 0)
 		{
@@ -839,7 +797,6 @@ public class XadesSignedXml : SignedXml
 		bool retVal;
 
 		hashDataInfoExists = true;
-		retVal = false;
 		individualDataObjectsTimeStampCollection = XadesObject.QualifyingProperties.SignedProperties.SignedDataObjectProperties.IndividualDataObjectsTimeStampCollection;
 		if (individualDataObjectsTimeStampCollection.Count > 0)
 		{
@@ -875,7 +832,7 @@ public class XadesSignedXml : SignedXml
 		{
 			counterSignature = counterSignatureCollection[counterSignatureCounter];
 			//TODO: check if parent signature document is present in counterSignature (maybe a deep copy is required)
-			if (counterSignature._signatureStandard == KnownSignatureStandard.Xades)
+			if (counterSignature.SignatureStandard == KnownSignatureStandard.Xades)
 			{
 				retVal &= counterSignature.XadesCheckSignature(counterSignatureMask);
 			}
@@ -907,8 +864,10 @@ public class XadesSignedXml : SignedXml
 		bool retVal;
 
 		retVal = true;
-		parentSignatureValueChain = new ArrayList();
-		parentSignatureValueChain.Add("#" + _signatureValueId);
+		parentSignatureValueChain = new ArrayList
+		{
+			$"#{SignatureValueId}",
+		};
 		counterSignatureCollection = XadesObject.QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties.CounterSignatureCollection;
 		for (int counterSignatureCounter = 0; (retVal == true) && (counterSignatureCounter < counterSignatureCollection.Count); counterSignatureCounter++)
 		{
@@ -1019,7 +978,6 @@ public class XadesSignedXml : SignedXml
 		bool retVal;
 
 		hashDataInfoPointsToSignatureValue = true;
-		retVal = false;
 		signatureTimeStampCollection = XadesObject.QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection;
 		if (signatureTimeStampCollection.Count > 0)
 		{
@@ -1370,9 +1328,9 @@ public class XadesSignedXml : SignedXml
 		}
 		if (SignedInfo.SignatureMethod == null)
 		{
-			if (!(signingKey is DSA))
+			if (signingKey is not DSA)
 			{
-				if (!(signingKey is RSA))
+				if (signingKey is not RSA)
 				{
 					throw new CryptographicException("Cryptography_Xml_CreatedKeyFailed");
 				}
@@ -1398,16 +1356,15 @@ public class XadesSignedXml : SignedXml
 		{
 			throw new CryptographicException("Cryptography_Xml_CreateHashAlgorithmFailed");
 		}
-		//this.GetC14NDigest(hash);
-		byte[] hashValue = GetC14NDigest(hash, "ds");
+
+		GetC14NDigest(hash, "ds");
 
 		m_signature.SignatureValue = description.CreateFormatter(signingKey).CreateSignature(hash);
 	}
 
 	public Reference GetContentReference()
 	{
-		XadesObject xadesObject = null;
-
+		XadesObject xadesObject;
 		if (_cachedXadesObjectDocument != null)
 		{
 			xadesObject = new XadesObject();
@@ -1441,11 +1398,11 @@ public class XadesSignedXml : SignedXml
 		if (!string.IsNullOrEmpty(contentRef.Uri) &&
 			contentRef.Uri.StartsWith("#"))
 		{
-			_contentElement = GetIdElement(_signatureDocument, contentRef.Uri.Substring(1));
+			ContentElement = GetIdElement(_signatureDocument, contentRef.Uri.Substring(1));
 		}
 		else
 		{
-			_contentElement = _signatureDocument.DocumentElement;
+			ContentElement = _signatureDocument.DocumentElement;
 		}
 	}
 
@@ -1463,18 +1420,18 @@ public class XadesSignedXml : SignedXml
 			return SignatureNodeDestination;
 		}
 
-		if (_contentElement == null)
+		if (ContentElement == null)
 		{
 			return null;
 		}
 
-		if (_contentElement.ParentNode.NodeType != XmlNodeType.Document)
+		if (ContentElement.ParentNode.NodeType != XmlNodeType.Document)
 		{
-			return (XmlElement)_contentElement.ParentNode;
+			return (XmlElement)ContentElement.ParentNode;
 		}
 		else
 		{
-			return _contentElement;
+			return ContentElement;
 		}
 	}
 
@@ -1572,14 +1529,14 @@ public class XadesSignedXml : SignedXml
 
 		object m_containingDocument = SignedXml_m_containingDocument.GetValue(this);
 
-		if (_contentElement == null)
+		if (ContentElement == null)
 		{
 			FindContentElement();
 		}
 
 		List<XmlAttribute> signatureParentNodeNameSpaces = GetAllNamespaces(GetSignatureElement());
 
-		if (_addXadesNamespace)
+		if (AddXadesNamespace)
 		{
 			XmlAttribute attr = _signatureDocument.CreateAttribute("xmlns:xades");
 			attr.Value = XadesSignedXml.XadesNamespaceUri;
@@ -1705,14 +1662,18 @@ public class XadesSignedXml : SignedXml
 			byte[] calculatedHash = (byte[])Reference_CalculateHashValue.Invoke(digestedReference, new object[] { _signatureDocument, refList });
 
 			if (calculatedHash.Length != digestedReference.DigestValue.Length)
+			{
 				return false;
+			}
 
 			byte[] rgb1 = calculatedHash;
 			byte[] rgb2 = digestedReference.DigestValue;
 			for (int j = 0; j < rgb1.Length; ++j)
 			{
 				if (rgb1[j] != rgb2[j])
+				{
 					return false;
+				}
 			}
 		}
 
@@ -1723,21 +1684,29 @@ public class XadesSignedXml : SignedXml
 	private bool CheckSignedInfo(AsymmetricAlgorithm key)
 	{
 		if (key == null)
+		{
 			throw new ArgumentNullException("key");
+		}
 
 		if (CryptoConfig.CreateFromName(SignatureMethod) is not SignatureDescription signatureDescription)
+		{
 			throw new CryptographicException("signature description can't be created");
+		}
 
 		// Let's see if the key corresponds with the SignatureMethod
 		var ta = Type.GetType(signatureDescription.KeyAlgorithm);
 		Type tb = key.GetType();
 		if ((ta != tb) && !ta.IsSubclassOf(tb) && !tb.IsSubclassOf(ta))
+		{
 			// Signature method key mismatch
 			return false;
+		}
 
 		HashAlgorithm hashAlgorithm = signatureDescription.CreateDigest();
 		if (hashAlgorithm == null)
+		{
 			throw new CryptographicException("signature description can't be created");
+		}
 
 		/// NECESARIO PARA EL CALCULO CORRECTO
 		byte[] hashval = GetC14NDigest(hashAlgorithm, "ds");
@@ -1745,15 +1714,6 @@ public class XadesSignedXml : SignedXml
 		AsymmetricSignatureDeformatter asymmetricSignatureDeformatter = signatureDescription.CreateDeformatter(key);
 
 		return asymmetricSignatureDeformatter.VerifySignature(hashval, m_signature.SignatureValue);
-	}
-
-
-	/// <summary>
-	/// We won't call System.Security.Cryptography.Xml.SignedXml.GetC14NDigest(), as we want to use our own.
-	/// </summary>
-	private byte[] GetC14NDigest(HashAlgorithm hash)
-	{
-		return null;
 	}
 
 	/// <summary>
@@ -1779,7 +1739,7 @@ public class XadesSignedXml : SignedXml
 			//string securityUrl = (this.m_containingDocument == null) ? null : this.m_containingDocument.BaseURI;
 			FieldInfo SignedXml_m_containingDocument = SignedXml_Type.GetField("_containingDocument", BindingFlags.NonPublic | BindingFlags.Instance);
 			var m_containingDocument = (XmlDocument)SignedXml_m_containingDocument.GetValue(this);
-			string securityUrl = (m_containingDocument == null) ? null : m_containingDocument.BaseURI;
+			string securityUrl = m_containingDocument?.BaseURI;
 			//
 
 			//XmlResolver xmlResolver = this.m_bResolverSet ? this.m_xmlResolver : new XmlSecureResolver(new XmlUrlResolver(), securityUrl);
@@ -1802,7 +1762,7 @@ public class XadesSignedXml : SignedXml
 
 			List<XmlAttribute> docNamespaces = GetAllNamespaces(GetSignatureElement());
 
-			if (_addXadesNamespace)
+			if (AddXadesNamespace)
 			{
 				XmlAttribute attr = _signatureDocument.CreateAttribute("xmlns:xades");
 				attr.Value = XadesSignedXml.XadesNamespaceUri;
@@ -1869,13 +1829,12 @@ public class XadesSignedXml : SignedXml
 
 	private XmlElement GetXadesObjectElement(XmlElement signatureElement)
 	{
-		XmlElement retVal = null;
-
 		var xmlNamespaceManager = new XmlNamespaceManager(signatureElement.OwnerDocument.NameTable); //Create an XmlNamespaceManager to resolve namespace
 		xmlNamespaceManager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
 		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 
 		XmlNodeList xmlNodeList = signatureElement.SelectNodes("ds:Object/xades:QualifyingProperties", xmlNamespaceManager);
+		XmlElement retVal;
 		if (xmlNodeList.Count > 0)
 		{
 			retVal = (XmlElement)xmlNodeList.Item(0).ParentNode;
@@ -1892,11 +1851,11 @@ public class XadesSignedXml : SignedXml
 	{
 		if (GetXadesObjectElement(signatureElement) != null)
 		{
-			_signatureStandard = KnownSignatureStandard.Xades;
+			SignatureStandard = KnownSignatureStandard.Xades;
 		}
 		else
 		{
-			_signatureStandard = KnownSignatureStandard.XmlDsig;
+			SignatureStandard = KnownSignatureStandard.XmlDsig;
 		}
 	}
 
@@ -2010,7 +1969,7 @@ public class XadesSignedXml : SignedXml
 		bool retVal = true;
 		foreach (HashDataInfo hashDataInfo in timeStamp.HashDataInfoCollection)
 		{
-			retVal &= (hashDataInfo.UriAttribute == ("#" + _signatureValueId));
+			retVal &= (hashDataInfo.UriAttribute == ("#" + SignatureValueId));
 		}
 
 		return retVal;
@@ -2026,8 +1985,6 @@ public class XadesSignedXml : SignedXml
 
 		var signatureTimeStampIds = new ArrayList();
 
-		bool retVal = true;
-
 		unsignedSignatureProperties = XadesObject.QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties;
 
 		foreach (TimeStamp signatureTimeStamp in unsignedSignatureProperties.SignatureTimeStampCollection)
@@ -2037,7 +1994,7 @@ public class XadesSignedXml : SignedXml
 		signatureTimeStampIds.Sort();
 		foreach (HashDataInfo hashDataInfo in timeStamp.HashDataInfoCollection)
 		{
-			if (hashDataInfo.UriAttribute == "#" + _signatureValueId)
+			if (hashDataInfo.UriAttribute == "#" + SignatureValueId)
 			{
 				signatureValueHashDataInfoFound = true;
 			}
@@ -2059,8 +2016,7 @@ public class XadesSignedXml : SignedXml
 		{
 			allSignatureTimeStampHashDataInfosFound = true;
 		}
-		retVal = signatureValueHashDataInfoFound && allSignatureTimeStampHashDataInfosFound && completeCertificateRefsHashDataInfoFound && completeRevocationRefsHashDataInfoFound;
-
+		bool retVal = signatureValueHashDataInfoFound && allSignatureTimeStampHashDataInfosFound && completeCertificateRefsHashDataInfoFound && completeRevocationRefsHashDataInfoFound;
 		return retVal;
 	}
 
@@ -2073,7 +2029,6 @@ public class XadesSignedXml : SignedXml
 
 		completeCertificateRefsHashDataInfoFound = false;
 		completeRevocationRefsHashDataInfoFound = false;
-		retVal = true;
 
 		unsignedSignatureProperties = XadesObject.QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties;
 		foreach (HashDataInfo hashDataInfo in timeStamp.HashDataInfoCollection)
@@ -2109,15 +2064,12 @@ public class XadesSignedXml : SignedXml
 		bool allSigAndRefsTimeStampHashDataInfosFound = false;
 		bool allRefsOnlyTimeStampHashDataInfosFound = false;
 		bool allArchiveTimeStampHashDataInfosFound = false;
-		bool allOlderArchiveTimeStampsFound = false;
 
 		var referenceIds = new ArrayList();
 		var signatureTimeStampIds = new ArrayList();
 		var sigAndRefsTimeStampIds = new ArrayList();
 		var refsOnlyTimeStampIds = new ArrayList();
 		var archiveTimeStampIds = new ArrayList();
-
-		bool retVal = true;
 
 		unsignedSignatureProperties = XadesObject.QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties;
 		signedProperties = XadesObject.QualifyingProperties.SignedProperties;
@@ -2145,7 +2097,7 @@ public class XadesSignedXml : SignedXml
 			refsOnlyTimeStampIds.Add("#" + refsOnlyTimeStamp.EncapsulatedTimeStamp.Id);
 		}
 		refsOnlyTimeStampIds.Sort();
-		allOlderArchiveTimeStampsFound = false;
+		bool allOlderArchiveTimeStampsFound = false;
 		for (int archiveTimeStampCounter = 0; !allOlderArchiveTimeStampsFound && (archiveTimeStampCounter < unsignedSignatureProperties.ArchiveTimeStampCollection.Count); archiveTimeStampCounter++)
 		{
 			TimeStamp archiveTimeStamp = unsignedSignatureProperties.ArchiveTimeStampCollection[archiveTimeStampCounter];
@@ -2175,7 +2127,7 @@ public class XadesSignedXml : SignedXml
 			{
 				signedPropertiesHashDataInfoFound = true;
 			}
-			if (hashDataInfo.UriAttribute == "#" + _signatureValueId)
+			if (hashDataInfo.UriAttribute == "#" + SignatureValueId)
 			{
 				signatureValueHashDataInfoFound = true;
 			}
@@ -2237,11 +2189,10 @@ public class XadesSignedXml : SignedXml
 			allArchiveTimeStampHashDataInfosFound = true;
 		}
 
-		retVal = allReferenceHashDataInfosFound && signedInfoHashDataInfoFound && signedPropertiesHashDataInfoFound &&
-			signatureValueHashDataInfoFound && allSignatureTimeStampHashDataInfosFound && completeCertificateRefsHashDataInfoFound &&
-			completeRevocationRefsHashDataInfoFound && certificatesValuesHashDataInfoFound && revocationValuesHashDataInfoFound &&
-			allSigAndRefsTimeStampHashDataInfosFound && allRefsOnlyTimeStampHashDataInfosFound && allArchiveTimeStampHashDataInfosFound;
-
+		bool retVal = allReferenceHashDataInfosFound && signedInfoHashDataInfoFound && signedPropertiesHashDataInfoFound &&
+	signatureValueHashDataInfoFound && allSignatureTimeStampHashDataInfosFound && completeCertificateRefsHashDataInfoFound &&
+	completeRevocationRefsHashDataInfoFound && certificatesValuesHashDataInfoFound && revocationValuesHashDataInfoFound &&
+	allSigAndRefsTimeStampHashDataInfosFound && allRefsOnlyTimeStampHashDataInfosFound && allArchiveTimeStampHashDataInfosFound;
 		return retVal;
 	}
 	#endregion

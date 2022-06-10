@@ -1,10 +1,10 @@
-// OCSPRefs.cs
+ï»¿// OCSPRefs.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -32,24 +32,13 @@ namespace Microsoft.Xades;
 public class OCSPRefs
 {
 	#region Private variables
-	private OCSPRefCollection ocspRefCollection;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Collection of OCSP refs
 	/// </summary>
-	public OCSPRefCollection OCSPRefCollection
-	{
-		get
-		{
-			return ocspRefCollection;
-		}
-		set
-		{
-			ocspRefCollection = value;
-		}
-	}
+	public OCSPRefCollection OCSPRefCollection { get; set; }
 	#endregion
 
 	#region Constructors
@@ -58,7 +47,7 @@ public class OCSPRefs
 	/// </summary>
 	public OCSPRefs()
 	{
-		ocspRefCollection = new OCSPRefCollection();
+		OCSPRefCollection = new OCSPRefCollection();
 	}
 	#endregion
 
@@ -71,7 +60,7 @@ public class OCSPRefs
 	{
 		bool retVal = false;
 
-		if (ocspRefCollection.Count > 0)
+		if (OCSPRefCollection.Count > 0)
 		{
 			retVal = true;
 		}
@@ -99,7 +88,7 @@ public class OCSPRefs
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		ocspRefCollection.Clear();
+		OCSPRefCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xsd:OCSPRef", xmlNamespaceManager);
 		enumerator = xmlNodeList.GetEnumerator();
 		try
@@ -111,7 +100,7 @@ public class OCSPRefs
 				{
 					newOCSPRef = new OCSPRef();
 					newOCSPRef.LoadXml(iterationXmlElement);
-					ocspRefCollection.Add(newOCSPRef);
+					OCSPRefCollection.Add(newOCSPRef);
 				}
 			}
 		}
@@ -137,9 +126,9 @@ public class OCSPRefs
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "OCSPRefs", XadesSignedXml.XadesNamespaceUri);
 		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
 
-		if (ocspRefCollection.Count > 0)
+		if (OCSPRefCollection.Count > 0)
 		{
-			foreach (OCSPRef ocspRef in ocspRefCollection)
+			foreach (OCSPRef ocspRef in OCSPRefCollection)
 			{
 				if (ocspRef.HasChanged())
 				{

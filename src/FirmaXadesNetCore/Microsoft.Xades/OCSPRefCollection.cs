@@ -37,14 +37,8 @@ public class OCSPRefCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new OCSPRef this[int index]
 	{
-		get
-		{
-			return (OCSPRef)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (OCSPRef)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class OCSPRefCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public OCSPRef Add()
-	{
-		return Add(new OCSPRef());
-	}
+	public OCSPRef Add() => Add(new OCSPRef());
 }

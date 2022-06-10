@@ -37,14 +37,8 @@ public class OCSPValueCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new OCSPValue this[int index]
 	{
-		get
-		{
-			return (OCSPValue)base[index];
-		}
-		set
-		{
-			base[index] = value;
-		}
+		get => (OCSPValue)base[index];
+		set => base[index] = value;
 	}
 
 	/// <summary>
@@ -63,8 +57,5 @@ public class OCSPValueCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public OCSPValue Add()
-	{
-		return Add(new OCSPValue());
-	}
+	public OCSPValue Add() => Add(new OCSPValue());
 }

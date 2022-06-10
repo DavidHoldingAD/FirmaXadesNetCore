@@ -1,10 +1,10 @@
-// CRLValues.cs
+ï»¿// CRLValues.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -31,24 +31,13 @@ namespace Microsoft.Xades;
 public class CRLValues
 {
 	#region Private variables
-	private CRLValueCollection crlValueCollection;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Collection of CRLValues
 	/// </summary>
-	public CRLValueCollection CRLValueCollection
-	{
-		get
-		{
-			return crlValueCollection;
-		}
-		set
-		{
-			crlValueCollection = value;
-		}
-	}
+	public CRLValueCollection CRLValueCollection { get; set; }
 	#endregion
 
 	#region Constructors
@@ -57,7 +46,7 @@ public class CRLValues
 	/// </summary>
 	public CRLValues()
 	{
-		crlValueCollection = new CRLValueCollection();
+		CRLValueCollection = new CRLValueCollection();
 	}
 	#endregion
 
@@ -70,7 +59,7 @@ public class CRLValues
 	{
 		bool retVal = false;
 
-		if (crlValueCollection.Count > 0)
+		if (CRLValueCollection.Count > 0)
 		{
 			retVal = true;
 		}
@@ -98,7 +87,7 @@ public class CRLValues
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		crlValueCollection.Clear();
+		CRLValueCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xsd:EncapsulatedCRLValue", xmlNamespaceManager);
 		enumerator = xmlNodeList.GetEnumerator();
 		try
@@ -110,7 +99,7 @@ public class CRLValues
 				{
 					newCRLValue = new CRLValue();
 					newCRLValue.LoadXml(iterationXmlElement);
-					crlValueCollection.Add(newCRLValue);
+					CRLValueCollection.Add(newCRLValue);
 				}
 			}
 		}
@@ -135,9 +124,9 @@ public class CRLValues
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CRLValues", XadesSignedXml.XadesNamespaceUri);
 
-		if (crlValueCollection.Count > 0)
+		if (CRLValueCollection.Count > 0)
 		{
-			foreach (CRLValue crlValue in crlValueCollection)
+			foreach (CRLValue crlValue in CRLValueCollection)
 			{
 				if (crlValue.HasChanged())
 				{

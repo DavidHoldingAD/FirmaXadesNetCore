@@ -1,10 +1,10 @@
-// CommitmentTypeQualifiers.cs
+ï»¿// CommitmentTypeQualifiers.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -32,24 +32,13 @@ namespace Microsoft.Xades;
 public class CommitmentTypeQualifiers
 {
 	#region Private variables
-	private CommitmentTypeQualifierCollection commitmentTypeQualifierCollection;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Collection of commitment type qualifiers
 	/// </summary>
-	public CommitmentTypeQualifierCollection CommitmentTypeQualifierCollection
-	{
-		get
-		{
-			return commitmentTypeQualifierCollection;
-		}
-		set
-		{
-			commitmentTypeQualifierCollection = value;
-		}
-	}
+	public CommitmentTypeQualifierCollection CommitmentTypeQualifierCollection { get; set; }
 	#endregion
 
 	#region Constructors
@@ -58,7 +47,7 @@ public class CommitmentTypeQualifiers
 	/// </summary>
 	public CommitmentTypeQualifiers()
 	{
-		commitmentTypeQualifierCollection = new CommitmentTypeQualifierCollection();
+		CommitmentTypeQualifierCollection = new CommitmentTypeQualifierCollection();
 	}
 	#endregion
 
@@ -71,7 +60,7 @@ public class CommitmentTypeQualifiers
 	{
 		bool retVal = false;
 
-		if (commitmentTypeQualifierCollection.Count > 0)
+		if (CommitmentTypeQualifierCollection.Count > 0)
 		{
 			retVal = true;
 		}
@@ -99,7 +88,7 @@ public class CommitmentTypeQualifiers
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		commitmentTypeQualifierCollection.Clear();
+		CommitmentTypeQualifierCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xsd:CommitmentTypeQualifier", xmlNamespaceManager);
 		enumerator = xmlNodeList.GetEnumerator();
 		try
@@ -111,7 +100,7 @@ public class CommitmentTypeQualifiers
 				{
 					newCommitmentTypeQualifier = new CommitmentTypeQualifier();
 					newCommitmentTypeQualifier.LoadXml(iterationXmlElement);
-					commitmentTypeQualifierCollection.Add(newCommitmentTypeQualifier);
+					CommitmentTypeQualifierCollection.Add(newCommitmentTypeQualifier);
 				}
 			}
 		}
@@ -136,9 +125,9 @@ public class CommitmentTypeQualifiers
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CommitmentTypeQualifiers", XadesSignedXml.XadesNamespaceUri);
 
-		if (commitmentTypeQualifierCollection.Count > 0)
+		if (CommitmentTypeQualifierCollection.Count > 0)
 		{
-			foreach (CommitmentTypeQualifier commitmentTypeQualifier in commitmentTypeQualifierCollection)
+			foreach (CommitmentTypeQualifier commitmentTypeQualifier in CommitmentTypeQualifierCollection)
 			{
 				if (commitmentTypeQualifier.HasChanged())
 				{

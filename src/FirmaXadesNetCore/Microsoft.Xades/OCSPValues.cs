@@ -1,10 +1,10 @@
-// OCSPValues.cs
+ï»¿// OCSPValues.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -32,24 +32,13 @@ namespace Microsoft.Xades;
 public class OCSPValues
 {
 	#region Private variables
-	private OCSPValueCollection ocspValueCollection;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Collection of OCSP values
 	/// </summary>
-	public OCSPValueCollection OCSPValueCollection
-	{
-		get
-		{
-			return ocspValueCollection;
-		}
-		set
-		{
-			ocspValueCollection = value;
-		}
-	}
+	public OCSPValueCollection OCSPValueCollection { get; set; }
 	#endregion
 
 	#region Constructors
@@ -58,7 +47,7 @@ public class OCSPValues
 	/// </summary>
 	public OCSPValues()
 	{
-		ocspValueCollection = new OCSPValueCollection();
+		OCSPValueCollection = new OCSPValueCollection();
 	}
 	#endregion
 
@@ -71,7 +60,7 @@ public class OCSPValues
 	{
 		bool retVal = false;
 
-		if (ocspValueCollection.Count > 0)
+		if (OCSPValueCollection.Count > 0)
 		{
 			retVal = true;
 		}
@@ -99,7 +88,7 @@ public class OCSPValues
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 
-		ocspValueCollection.Clear();
+		OCSPValueCollection.Clear();
 		//xmlNodeList = xmlElement.SelectNodes("xades:OCSPValue", xmlNamespaceManager);
 		xmlNodeList = xmlElement.SelectNodes("xades:EncapsulatedOCSPValue", xmlNamespaceManager);
 		enumerator = xmlNodeList.GetEnumerator();
@@ -112,7 +101,7 @@ public class OCSPValues
 				{
 					newOCSPValue = new OCSPValue();
 					newOCSPValue.LoadXml(iterationXmlElement);
-					ocspValueCollection.Add(newOCSPValue);
+					OCSPValueCollection.Add(newOCSPValue);
 				}
 			}
 		}
@@ -139,9 +128,9 @@ public class OCSPValues
 		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
 
 
-		if (ocspValueCollection.Count > 0)
+		if (OCSPValueCollection.Count > 0)
 		{
-			foreach (OCSPValue ocspValue in ocspValueCollection)
+			foreach (OCSPValue ocspValue in OCSPValueCollection)
 			{
 				if (ocspValue.HasChanged())
 				{

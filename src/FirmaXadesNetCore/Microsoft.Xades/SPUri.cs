@@ -1,10 +1,10 @@
-// SPUri.cs
+ï»¿// SPUri.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -32,38 +32,21 @@ namespace Microsoft.Xades;
 public class SPUri : SigPolicyQualifier
 {
 	#region Private variables
-	private string uri;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Uri for the sig policy qualifier
 	/// </summary>
-	public string Uri
-	{
-		get
-		{
-			return uri;
-		}
-		set
-		{
-			uri = value;
-		}
-	}
+	public string Uri { get; set; }
 
 	/// <summary>
 	/// Inherited generic element, not used in the SPUri class
 	/// </summary>
 	public override XmlElement AnyXmlElement
 	{
-		get
-		{
-			return null; //This does not make sense for SPUri
-		}
-		set
-		{
-			throw new CryptographicException("Setting AnyXmlElement on a SPUri is not supported");
-		}
+		get => null; //This does not make sense for SPUri
+		set => throw new CryptographicException("Setting AnyXmlElement on a SPUri is not supported");
 	}
 	#endregion
 
@@ -85,7 +68,7 @@ public class SPUri : SigPolicyQualifier
 	{
 		bool retVal = false;
 
-		if (uri != null && uri != "")
+		if (Uri != null && Uri != "")
 		{
 			retVal = true;
 		}
@@ -112,7 +95,7 @@ public class SPUri : SigPolicyQualifier
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:SPURI", xmlNamespaceManager);
 
-		uri = ((XmlElement)xmlNodeList.Item(0)).InnerText;
+		Uri = ((XmlElement)xmlNodeList.Item(0)).InnerText;
 	}
 
 	/// <summary>
@@ -129,7 +112,7 @@ public class SPUri : SigPolicyQualifier
 		retVal = creationXmlDocument.CreateElement("SigPolicyQualifier", XadesSignedXml.XadesNamespaceUri);
 
 		bufferXmlElement = creationXmlDocument.CreateElement("SPURI", XadesSignedXml.XadesNamespaceUri);
-		bufferXmlElement.InnerText = uri;
+		bufferXmlElement.InnerText = Uri;
 		retVal.AppendChild(creationXmlDocument.ImportNode(bufferXmlElement, true));
 
 		return retVal;

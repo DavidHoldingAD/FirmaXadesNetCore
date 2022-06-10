@@ -30,9 +30,6 @@ public class DigestMethod
 {
 	#region Private variables
 
-	private string _name;
-	private string _uri;
-	private string _oid;
 
 	#endregion
 
@@ -43,29 +40,11 @@ public class DigestMethod
 	public static DigestMethod SHA512 = new DigestMethod("SHA512", "http://www.w3.org/2001/04/xmlenc#sha512", "2.16.840.1.101.3.4.2.3");
 
 
-	public string Name
-	{
-		get
-		{
-			return _name;
-		}
-	}
+	public string Name { get; }
 
-	public string URI
-	{
-		get
-		{
-			return _uri;
-		}
-	}
+	public string URI { get; }
 
-	public string Oid
-	{
-		get
-		{
-			return _oid;
-		}
-	}
+	public string Oid { get; }
 
 	#endregion
 
@@ -73,9 +52,9 @@ public class DigestMethod
 
 	private DigestMethod(string name, string uri, string oid)
 	{
-		_name = name;
-		_uri = uri;
-		_oid = oid;
+		Name = name;
+		URI = uri;
+		Oid = oid;
 	}
 
 	#endregion
@@ -104,15 +83,15 @@ public class DigestMethod
 
 	public HashAlgorithm GetHashAlgorithm()
 	{
-		if (_name == "SHA1")
+		if (Name == "SHA1")
 		{
 			return System.Security.Cryptography.SHA1.Create();
 		}
-		else if (_name == "SHA256")
+		else if (Name == "SHA256")
 		{
 			return System.Security.Cryptography.SHA256.Create();
 		}
-		else if (_name == "SHA512")
+		else if (Name == "SHA512")
 		{
 			return System.Security.Cryptography.SHA512.Create();
 		}

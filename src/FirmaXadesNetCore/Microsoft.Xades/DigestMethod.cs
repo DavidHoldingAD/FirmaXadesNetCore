@@ -1,10 +1,10 @@
-// DigestMethod.cs
+ï»¿// DigestMethod.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -31,24 +31,13 @@ namespace Microsoft.Xades;
 public class DigestMethod
 {
 	#region Private variables
-	private string algorithm;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Contains the digest algorithm
 	/// </summary>
-	public string Algorithm
-	{
-		get
-		{
-			return algorithm;
-		}
-		set
-		{
-			algorithm = value;
-		}
-	}
+	public string Algorithm { get; set; }
 	#endregion
 
 	#region Constructors
@@ -69,7 +58,7 @@ public class DigestMethod
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(algorithm))
+		if (!string.IsNullOrEmpty(Algorithm))
 		{
 			retVal = true;
 		}
@@ -88,7 +77,7 @@ public class DigestMethod
 			throw new ArgumentNullException("xmlElement");
 		}
 
-		algorithm = xmlElement.GetAttribute("Algorithm");
+		Algorithm = xmlElement.GetAttribute("Algorithm");
 	}
 
 	/// <summary>
@@ -105,7 +94,7 @@ public class DigestMethod
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlDSigPrefix, "DigestMethod", SignedXml.XmlDsigNamespaceUrl);
 
 
-		retVal.SetAttribute("Algorithm", algorithm);
+		retVal.SetAttribute("Algorithm", Algorithm);
 
 		return retVal;
 	}

@@ -1,10 +1,10 @@
-// SignaturePolicyId.cs
+ï»¿// SignaturePolicyId.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -38,10 +38,6 @@ namespace Microsoft.Xades;
 public class SignaturePolicyId
 {
 	#region Private variables
-	private ObjectIdentifier sigPolicyId;
-	private Transforms transforms;
-	private DigestAlgAndValueType sigPolicyHash;
-	private SigPolicyQualifiers sigPolicyQualifiers;
 	#endregion
 
 	#region Public properties
@@ -49,66 +45,26 @@ public class SignaturePolicyId
 	/// The SigPolicyId element contains an identifier that uniquely
 	/// identifies a specific version of the signature policy
 	/// </summary>
-	public ObjectIdentifier SigPolicyId
-	{
-		get
-		{
-			return sigPolicyId;
-		}
-		set
-		{
-			sigPolicyId = value;
-		}
-	}
+	public ObjectIdentifier SigPolicyId { get; set; }
 
 	/// <summary>
 	/// The optional Transforms element can contain the transformations
 	/// performed on the signature policy document before computing its
 	/// hash
 	/// </summary>
-	public Transforms Transforms
-	{
-		get
-		{
-			return transforms;
-		}
-		set
-		{
-			transforms = value;
-		}
-	}
+	public Transforms Transforms { get; set; }
 
 	/// <summary>
 	/// The SigPolicyHash element contains the identifier of the hash
 	/// algorithm and the hash value of the signature policy
 	/// </summary>
-	public DigestAlgAndValueType SigPolicyHash
-	{
-		get
-		{
-			return sigPolicyHash;
-		}
-		set
-		{
-			sigPolicyHash = value;
-		}
-	}
+	public DigestAlgAndValueType SigPolicyHash { get; set; }
 
 	/// <summary>
 	/// The SigPolicyQualifier element can contain additional information
 	/// qualifying the signature policy identifier
 	/// </summary>
-	public SigPolicyQualifiers SigPolicyQualifiers
-	{
-		get
-		{
-			return sigPolicyQualifiers;
-		}
-		set
-		{
-			sigPolicyQualifiers = value;
-		}
-	}
+	public SigPolicyQualifiers SigPolicyQualifiers { get; set; }
 	#endregion
 
 	#region Constructors
@@ -117,10 +73,10 @@ public class SignaturePolicyId
 	/// </summary>
 	public SignaturePolicyId()
 	{
-		sigPolicyId = new ObjectIdentifier("SigPolicyId");
-		transforms = new Transforms();
-		sigPolicyHash = new DigestAlgAndValueType("SigPolicyHash");
-		sigPolicyQualifiers = new SigPolicyQualifiers();
+		SigPolicyId = new ObjectIdentifier("SigPolicyId");
+		Transforms = new Transforms();
+		SigPolicyHash = new DigestAlgAndValueType("SigPolicyHash");
+		SigPolicyQualifiers = new SigPolicyQualifiers();
 	}
 	#endregion
 
@@ -133,22 +89,22 @@ public class SignaturePolicyId
 	{
 		bool retVal = false;
 
-		if (sigPolicyId != null && sigPolicyId.HasChanged())
+		if (SigPolicyId != null && SigPolicyId.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (transforms != null && transforms.HasChanged())
+		if (Transforms != null && Transforms.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (sigPolicyHash != null && sigPolicyHash.HasChanged())
+		if (SigPolicyHash != null && SigPolicyHash.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (sigPolicyQualifiers != null && sigPolicyQualifiers.HasChanged())
+		if (SigPolicyQualifiers != null && SigPolicyQualifiers.HasChanged())
 		{
 			retVal = true;
 		}
@@ -179,14 +135,14 @@ public class SignaturePolicyId
 		{
 			throw new CryptographicException("SigPolicyId missing");
 		}
-		sigPolicyId = new ObjectIdentifier("SigPolicyId");
-		sigPolicyId.LoadXml((XmlElement)xmlNodeList.Item(0));
+		SigPolicyId = new ObjectIdentifier("SigPolicyId");
+		SigPolicyId.LoadXml((XmlElement)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("ds:Transforms", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			transforms = new Transforms();
-			transforms.LoadXml((XmlElement)xmlNodeList.Item(0));
+			Transforms = new Transforms();
+			Transforms.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:SigPolicyHash", xmlNamespaceManager);
@@ -194,14 +150,14 @@ public class SignaturePolicyId
 		{
 			throw new CryptographicException("SigPolicyHash missing");
 		}
-		sigPolicyHash = new DigestAlgAndValueType("SigPolicyHash");
-		sigPolicyHash.LoadXml((XmlElement)xmlNodeList.Item(0));
+		SigPolicyHash = new DigestAlgAndValueType("SigPolicyHash");
+		SigPolicyHash.LoadXml((XmlElement)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:SigPolicyQualifiers", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			sigPolicyQualifiers = new SigPolicyQualifiers();
-			sigPolicyQualifiers.LoadXml((XmlElement)xmlNodeList.Item(0));
+			SigPolicyQualifiers = new SigPolicyQualifiers();
+			SigPolicyQualifiers.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 	}
 
@@ -217,24 +173,24 @@ public class SignaturePolicyId
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignaturePolicyId", XadesSignedXml.XadesNamespaceUri);
 
-		if (sigPolicyId != null && sigPolicyId.HasChanged())
+		if (SigPolicyId != null && SigPolicyId.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(sigPolicyId.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(SigPolicyId.GetXml(), true));
 		}
 
-		if (transforms != null && transforms.HasChanged())
+		if (Transforms != null && Transforms.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(transforms.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(Transforms.GetXml(), true));
 		}
 
-		if (sigPolicyHash != null && sigPolicyHash.HasChanged())
+		if (SigPolicyHash != null && SigPolicyHash.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(sigPolicyHash.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(SigPolicyHash.GetXml(), true));
 		}
 
-		if (sigPolicyQualifiers != null && sigPolicyQualifiers.HasChanged())
+		if (SigPolicyQualifiers != null && SigPolicyQualifiers.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(sigPolicyQualifiers.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(SigPolicyQualifiers.GetXml(), true));
 		}
 
 		return retVal;

@@ -1,10 +1,10 @@
-// RevocationValues.cs
+ï»¿// RevocationValues.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -35,73 +35,29 @@ namespace Microsoft.Xades;
 public class RevocationValues
 {
 	#region Private variables
-	private string id;
-	private CRLValues crlValues;
-	private OCSPValues ocspValues;
-	private OtherValues otherValues;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Optional Id for the XML element
 	/// </summary>
-	public string Id
-	{
-		get
-		{
-			return id;
-		}
-		set
-		{
-			id = value;
-		}
-	}
+	public string Id { get; set; }
 
 	/// <summary>
 	/// Certificate Revocation Lists
 	/// </summary>
-	public CRLValues CRLValues
-	{
-		get
-		{
-			return crlValues;
-		}
-		set
-		{
-			crlValues = value;
-		}
-	}
+	public CRLValues CRLValues { get; set; }
 
 	/// <summary>
 	/// Responses from an online certificate status server
 	/// </summary>
-	public OCSPValues OCSPValues
-	{
-		get
-		{
-			return ocspValues;
-		}
-		set
-		{
-			ocspValues = value;
-		}
-	}
+	public OCSPValues OCSPValues { get; set; }
 
 	/// <summary>
 	/// Placeholder for other revocation information is provided for future
 	/// use
 	/// </summary>
-	public OtherValues OtherValues
-	{
-		get
-		{
-			return otherValues;
-		}
-		set
-		{
-			otherValues = value;
-		}
-	}
+	public OtherValues OtherValues { get; set; }
 	#endregion
 
 	#region Constructors
@@ -110,9 +66,9 @@ public class RevocationValues
 	/// </summary>
 	public RevocationValues()
 	{
-		crlValues = new CRLValues();
-		ocspValues = new OCSPValues();
-		otherValues = new OtherValues();
+		CRLValues = new CRLValues();
+		OCSPValues = new OCSPValues();
+		OtherValues = new OtherValues();
 	}
 	#endregion
 
@@ -125,19 +81,19 @@ public class RevocationValues
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(id))
+		if (!string.IsNullOrEmpty(Id))
 		{
 			retVal = true;
 		}
-		if (crlValues != null && crlValues.HasChanged())
+		if (CRLValues != null && CRLValues.HasChanged())
 		{
 			retVal = true;
 		}
-		if (ocspValues != null && ocspValues.HasChanged())
+		if (OCSPValues != null && OCSPValues.HasChanged())
 		{
 			retVal = true;
 		}
-		if (otherValues != null && otherValues.HasChanged())
+		if (OtherValues != null && OtherValues.HasChanged())
 		{
 			retVal = true;
 		}
@@ -160,11 +116,11 @@ public class RevocationValues
 		}
 		if (xmlElement.HasAttribute("Id"))
 		{
-			id = xmlElement.GetAttribute("Id");
+			Id = xmlElement.GetAttribute("Id");
 		}
 		else
 		{
-			id = "";
+			Id = "";
 		}
 
 		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
@@ -173,20 +129,20 @@ public class RevocationValues
 		xmlNodeList = xmlElement.SelectNodes("xades:CRLValues", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			crlValues = new CRLValues();
-			crlValues.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CRLValues = new CRLValues();
+			CRLValues.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 		xmlNodeList = xmlElement.SelectNodes("xades:OCSPValues", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			ocspValues = new OCSPValues();
-			ocspValues.LoadXml((XmlElement)xmlNodeList.Item(0));
+			OCSPValues = new OCSPValues();
+			OCSPValues.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 		xmlNodeList = xmlElement.SelectNodes("xades:OtherValues", xmlNamespaceManager);
 		if (xmlNodeList.Count != 0)
 		{
-			otherValues = new OtherValues();
-			otherValues.LoadXml((XmlElement)xmlNodeList.Item(0));
+			OtherValues = new OtherValues();
+			OtherValues.LoadXml((XmlElement)xmlNodeList.Item(0));
 		}
 	}
 
@@ -201,21 +157,21 @@ public class RevocationValues
 
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "RevocationValues", XadesSignedXml.XadesNamespaceUri);
-		if (id != null && id != "")
+		if (Id != null && Id != "")
 		{
-			retVal.SetAttribute("Id", id);
+			retVal.SetAttribute("Id", Id);
 		}
-		if (crlValues != null && crlValues.HasChanged())
+		if (CRLValues != null && CRLValues.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(crlValues.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(CRLValues.GetXml(), true));
 		}
-		if (ocspValues != null && ocspValues.HasChanged())
+		if (OCSPValues != null && OCSPValues.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(ocspValues.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(OCSPValues.GetXml(), true));
 		}
-		if (otherValues != null && otherValues.HasChanged())
+		if (OtherValues != null && OtherValues.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(otherValues.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(OtherValues.GetXml(), true));
 		}
 
 		return retVal;

@@ -1,10 +1,10 @@
-// Cert.cs
+ï»¿// Cert.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -32,8 +32,6 @@ namespace Microsoft.Xades;
 public class Cert
 {
 	#region Private variables
-	private DigestAlgAndValueType certDigest;
-	private IssuerSerial issuerSerial;
 	#endregion
 
 	#region Public properties
@@ -41,17 +39,7 @@ public class Cert
 	/// The element CertDigest contains the digest of one of the
 	/// certificates referenced in the sequence
 	/// </summary>
-	public DigestAlgAndValueType CertDigest
-	{
-		get
-		{
-			return certDigest;
-		}
-		set
-		{
-			certDigest = value;
-		}
-	}
+	public DigestAlgAndValueType CertDigest { get; set; }
 
 	/// <summary>
 	/// The element IssuerSerial contains the identifier of one of the
@@ -60,17 +48,7 @@ public class Cert
 	/// certificate, its value MUST be consistent with the corresponding
 	/// IssuerSerial element.
 	/// </summary>
-	public IssuerSerial IssuerSerial
-	{
-		get
-		{
-			return issuerSerial;
-		}
-		set
-		{
-			issuerSerial = value;
-		}
-	}
+	public IssuerSerial IssuerSerial { get; set; }
 
 	/// <summary>
 	/// Element's URI
@@ -85,8 +63,8 @@ public class Cert
 	/// </summary>
 	public Cert()
 	{
-		certDigest = new DigestAlgAndValueType("CertDigest");
-		issuerSerial = new IssuerSerial();
+		CertDigest = new DigestAlgAndValueType("CertDigest");
+		IssuerSerial = new IssuerSerial();
 	}
 	#endregion
 
@@ -99,12 +77,12 @@ public class Cert
 	{
 		bool retVal = false;
 
-		if (certDigest != null && certDigest.HasChanged())
+		if (CertDigest != null && CertDigest.HasChanged())
 		{
 			retVal = true;
 		}
 
-		if (issuerSerial != null && issuerSerial.HasChanged())
+		if (IssuerSerial != null && IssuerSerial.HasChanged())
 		{
 			retVal = true;
 		}
@@ -140,16 +118,16 @@ public class Cert
 		{
 			throw new CryptographicException("CertDigest missing");
 		}
-		certDigest = new DigestAlgAndValueType("CertDigest");
-		certDigest.LoadXml((XmlElement)xmlNodeList.Item(0));
+		CertDigest = new DigestAlgAndValueType("CertDigest");
+		CertDigest.LoadXml((XmlElement)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:IssuerSerial", xmlNamespaceManager);
 		if (xmlNodeList.Count == 0)
 		{
 			throw new CryptographicException("IssuerSerial missing");
 		}
-		issuerSerial = new IssuerSerial();
-		issuerSerial.LoadXml((XmlElement)xmlNodeList.Item(0));
+		IssuerSerial = new IssuerSerial();
+		IssuerSerial.LoadXml((XmlElement)xmlNodeList.Item(0));
 	}
 
 	/// <summary>
@@ -170,14 +148,14 @@ public class Cert
 			retVal.SetAttribute("URI", URI);
 		}
 
-		if (certDigest != null && certDigest.HasChanged())
+		if (CertDigest != null && CertDigest.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(certDigest.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(CertDigest.GetXml(), true));
 		}
 
-		if (issuerSerial != null && issuerSerial.HasChanged())
+		if (IssuerSerial != null && IssuerSerial.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(issuerSerial.GetXml(), true));
+			retVal.AppendChild(creationXmlDocument.ImportNode(IssuerSerial.GetXml(), true));
 		}
 
 		return retVal;

@@ -1,10 +1,10 @@
-// Transform.cs
+ï»¿// Transform.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -31,40 +31,18 @@ namespace Microsoft.Xades;
 public class Transform
 {
 	#region Private variables
-	private string algorithm;
-	private string xpath;
 	#endregion
 
 	#region Public properties
 	/// <summary>
 	/// Algorithm of the transformation
 	/// </summary>
-	public string Algorithm
-	{
-		get
-		{
-			return algorithm;
-		}
-		set
-		{
-			algorithm = value;
-		}
-	}
+	public string Algorithm { get; set; }
 
 	/// <summary>
 	/// XPath of the transformation
 	/// </summary>
-	public string XPath
-	{
-		get
-		{
-			return xpath;
-		}
-		set
-		{
-			xpath = value;
-		}
-	}
+	public string XPath { get; set; }
 	#endregion
 
 	#region Constructors
@@ -85,12 +63,12 @@ public class Transform
 	{
 		bool retVal = false;
 
-		if (!string.IsNullOrEmpty(algorithm))
+		if (!string.IsNullOrEmpty(Algorithm))
 		{
 			retVal = true;
 		}
 
-		if (!string.IsNullOrEmpty(xpath))
+		if (!string.IsNullOrEmpty(XPath))
 		{
 			retVal = true;
 		}
@@ -112,21 +90,21 @@ public class Transform
 		}
 		if (xmlElement.HasAttribute("Algorithm"))
 		{
-			algorithm = xmlElement.GetAttribute("Algorithm");
+			Algorithm = xmlElement.GetAttribute("Algorithm");
 		}
 		else
 		{
-			algorithm = "";
+			Algorithm = "";
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("XPath");
 		if (xmlNodeList.Count != 0)
 		{
-			xpath = xmlNodeList.Item(0).InnerText;
+			XPath = xmlNodeList.Item(0).InnerText;
 		}
 		else
 		{
-			xpath = "";
+			XPath = "";
 		}
 	}
 
@@ -143,19 +121,19 @@ public class Transform
 		creationXmlDocument = new XmlDocument();
 		retVal = creationXmlDocument.CreateElement("ds", "Transform", SignedXml.XmlDsigNamespaceUrl);
 
-		if (algorithm != null)
+		if (Algorithm != null)
 		{
-			retVal.SetAttribute("Algorithm", algorithm);
+			retVal.SetAttribute("Algorithm", Algorithm);
 		}
 		else
 		{
 			retVal.SetAttribute("Algorithm", "");
 		}
 
-		if (xpath != null && xpath != "")
+		if (XPath != null && XPath != "")
 		{
 			bufferXmlElement = creationXmlDocument.CreateElement("ds", "XPath", SignedXml.XmlDsigNamespaceUrl);
-			bufferXmlElement.InnerText = xpath;
+			bufferXmlElement.InnerText = XPath;
 			retVal.AppendChild(bufferXmlElement);
 		}
 
