@@ -293,9 +293,10 @@ public class XadesService
 		counterSignatureXadesObject.QualifyingProperties.Target = "#" + counterSignature.Signature.Id;
 		counterSignatureXadesObject.QualifyingProperties.SignedProperties.Id = "SignedProperties-" + counterSignature.Signature.Id;
 
-		AddSignatureProperties(counterSigDocument, counterSignatureXadesObject.QualifyingProperties.SignedProperties.SignedSignatureProperties,
+		AddSignatureProperties(counterSigDocument,
+			counterSignatureXadesObject.QualifyingProperties.SignedProperties.SignedSignatureProperties,
 			counterSignatureXadesObject.QualifyingProperties.SignedProperties.SignedDataObjectProperties,
-			counterSignatureXadesObject.QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties, parameters);
+			parameters);
 
 		counterSignature.AddXadesObject(counterSignatureXadesObject);
 
@@ -772,7 +773,7 @@ public class XadesService
 		AddSignatureProperties(sigDocument,
 			xadesObject.QualifyingProperties.SignedProperties.SignedSignatureProperties,
 			xadesObject.QualifyingProperties.SignedProperties.SignedDataObjectProperties,
-			xadesObject.QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties, parameters);
+			parameters);
 
 		sigDocument.XadesSignature.AddXadesObject(xadesObject);
 	}
@@ -801,8 +802,10 @@ public class XadesService
 	}
 
 
-	private void AddSignatureProperties(SignatureDocument sigDocument, SignedSignatureProperties signedSignatureProperties, SignedDataObjectProperties signedDataObjectProperties,
-			   UnsignedSignatureProperties unsignedSignatureProperties, SignatureParameters parameters)
+	private void AddSignatureProperties(SignatureDocument sigDocument,
+		SignedSignatureProperties signedSignatureProperties,
+		SignedDataObjectProperties signedDataObjectProperties,
+		SignatureParameters parameters)
 	{
 		Cert cert;
 
