@@ -1642,8 +1642,8 @@ public class XadesSignedXml : SignedXml
 	{
 		ArrayList references = m_signature.SignedInfo.References;
 
-		var System_Security_Assembly = Assembly.Load("System.Security");
-		Type CanonicalXmlNodeList_Type = System_Security_Assembly.GetType("System.Security.Cryptography.Xml.CanonicalXmlNodeList");
+		var System_Security_Cryptography_Xml_Assembly = Assembly.Load("System.Security.Cryptography.Xml");
+		Type CanonicalXmlNodeList_Type = System_Security_Cryptography_Xml_Assembly.GetType("System.Security.Cryptography.Xml.CanonicalXmlNodeList");
 		ConstructorInfo CanonicalXmlNodeList_Constructor = CanonicalXmlNodeList_Type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { }, null);
 
 		MethodInfo CanonicalXmlNodeList_Add = CanonicalXmlNodeList_Type.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance);
@@ -1692,22 +1692,13 @@ public class XadesSignedXml : SignedXml
 			throw new CryptographicException("signature description can't be created");
 		}
 
-		// Let's see if the key corresponds with the SignatureMethod
-		var ta = Type.GetType(signatureDescription.KeyAlgorithm);
-		Type tb = key.GetType();
-		if ((ta != tb) && !ta.IsSubclassOf(tb) && !tb.IsSubclassOf(ta))
-		{
-			// Signature method key mismatch
-			return false;
-		}
-
 		HashAlgorithm hashAlgorithm = signatureDescription.CreateDigest();
 		if (hashAlgorithm == null)
 		{
 			throw new CryptographicException("signature description can't be created");
 		}
 
-		/// NECESARIO PARA EL CALCULO CORRECTO
+		// Necessary for correct calculation
 		byte[] hashval = GetC14NDigest(hashAlgorithm, "ds");
 
 		AsymmetricSignatureDeformatter asymmetricSignatureDeformatter = signatureDescription.CreateDeformatter(key);

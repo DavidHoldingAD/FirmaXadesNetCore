@@ -55,12 +55,12 @@ public class XadesService
 	{
 		if (parameters.Signer == null)
 		{
-			throw new Exception("Es necesario un certificado válido para la firma");
+			throw new Exception("A valid certificate is required for signing.");
 		}
 
 		if (input == null && string.IsNullOrEmpty(parameters.ExternalContentUri))
 		{
-			throw new Exception("No se ha especificado ningún contenido a firmar");
+			throw new Exception("No content to sign has been specified.");
 		}
 
 		var signatureDocument = new SignatureDocument();
@@ -71,7 +71,7 @@ public class XadesService
 			case SignaturePackaging.INTERNALLY_DETACHED:
 				if (parameters.DataFormat == null || string.IsNullOrEmpty(parameters.DataFormat.MimeType))
 				{
-					throw new NullReferenceException("Se necesita especificar el tipo MIME del elemento a firmar.");
+					throw new NullReferenceException("You need to specify the MIME type of the element to sign.");
 				}
 
 				_dataFormat.MimeType = parameters.DataFormat.MimeType;
@@ -240,7 +240,7 @@ public class XadesService
 	{
 		if (parameters.Signer == null)
 		{
-			throw new Exception("Es necesario un certificado válido para la firma.");
+			throw new Exception("A valid certificate is required for signing.");
 		}
 
 		SignatureDocument.CheckSignatureDocument(sigDocument);
@@ -359,7 +359,7 @@ public class XadesService
 
 		if (signatureNodeList.Count == 0)
 		{
-			throw new Exception("No se ha encontrado ninguna firma.");
+			throw new Exception("No signature found.");
 		}
 
 		var firmas = new List<SignatureDocument>();

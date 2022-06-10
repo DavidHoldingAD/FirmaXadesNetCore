@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirmaXadesNetCore.Tests", "test\FirmaXadesNetCore.Tests\FirmaXadesNetCore.Tests.csproj", "{DEB907BB-54CD-40F7-8609-E5A279B48098}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,12 +31,17 @@ Global
 		{D6BF5312-2023-4672-8E74-18B47A181A2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6BF5312-2023-4672-8E74-18B47A181A2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6BF5312-2023-4672-8E74-18B47A181A2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEB907BB-54CD-40F7-8609-E5A279B48098}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEB907BB-54CD-40F7-8609-E5A279B48098}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEB907BB-54CD-40F7-8609-E5A279B48098}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEB907BB-54CD-40F7-8609-E5A279B48098}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D6BF5312-2023-4672-8E74-18B47A181A2E} = {3FD1D81B-DBFD-46C9-B821-BF41E696D223}
+		{DEB907BB-54CD-40F7-8609-E5A279B48098} = {356F8B28-2170-4B38-97A7-C0735014FD98}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {72E8FDFE-4BBB-4BD7-B015-C6F81673EB20}
