@@ -34,8 +34,6 @@ using Org.BouncyCastle.X509;
 
 namespace FirmaXadesNetCore.Clients;
 
-public enum CertificateStatus { Good = 0, Revoked = 1, Unknown = 2 };
-
 public class OcspClient
 {
 	#region Private variables
