@@ -112,8 +112,8 @@ public class OcspClient
 				if (oid.Id.Equals("1.3.6.1.5.5.7.48.1")) // Is Ocsp? 
 				{
 					var taggedObject = (Asn1TaggedObject)element[1];
-					var gn = (GeneralName)GeneralName.GetInstance(taggedObject);
-					ocspUrls.Add(((DerIA5String)DerIA5String.GetInstance(gn.Name)).GetString());
+					var gn = GeneralName.GetInstance(taggedObject);
+					ocspUrls.Add(DerIA5String.GetInstance(gn.Name).GetString());
 				}
 			}
 		}

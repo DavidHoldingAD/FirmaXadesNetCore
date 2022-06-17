@@ -21,14 +21,13 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-using FirmaXadesNetCore.Crypto;
-
 namespace FirmaXadesNetCore.Signature.Parameters;
 
-public class SignatureParameters : SignatureParametersBase
+public enum SignaturePackaging
 {
-	/// <summary>
-	/// Gets or sets the signer.
-	/// </summary>
-	public Signer Signer { get; set; }
+	INTERNALLY_DETACHED,
+	HASH_INTERNALLY_DETACHED,
+	EXTERNALLY_DETACHED,
+	ENVELOPED,
+	ENVELOPING
 }

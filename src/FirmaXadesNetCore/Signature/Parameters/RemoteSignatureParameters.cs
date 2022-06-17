@@ -21,14 +21,15 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-using FirmaXadesNetCore.Crypto;
+using System.Security.Cryptography.X509Certificates;
 
 namespace FirmaXadesNetCore.Signature.Parameters;
 
-public class SignatureParameters : SignatureParametersBase
+public class RemoteSignatureParameters : SignatureParametersBase
 {
 	/// <summary>
-	/// Gets or sets the signer.
+	/// Gets or sets the public certificate.
 	/// </summary>
-	public Signer Signer { get; set; }
+	public X509Certificate2 PublicCertificate { get; set; }
 }
+

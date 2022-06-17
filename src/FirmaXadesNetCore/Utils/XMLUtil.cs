@@ -56,7 +56,8 @@ class XMLUtil
 	/// <param name="xadesSignedXml"></param>
 	/// <param name="elementXpaths"></param>
 	/// <returns></returns>
-	public static byte[] ComputeValueOfElementList(XadesSignedXml xadesSignedXml, ArrayList elementXpaths) => ComputeValueOfElementList(xadesSignedXml, elementXpaths, new XmlDsigC14NTransform());
+	public static byte[] ComputeValueOfElementList(XadesSignedXml xadesSignedXml, ArrayList elementXpaths)
+		=> ComputeValueOfElementList(xadesSignedXml, elementXpaths, new XmlDsigC14NTransform());
 
 	/// <summary>
 	/// Obtiene el valor canonicalizado de los elementos especificados en elementXpaths
@@ -107,7 +108,6 @@ class XMLUtil
 
 		return msResult.ToArray();
 	}
-
 
 	/// <summary>
 	/// Carga un documento XML

@@ -741,7 +741,7 @@ public class XadesSignedXml : SignedXml
 		{
 			throw new CryptographicException("Certificate not found in SigningCertificate element while doing CheckSameCertificate()");
 		}
-		string xadesCertHash = Convert.ToBase64String(((Cert)xadesSigningCertificateCollection[0]).CertDigest.DigestValue);
+		string xadesCertHash = Convert.ToBase64String(xadesSigningCertificateCollection[0].CertDigest.DigestValue);
 
 
 		if (string.Compare(xmldsigCertHash, xadesCertHash, true, CultureInfo.InvariantCulture) != 0)
@@ -1312,9 +1312,8 @@ public class XadesSignedXml : SignedXml
 		return description;
 	}
 
-	public new void ComputeSignature()
+	public new byte[] ComputeSignature()
 	{
-
 		BuildDigestedReferences();
 
 		AsymmetricAlgorithm signingKey = SigningKey;
@@ -1353,9 +1352,11 @@ public class XadesSignedXml : SignedXml
 			throw new CryptographicException("Cryptography_Xml_CreateHashAlgorithmFailed");
 		}
 
-		GetC14NDigest(hash, "ds");
+		byte[] digest = GetC14NDigest(hash, "ds");
 
 		m_signature.SignatureValue = description.CreateFormatter(signingKey).CreateSignature(hash);
+
+		return digest;
 	}
 
 	public Reference GetContentReference()

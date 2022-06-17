@@ -44,10 +44,8 @@ public class XadesService
 
 	#region Public methods
 
-	#region Métodos de firma
-
 	/// <summary>
-	/// Realiza el proceso de firmado
+	/// Complete the signing process.
 	/// </summary>
 	/// <param name="input"></param>
 	/// <param name="parameters"></param>
@@ -148,7 +146,7 @@ public class XadesService
 	}
 
 	/// <summary>
-	/// Añade una firma al documento
+	/// Add a signature to the document
 	/// </summary>
 	/// <param name="sigDocument"></param>
 	/// <param name="parameters"></param>
@@ -230,9 +228,8 @@ public class XadesService
 		return coSignatureDocument;
 	}
 
-
 	/// <summary>
-	/// Realiza la contrafirma de la firma actual
+	/// Performs the countersignature of the current signature
 	/// </summary>
 	/// <param name="sigDocument"></param>
 	/// <param name="parameters"></param>
@@ -275,7 +272,7 @@ public class XadesService
 		{
 			Id = "KeyInfoId-" + counterSignature.Signature.Id
 		};
-		keyInfo.AddClause(new KeyInfoX509Data((X509Certificate)parameters.Signer.Certificate));
+		keyInfo.AddClause(new KeyInfoX509Data(parameters.Signer.Certificate));
 		keyInfo.AddClause(new RSAKeyValue((RSA)parameters.Signer.SigningKey));
 		counterSignature.KeyInfo = keyInfo;
 
@@ -296,7 +293,8 @@ public class XadesService
 		AddSignatureProperties(counterSigDocument,
 			counterSignatureXadesObject.QualifyingProperties.SignedProperties.SignedSignatureProperties,
 			counterSignatureXadesObject.QualifyingProperties.SignedProperties.SignedDataObjectProperties,
-			parameters);
+			parameters,
+			parameters.Signer.Certificate);
 
 		counterSignature.AddXadesObject(counterSignatureXadesObject);
 
@@ -327,16 +325,156 @@ public class XadesService
 		return counterSigDocument;
 	}
 
-	#endregion
+	/// <summary>
+	/// Performs a system signing and gets the digest for remote singing.
+	/// </summary>
+	/// <param name="input">the input XML</param>
+	/// <param name="parameters">the signing parameters</param>
+	/// <param name="digest">the digest</param>
+	/// <returns>the signature document</returns>
+	public SignatureDocument GetRemotingSigningDigest(Stream input, RemoteSignatureParameters parameters, out byte[] digest)
+	{
+		if (input is null)
+		{
+			throw new ArgumentNullException(nameof(input));
+		}
 
-	#region Carga de firmas
+		if (parameters is null)
+		{
+			throw new ArgumentNullException(nameof(parameters));
+		}
+
+		if (input.Length <= 0
+			&& string.IsNullOrEmpty(parameters.ExternalContentUri))
+		{
+			throw new Exception("No content to sign has been specified.");
+		}
+
+		if (parameters.PublicCertificate is null)
+		{
+			throw new ArgumentException($"Public certificate is required.", nameof(parameters));
+		}
+
+		var signatureDocument = new SignatureDocument();
+		_dataFormat = new DataObjectFormat();
+
+		switch (parameters.SignaturePackaging)
+		{
+			case SignaturePackaging.INTERNALLY_DETACHED:
+				{
+					if (parameters.DataFormat == null || string.IsNullOrEmpty(parameters.DataFormat.MimeType))
+					{
+						throw new NullReferenceException("You need to specify the MIME type of the element to sign.");
+					}
+
+					_dataFormat.MimeType = parameters.DataFormat.MimeType;
+
+					if (parameters.DataFormat.MimeType == "text/xml")
+					{
+						_dataFormat.Encoding = "UTF-8";
+					}
+					else
+					{
+						_dataFormat.Encoding = "http://www.w3.org/2000/09/xmldsig#base64";
+					}
+
+					if (!string.IsNullOrEmpty(parameters.ElementIdToSign))
+					{
+						SetContentInternallyDetached(signatureDocument, XMLUtil.LoadDocument(input), parameters.ElementIdToSign);
+					}
+					else
+					{
+						SetContentInternallyDetached(signatureDocument, input);
+					}
+					break;
+				}
+			case SignaturePackaging.HASH_INTERNALLY_DETACHED:
+				{
+					if (parameters.DataFormat == null || string.IsNullOrEmpty(parameters.DataFormat.MimeType))
+					{
+						_dataFormat.MimeType = "application/octet-stream";
+					}
+					else
+					{
+						_dataFormat.MimeType = parameters.DataFormat.MimeType;
+					}
+					_dataFormat.Encoding = "http://www.w3.org/2000/09/xmldsig#base64";
+					SetContentInternallyDetachedHashed(signatureDocument, input);
+					break;
+				}
+			case SignaturePackaging.ENVELOPED:
+				{
+					_dataFormat.MimeType = "text/xml";
+					_dataFormat.Encoding = "UTF-8";
+					SetContentEnveloped(signatureDocument, XMLUtil.LoadDocument(input));
+					break;
+				}
+			case SignaturePackaging.ENVELOPING:
+				{
+					_dataFormat.MimeType = "text/xml";
+					_dataFormat.Encoding = "UTF-8";
+					SetContentEveloping(signatureDocument, XMLUtil.LoadDocument(input));
+					break;
+				}
+			case SignaturePackaging.EXTERNALLY_DETACHED:
+				{
+					SetContentExternallyDetached(signatureDocument, parameters.ExternalContentUri);
+					break;
+				}
+			default:
+				{
+					throw new ArgumentException($"Signature packaging `{parameters.SignaturePackaging}` is not supported in this context.", nameof(parameters));
+				}
+		}
+
+		if (parameters.DataFormat != null)
+		{
+			if (!string.IsNullOrEmpty(parameters.DataFormat.TypeIdentifier))
+			{
+				_dataFormat.ObjectIdentifier = new ObjectIdentifier();
+				_dataFormat.ObjectIdentifier.Identifier.IdentifierUri = parameters.DataFormat.TypeIdentifier;
+			}
+
+			_dataFormat.Description = parameters.DataFormat.Description;
+		}
+
+		SetSignatureId(signatureDocument.XadesSignature);
+
+		PrepareSignatureForRemoteSigning(signatureDocument, parameters);
+
+		digest = signatureDocument.XadesSignature.ComputeSignature();
+
+		return signatureDocument;
+	}
+
+	public SignatureDocument AttachSignature(SignatureDocument document, byte[] signatureValue)
+	{
+		if (document is null)
+		{
+			throw new ArgumentNullException(nameof(document));
+		}
+
+		if (signatureValue is null)
+		{
+			throw new ArgumentNullException(nameof(signatureValue));
+		}
+
+		// Updated signature value
+		document.XadesSignature.Signature.SignatureValue = signatureValue;
+
+		// Update XML
+		UpdateXadesSignature(document);
+
+		return document;
+	}
 
 	/// <summary>
 	/// Carga un archivo de firma.
 	/// </summary>
 	/// <param name="input"></param>
 	/// <returns></returns>
-	public SignatureDocument[] Load(Stream input) => Load(XMLUtil.LoadDocument(input));
+	public SignatureDocument[] Load(Stream input)
+		=> Load(XMLUtil.LoadDocument(input));
 
 	/// <summary>
 	/// Carga un archivo de firma.
@@ -380,10 +518,6 @@ public class XadesService
 		return firmas.ToArray();
 	}
 
-	#endregion
-
-	#region Validación
-
 	/// <summary>
 	/// Realiza la validación de una firma XAdES
 	/// </summary>
@@ -400,10 +534,7 @@ public class XadesService
 
 	#endregion
 
-	#endregion
-
 	#region Private methods
-
 
 	/// <summary>
 	/// Establece el identificador para la firma
@@ -548,7 +679,6 @@ public class XadesService
 		sigDocument.XadesSignature.AddReference(_refContent);
 	}
 
-
 	/// <summary>
 	/// Inserta un contenido XML para generar una firma enveloping.
 	/// </summary>
@@ -586,7 +716,6 @@ public class XadesService
 		sigDocument.XadesSignature.AddReference(_refContent);
 	}
 
-
 	/// <summary>
 	/// Especifica el nodo en el cual se añadira la firma
 	/// </summary>
@@ -618,7 +747,6 @@ public class XadesService
 
 		sigDocument.XadesSignature.SignatureNodeDestination = (XmlElement)nodo;
 	}
-
 
 	/// <summary>
 	/// Inserta un documento para generar una firma externally detached.
@@ -683,7 +811,6 @@ public class XadesService
 		reference.AddTransform(transform);
 	}
 
-
 	/// <summary>
 	/// Inserta un contenido XML para generar una firma enveloped.
 	/// </summary>
@@ -726,7 +853,33 @@ public class XadesService
 		sigDocument.XadesSignature.SignedInfo.SignatureMethod = parameters.SignatureMethod.URI;
 
 		AddCertificateInfo(sigDocument, parameters);
-		AddXadesInfo(sigDocument, parameters);
+		AddXadesInfo(sigDocument, parameters, parameters.Signer.Certificate);
+
+		foreach (Reference reference in sigDocument.XadesSignature.SignedInfo.References)
+		{
+			reference.DigestMethod = parameters.DigestMethod.URI;
+		}
+
+		if (parameters.SignatureDestination != null)
+		{
+			SetSignatureDestination(sigDocument, parameters.SignatureDestination);
+		}
+
+		if (parameters.XPathTransformations.Count > 0)
+		{
+			foreach (SignatureXPathExpression xPathTrans in parameters.XPathTransformations)
+			{
+				AddXPathTransform(sigDocument, xPathTrans.Namespaces, xPathTrans.XPathExpression);
+			}
+		}
+	}
+
+	private void PrepareSignatureForRemoteSigning(SignatureDocument sigDocument, RemoteSignatureParameters parameters)
+	{
+		sigDocument.XadesSignature.SignedInfo.SignatureMethod = parameters.SignatureMethod.URI;
+
+		AddRemoteCertificateInfo(sigDocument, parameters);
+		AddXadesInfo(sigDocument, parameters, parameters.PublicCertificate);
 
 		foreach (Reference reference in sigDocument.XadesSignature.SignedInfo.References)
 		{
@@ -758,9 +911,11 @@ public class XadesService
 		sigDocument.XadesSignature.LoadXml(signatureElement);
 	}
 
-	#region Información y propiedades de la firma
+	#region Information and properties of the firm
 
-	private void AddXadesInfo(SignatureDocument sigDocument, SignatureParameters parameters)
+	private void AddXadesInfo(SignatureDocument sigDocument,
+		SignatureParametersBase parameters,
+		X509Certificate2 certificate)
 	{
 		var xadesObject = new XadesObject
 		{
@@ -773,11 +928,11 @@ public class XadesService
 		AddSignatureProperties(sigDocument,
 			xadesObject.QualifyingProperties.SignedProperties.SignedSignatureProperties,
 			xadesObject.QualifyingProperties.SignedProperties.SignedDataObjectProperties,
-			parameters);
+			parameters,
+			certificate);
 
 		sigDocument.XadesSignature.AddXadesObject(xadesObject);
 	}
-
 
 	private void AddCertificateInfo(SignatureDocument sigDocument, SignatureParameters parameters)
 	{
@@ -787,7 +942,7 @@ public class XadesService
 		{
 			Id = "KeyInfoId-" + sigDocument.XadesSignature.Signature.Id
 		};
-		keyInfo.AddClause(new KeyInfoX509Data((X509Certificate)parameters.Signer.Certificate));
+		keyInfo.AddClause(new KeyInfoX509Data(parameters.Signer.Certificate));
 		keyInfo.AddClause(new RSAKeyValue((RSA)parameters.Signer.SigningKey));
 
 		sigDocument.XadesSignature.KeyInfo = keyInfo;
@@ -801,18 +956,40 @@ public class XadesService
 		sigDocument.XadesSignature.AddReference(reference);
 	}
 
+	private void AddRemoteCertificateInfo(SignatureDocument sigDocument, RemoteSignatureParameters parameters)
+	{
+		// Compute temporary signature via RSA signing key
+		sigDocument.XadesSignature.SigningKey = RSA.Create();
+
+		var keyInfo = new KeyInfo
+		{
+			Id = "KeyInfoId-" + sigDocument.XadesSignature.Signature.Id
+		};
+		keyInfo.AddClause(new KeyInfoX509Data(parameters.PublicCertificate));
+
+		sigDocument.XadesSignature.KeyInfo = keyInfo;
+
+		var reference = new Reference
+		{
+			Id = "ReferenceKeyInfo",
+			Uri = "#KeyInfoId-" + sigDocument.XadesSignature.Signature.Id
+		};
+
+		sigDocument.XadesSignature.AddReference(reference);
+	}
 
 	private void AddSignatureProperties(SignatureDocument sigDocument,
 		SignedSignatureProperties signedSignatureProperties,
 		SignedDataObjectProperties signedDataObjectProperties,
-		SignatureParameters parameters)
+		SignatureParametersBase parameters,
+		X509Certificate2 certificate)
 	{
 		Cert cert;
 
 		cert = new Cert();
-		cert.IssuerSerial.X509IssuerName = parameters.Signer.Certificate.IssuerName.Name;
-		cert.IssuerSerial.X509SerialNumber = parameters.Signer.Certificate.GetSerialNumberAsDecimalString();
-		DigestUtil.SetCertDigest(parameters.Signer.Certificate.GetRawCertData(), parameters.DigestMethod, cert.CertDigest);
+		cert.IssuerSerial.X509IssuerName = certificate.IssuerName.Name;
+		cert.IssuerSerial.X509SerialNumber = certificate.GetSerialNumberAsDecimalString();
+		DigestUtil.SetCertDigest(certificate.GetRawCertData(), parameters.DigestMethod, cert.CertDigest);
 		signedSignatureProperties.SigningCertificate.CertCollection.Add(cert);
 
 		if (parameters.SignaturePolicyInfo != null)
