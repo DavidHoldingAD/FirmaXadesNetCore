@@ -447,6 +447,107 @@ public class XadesService
 		return signatureDocument;
 	}
 
+	/// <summary>
+	/// Performs a system signing and gets the digest for remote singing.
+	/// </summary>
+	/// <param name="xmlDocument">the input XML</param>
+	/// <param name="parameters">the signing parameters</param>
+	/// <param name="digest">the digest</param>
+	/// <returns>the signature document</returns>
+	public SignatureDocument GetRemotingSigningDigest(XmlDocument xmlDocument, RemoteSignatureParameters parameters, out byte[] digest)
+	{
+		if (xmlDocument is null)
+		{
+			throw new ArgumentNullException(nameof(xmlDocument));
+		}
+
+		if (parameters is null)
+		{
+			throw new ArgumentNullException(nameof(parameters));
+		}
+
+		if (parameters.PublicCertificate is null)
+		{
+			throw new ArgumentException($"Public certificate is required.", nameof(parameters));
+		}
+
+		var signatureDocument = new SignatureDocument();
+		_dataFormat = new DataObjectFormat();
+
+		switch (parameters.SignaturePackaging)
+		{
+			case SignaturePackaging.INTERNALLY_DETACHED:
+				{
+					if (parameters.DataFormat == null || string.IsNullOrEmpty(parameters.DataFormat.MimeType))
+					{
+						throw new NullReferenceException("You need to specify the MIME type of the element to sign.");
+					}
+
+					_dataFormat.MimeType = parameters.DataFormat.MimeType;
+
+					if (parameters.DataFormat.MimeType == "text/xml")
+					{
+						_dataFormat.Encoding = "UTF-8";
+					}
+					else
+					{
+						_dataFormat.Encoding = "http://www.w3.org/2000/09/xmldsig#base64";
+					}
+
+					if (string.IsNullOrEmpty(parameters.ElementIdToSign))
+					{
+						throw new ArgumentException(
+							$"Element id to sign is required for `{parameters.SignaturePackaging}` signature packaging.",
+							nameof(parameters));
+					}
+
+					SetContentInternallyDetached(signatureDocument, xmlDocument, parameters.ElementIdToSign);
+					break;
+				}
+			case SignaturePackaging.ENVELOPED:
+				{
+					_dataFormat.MimeType = "text/xml";
+					_dataFormat.Encoding = "UTF-8";
+
+					SetContentEnveloped(signatureDocument, xmlDocument);
+					break;
+				}
+			case SignaturePackaging.ENVELOPING:
+				{
+					_dataFormat.MimeType = "text/xml";
+					_dataFormat.Encoding = "UTF-8";
+
+					SetContentEveloping(signatureDocument, xmlDocument);
+					break;
+				}
+			case SignaturePackaging.HASH_INTERNALLY_DETACHED:
+			case SignaturePackaging.EXTERNALLY_DETACHED:
+			default:
+				{
+					throw new ArgumentException($"Signature packaging `{parameters.SignaturePackaging}` is not supported in this context.", nameof(parameters));
+				}
+		}
+
+		if (parameters.DataFormat != null)
+		{
+			if (!string.IsNullOrEmpty(parameters.DataFormat.TypeIdentifier))
+			{
+				_dataFormat.ObjectIdentifier = new ObjectIdentifier();
+				_dataFormat.ObjectIdentifier.Identifier.IdentifierUri = parameters.DataFormat.TypeIdentifier;
+			}
+
+			_dataFormat.Description = parameters.DataFormat.Description;
+		}
+
+		SetSignatureId(signatureDocument.XadesSignature);
+
+		PrepareSignatureForRemoteSigning(signatureDocument, parameters);
+
+		digest = signatureDocument.XadesSignature.ComputeSignature();
+
+		return signatureDocument;
+	}
+
 	public SignatureDocument AttachSignature(SignatureDocument document, byte[] signatureValue)
 	{
 		if (document is null)
