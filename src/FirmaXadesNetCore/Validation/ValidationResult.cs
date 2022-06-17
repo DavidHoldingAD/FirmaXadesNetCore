@@ -21,7 +21,6 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-
 namespace FirmaXadesNetCore.Validation;
 
 public class ValidationResult
@@ -29,4 +28,35 @@ public class ValidationResult
 	public bool IsValid { get; set; }
 
 	public string Message { get; set; }
+
+	public Exception? Exception { get; set; }
+
+	internal static ValidationResult Invalid(string message, Exception exception = null)
+	{
+		if (message is null)
+		{
+			throw new ArgumentNullException(nameof(message));
+		}
+
+		return new ValidationResult
+		{
+			IsValid = false,
+			Message = message,
+			Exception = exception,
+		};
+	}
+
+	internal static ValidationResult Valid(string message)
+	{
+		if (message is null)
+		{
+			throw new ArgumentNullException(nameof(message));
+		}
+
+		return new ValidationResult
+		{
+			IsValid = true,
+			Message = message,
+		};
+	}
 }

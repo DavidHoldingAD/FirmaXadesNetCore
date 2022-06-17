@@ -32,42 +32,65 @@ using Org.BouncyCastle.Utilities;
 
 namespace FirmaXadesNetCore.Validation;
 
-class XadesValidator
+internal sealed class XadesValidator
 {
-	#region Public methods
+	public static ValidationResult Validate(SignatureDocument signatureDocument)
+		=> Validate(signatureDocument, XadesValidationFlags.CheckXmldsigSignature, validateTimeStamps: true);
 
-	public ValidationResult Validate(SignatureDocument sigDocument)
+	public static ValidationResult Validate(SignatureDocument signatureDocument, XadesValidationFlags validationFlags, bool validateTimeStamps)
 	{
-		//The elements that are validated are:
-		//* 1. The fingerprints of the firm's references.
-		//* 2. The fingerprint of the SignedInfo element is checked and the signature is verified with the public key of the certificate.
-		//* 3. If the signature contains a time stamp, it is verified that the fingerprint of the signature coincides with that of the time stamp.
-		//* The validation of -C, -X, -XL and -A profiles is outside the scope of this project.
-		var result = new ValidationResult();
+		if (signatureDocument is null)
+		{
+			throw new ArgumentNullException(nameof(signatureDocument));
+		}
 
 		try
 		{
 			// Check the fingerprints of the references and the signature
-			sigDocument.XadesSignature.CheckXmldsigSignature();
+			if (!signatureDocument.XadesSignature.CheckSignature(validationFlags))
+			{
+				return ValidationResult.Invalid("Could not validate signature.");
+			}
+
+			if (validateTimeStamps
+				&& signatureDocument.XadesSignature.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count > 0)
+			{
+				if (!ValidateTimestamps(signatureDocument.XadesSignature))
+				{
+					return ValidationResult.Invalid("The timestamp footprint does not correspond to the calculated one.");
+				}
+			}
+
+			return ValidationResult.Valid("Successful signature verification.");
 		}
 		catch (Exception ex)
 		{
-			result.IsValid = false;
-			result.Message = $"Signature verification was unsuccessful. Exception: {ex.Message}";
+			return ValidationResult.Invalid($"An error has occurred while validating signature.", ex);
+		}
+	}
 
-			return result;
+	private static bool ValidateTimestamps(XadesSignedXml xadesSignature)
+	{
+		TimeStamp[] timestamps = xadesSignature
+			.UnsignedProperties
+			.UnsignedSignatureProperties
+			.SignatureTimeStampCollection
+			.OfType<TimeStamp>()
+			.ToArray();
+
+		if (timestamps.Length <= 0)
+		{
+			throw new ArgumentException("No timestamp present in unsigned signature properties.", nameof(xadesSignature));
 		}
 
-		if (sigDocument.XadesSignature.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count > 0)
+		foreach (TimeStamp timestamp in timestamps)
 		{
-			// The timestamp is checked
-			TimeStamp timeStamp = sigDocument.XadesSignature.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection[0];
-			var token = new TimeStampToken(new CmsSignedData(timeStamp.EncapsulatedTimeStamp.PkiData));
+			var token = new TimeStampToken(new CmsSignedData(timestamp.EncapsulatedTimeStamp.PkiData));
 
-			byte[] tsHashValue = token.TimeStampInfo.GetMessageImprintDigest();
-			var tsDigestMethod = Crypto.DigestMethod.GetByOid(token.TimeStampInfo.HashAlgorithm.Algorithm.Id);
+			byte[] timeStampHash = token.TimeStampInfo.GetMessageImprintDigest();
+			var timeStampHashMethod = Crypto.DigestMethod.GetByOid(token.TimeStampInfo.HashAlgorithm.Algorithm.Id);
 
-			System.Security.Cryptography.Xml.Transform transform = timeStamp.CanonicalizationMethod?.Algorithm switch
+			System.Security.Cryptography.Xml.Transform transform = timestamp.CanonicalizationMethod?.Algorithm switch
 			{
 				SignedXml.XmlDsigC14NTransformUrl
 					=> new XmlDsigC14NTransform(),
@@ -86,23 +109,15 @@ class XadesValidator
 				"ds:SignatureValue",
 			};
 
-			byte[] signatureValueHash = DigestUtil
-				.ComputeHashValue(XMLUtil.ComputeValueOfElementList(sigDocument.XadesSignature, signatureValueElementXpaths, transform), tsDigestMethod);
+			byte[] signatureHash = XMLUtil.ComputeValueOfElementList(xadesSignature, signatureValueElementXpaths, transform);
+			byte[] signatureValueHash = timeStampHashMethod.ComputeHash(signatureHash);
 
-			if (!Arrays.AreEqual(tsHashValue, signatureValueHash))
+			if (!Arrays.AreEqual(timeStampHash, signatureValueHash))
 			{
-				result.IsValid = false;
-				result.Message = "The time stamp footprint does not correspond to the calculated one.";
-
-				return result;
+				return false;
 			}
 		}
 
-		result.IsValid = true;
-		result.Message = "Successful signature verification.";
-
-		return result;
+		return true;
 	}
-
-	#endregion
 }

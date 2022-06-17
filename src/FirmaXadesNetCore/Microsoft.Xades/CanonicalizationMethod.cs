@@ -30,27 +30,18 @@ namespace Microsoft.Xades;
 /// </summary>
 public class CanonicalizationMethod
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Algorithm of the transformation
 	/// </summary>
 	public string Algorithm { get; set; }
 
-	#endregion
-
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
 	public CanonicalizationMethod()
 	{
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
@@ -94,21 +85,20 @@ public class CanonicalizationMethod
 	public XmlElement GetXml()
 	{
 		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		XmlElement result;
 
 		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("ds", "CanonicalizationMethod", SignedXml.XmlDsigNamespaceUrl);
+		result = creationXmlDocument.CreateElement("ds", "CanonicalizationMethod", SignedXml.XmlDsigNamespaceUrl);
 
 		if (Algorithm != null)
 		{
-			retVal.SetAttribute("Algorithm", Algorithm);
+			result.SetAttribute("Algorithm", Algorithm);
 		}
 		else
 		{
-			retVal.SetAttribute("Algorithm", "");
+			result.SetAttribute("Algorithm", "");
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

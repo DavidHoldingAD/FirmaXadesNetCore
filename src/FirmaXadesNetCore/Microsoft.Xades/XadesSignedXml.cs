@@ -462,104 +462,118 @@ public class XadesSignedXml : SignedXml
 	/// a XAdES signature.  SignatureStandard should be equal to
 	/// <see cref="KnownSignatureStandard.Xades">KnownSignatureStandard.Xades</see>.
 	/// Use the CheckSignature method for non-XAdES signatures.</exception>
-	/// <param name="xadesCheckSignatureMasks">Bitmask to indicate which
+	/// <param name="validationFlags">Bitmask to indicate which
 	/// tests need to be done.  This function will call a public virtual
 	/// methods for each bit that has been set in this mask.
-	/// See the <see cref="XadesCheckSignatureMasks">XadesCheckSignatureMasks</see>
+	/// See the <see cref="XadesValidationFlags">XadesValidationFlags</see>
 	/// enum for the bitmask definitions.  The virtual test method associated
 	/// with a bit in the mask has the same name as enum value name.</param>
 	/// <returns>If the function returns true the check was OK.  If the
 	/// check fails an exception with a explanatory message is thrown.</returns>
-	public bool XadesCheckSignature(XadesCheckSignatureMasks xadesCheckSignatureMasks)
+	public bool CheckSignature(XadesValidationFlags validationFlags)
 	{
-		bool retVal;
-
-		retVal = true;
 		if (SignatureStandard != KnownSignatureStandard.Xades)
 		{
-			throw new Exception("SignatureStandard is not XAdES.  CheckSignature returned: " + CheckSignature());
-		}
-		else
-		{
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckXmldsigSignature) != 0)
-			{
-				retVal &= CheckXmldsigSignature();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.ValidateAgainstSchema) != 0)
-			{
-				retVal &= ValidateAgainstSchema();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckSameCertificate) != 0)
-			{
-				retVal &= CheckSameCertificate();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckAllReferencesExistInAllDataObjectsTimeStamp) != 0)
-			{
-				retVal &= CheckAllReferencesExistInAllDataObjectsTimeStamp();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckAllHashDataInfosInIndividualDataObjectsTimeStamp) != 0)
-			{
-				retVal &= CheckAllHashDataInfosInIndividualDataObjectsTimeStamp();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckCounterSignatures) != 0)
-			{
-				retVal &= CheckCounterSignatures(xadesCheckSignatureMasks);
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckCounterSignaturesReference) != 0)
-			{
-				retVal &= CheckCounterSignaturesReference();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckObjectReferencesInCommitmentTypeIndication) != 0)
-			{
-				retVal &= CheckObjectReferencesInCommitmentTypeIndication();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckIfClaimedRolesOrCertifiedRolesPresentInSignerRole) != 0)
-			{
-				retVal &= CheckIfClaimedRolesOrCertifiedRolesPresentInSignerRole();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckHashDataInfoOfSignatureTimeStampPointsToSignatureValue) != 0)
-			{
-				retVal &= CheckHashDataInfoOfSignatureTimeStampPointsToSignatureValue();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckQualifyingPropertiesTarget) != 0)
-			{
-				retVal &= CheckQualifyingPropertiesTarget();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckQualifyingProperties) != 0)
-			{
-				retVal &= CheckQualifyingProperties();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckSigAndRefsTimeStampHashDataInfos) != 0)
-			{
-				retVal &= CheckSigAndRefsTimeStampHashDataInfos();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckRefsOnlyTimeStampHashDataInfos) != 0)
-			{
-				retVal &= CheckRefsOnlyTimeStampHashDataInfos();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckArchiveTimeStampHashDataInfos) != 0)
-			{
-				retVal &= CheckArchiveTimeStampHashDataInfos();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckXadesCIsXadesT) != 0)
-			{
-				retVal &= CheckXadesCIsXadesT();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckXadesXLIsXadesX) != 0)
-			{
-				retVal &= CheckXadesXLIsXadesX();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckCertificateValuesMatchCertificateRefs) != 0)
-			{
-				retVal &= CheckCertificateValuesMatchCertificateRefs();
-			}
-			if ((xadesCheckSignatureMasks & XadesCheckSignatureMasks.CheckRevocationValuesMatchRevocationRefs) != 0)
-			{
-				retVal &= CheckRevocationValuesMatchRevocationRefs();
-			}
+			throw new Exception("SignatureStandard is not XAdES. CheckSignature returned: " + CheckSignature());
 		}
 
-		return retVal;
+		bool result = true;
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckXmldsigSignature))
+		{
+			result &= CheckXmldsigSignature();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.ValidateAgainstSchema))
+		{
+			result &= ValidateAgainstSchema();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckSameCertificate))
+		{
+			result &= CheckSameCertificate();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckAllReferencesExistInAllDataObjectsTimeStamp))
+		{
+			result &= CheckAllReferencesExistInAllDataObjectsTimeStamp();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckAllHashDataInfosInIndividualDataObjectsTimeStamp))
+		{
+			result &= CheckAllHashDataInfosInIndividualDataObjectsTimeStamp();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckCounterSignatures))
+		{
+			result &= CheckCounterSignatures(validationFlags);
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckCounterSignaturesReference))
+		{
+			result &= CheckCounterSignaturesReference();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckObjectReferencesInCommitmentTypeIndication))
+		{
+			result &= CheckObjectReferencesInCommitmentTypeIndication();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckIfClaimedRolesOrCertifiedRolesPresentInSignerRole))
+		{
+			result &= CheckIfClaimedRolesOrCertifiedRolesPresentInSignerRole();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckHashDataInfoOfSignatureTimeStampPointsToSignatureValue))
+		{
+			result &= CheckHashDataInfoOfSignatureTimeStampPointsToSignatureValue();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckQualifyingPropertiesTarget))
+		{
+			result &= CheckQualifyingPropertiesTarget();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckQualifyingProperties))
+		{
+			result &= CheckQualifyingProperties();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckSigAndRefsTimeStampHashDataInfos))
+		{
+			result &= CheckSigAndRefsTimeStampHashDataInfos();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckRefsOnlyTimeStampHashDataInfos))
+		{
+			result &= CheckRefsOnlyTimeStampHashDataInfos();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckArchiveTimeStampHashDataInfos))
+		{
+			result &= CheckArchiveTimeStampHashDataInfos();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckXadesCIsXadesT))
+		{
+			result &= CheckXadesCIsXadesT();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckXadesXLIsXadesX))
+		{
+			result &= CheckXadesXLIsXadesX();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckCertificateValuesMatchCertificateRefs))
+		{
+			result &= CheckCertificateValuesMatchCertificateRefs();
+		}
+
+		if (validationFlags.HasFlag(XadesValidationFlags.CheckRevocationValuesMatchRevocationRefs))
+		{
+			result &= CheckRevocationValuesMatchRevocationRefs();
+		}
+
+		return result;
 	}
 
 
@@ -596,11 +610,12 @@ public class XadesSignedXml : SignedXml
 		{
 			foreach (System.Security.Cryptography.Xml.Transform transform in reference.TransformChain)
 			{
-				if (transform.GetType() == typeof(XmlDsigXPathTransform))
+				if (transform is XmlDsigXPathTransform)
 				{
-					Type transform_Type = typeof(XmlDsigXPathTransform);
-					FieldInfo nsm_FieldInfo = transform_Type.GetField("_nsm", BindingFlags.NonPublic | BindingFlags.Instance);
-					var nsm = (XmlNamespaceManager)nsm_FieldInfo.GetValue(transform);
+					FieldInfo nsmFieldInfo = typeof(XmlDsigXPathTransform)
+						.GetField("_nsm", BindingFlags.NonPublic | BindingFlags.Instance);
+
+					var nsm = (XmlNamespaceManager)nsmFieldInfo.GetValue(transform);
 
 					foreach (XmlAttribute ns in namespaces)
 					{
@@ -610,22 +625,21 @@ public class XadesSignedXml : SignedXml
 			}
 		}
 
-		bool retVal = CheckDigestedReferences();
-
-		if (retVal == false)
+		bool result = CheckDigestedReferences();
+		if (result == false)
 		{
 			throw new CryptographicException("CheckXmldsigSignature() failed");
 		}
 
 		AsymmetricAlgorithm key = GetPublicKey();
-		retVal = CheckSignedInfo(key);
+		result = CheckSignedInfo(key);
 
-		if (retVal == false)
+		if (result == false)
 		{
 			throw new CryptographicException("CheckXmldsigSignature() failed");
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
@@ -805,7 +819,7 @@ public class XadesSignedXml : SignedXml
 	/// </summary>
 	/// <param name="counterSignatureMask">Check mask applied to counter signatures</param>
 	/// <returns>If the function returns true the check was OK</returns>
-	public virtual bool CheckCounterSignatures(XadesCheckSignatureMasks counterSignatureMask)
+	public virtual bool CheckCounterSignatures(XadesValidationFlags counterSignatureMask)
 	{
 		CounterSignatureCollection counterSignatureCollection;
 		XadesSignedXml counterSignature;
@@ -819,7 +833,7 @@ public class XadesSignedXml : SignedXml
 			//TODO: check if parent signature document is present in counterSignature (maybe a deep copy is required)
 			if (counterSignature.SignatureStandard == KnownSignatureStandard.Xades)
 			{
-				retVal &= counterSignature.XadesCheckSignature(counterSignatureMask);
+				retVal &= counterSignature.CheckSignature(counterSignatureMask);
 			}
 			else
 			{

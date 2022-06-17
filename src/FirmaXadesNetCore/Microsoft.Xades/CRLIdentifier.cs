@@ -34,11 +34,8 @@ namespace Microsoft.Xades;
 /// </summary>
 public class CRLIdentifier
 {
-	#region Private variables
 	private long _number;
-	#endregion
 
-	#region Public properties
 	/// <summary>
 	/// The optional URI attribute could serve to indicate where the OCSP
 	/// response identified is archived.
@@ -63,9 +60,7 @@ public class CRLIdentifier
 		get => _number;
 		set => _number = value;
 	}
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -74,38 +69,36 @@ public class CRLIdentifier
 		IssueTime = DateTime.MinValue;
 		_number = long.MinValue; //Impossible value
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (!string.IsNullOrEmpty(UriAttribute))
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (!string.IsNullOrEmpty(Issuer))
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (IssueTime != DateTime.MinValue)
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (_number != long.MinValue)
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
@@ -190,5 +183,4 @@ public class CRLIdentifier
 
 		return retVal;
 	}
-	#endregion
 }

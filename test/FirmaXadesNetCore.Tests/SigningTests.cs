@@ -49,10 +49,9 @@ public class SigningTests : SigningTestsBase
 			SignatureMethod = Crypto.SignatureMethod.GetByUri(signatureMethod),
 		});
 
-		ValidationResult result = service.Validate(document);
-
+		// Verify
+		ValidationResult result = service.Validate(document, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
 		Assert.IsTrue(result.IsValid);
-		Assert.IsTrue(document.XadesSignature.XadesCheckSignature(Microsoft.Xades.XadesCheckSignatureMasks.AllChecks));
 	}
 
 	[TestMethod]
@@ -76,10 +75,9 @@ public class SigningTests : SigningTestsBase
 				: null,
 		});
 
-		ValidationResult result = service.Validate(document);
-
+		// Verify
+		ValidationResult result = service.Validate(document, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
 		Assert.IsTrue(result.IsValid);
-		Assert.IsTrue(document.XadesSignature.XadesCheckSignature(Microsoft.Xades.XadesCheckSignatureMasks.AllChecks));
 	}
 
 	[TestMethod]
@@ -129,9 +127,7 @@ public class SigningTests : SigningTestsBase
 		service.AttachSignature(document, signatureValue);
 
 		// Verify
-		ValidationResult result = service.Validate(document);
-
+		ValidationResult result = service.Validate(document, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
 		Assert.IsTrue(result.IsValid);
-		Assert.IsTrue(document.XadesSignature.XadesCheckSignature(Microsoft.Xades.XadesCheckSignatureMasks.AllChecks));
 	}
 }

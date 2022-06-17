@@ -86,6 +86,28 @@ public sealed class DigestMethod
 		};
 	}
 
+	public byte[] ComputeHash(byte[] value)
+	{
+		if (value is null)
+		{
+			throw new ArgumentNullException(nameof(value));
+		}
+
+		return Uri switch
+		{
+			SignedXml.XmlDsigSHA1Url
+				=> System.Security.Cryptography.SHA1.HashData(value),
+			SignedXml.XmlDsigSHA256Url
+				=> System.Security.Cryptography.SHA256.HashData(value),
+			SignedXml.XmlDsigSHA384Url
+				=> System.Security.Cryptography.SHA384.HashData(value),
+			SignedXml.XmlDsigSHA512Url
+				=> System.Security.Cryptography.SHA512.HashData(value),
+			_
+				=> throw new Exception($"Hash algorithm URI `{Uri}` is not supported in this context.")
+		};
+	}
+
 	public static DigestMethod GetByOid(string oid)
 	{
 		if (oid is null)

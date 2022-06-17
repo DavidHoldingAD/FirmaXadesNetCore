@@ -174,14 +174,14 @@ public class SignatureDocument
 
 	internal static void CheckSignatureDocument(SignatureDocument sigDocument)
 	{
-		if (sigDocument == null)
+		if (sigDocument is null)
 		{
 			throw new ArgumentNullException(nameof(sigDocument));
 		}
 
-		if (sigDocument.Document == null || sigDocument.XadesSignature == null)
+		if (sigDocument.Document is null || sigDocument.XadesSignature is null)
 		{
-			throw new Exception("No existe información sobre la firma");
+			throw new Exception("There is no information about the firm.");
 		}
 	}
 

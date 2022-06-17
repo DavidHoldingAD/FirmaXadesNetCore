@@ -162,7 +162,8 @@ class XadesXLUpgrader : IXadesUpgrader
 			var chainCert = new Cert();
 			chainCert.IssuerSerial.X509IssuerName = cert.IssuerName.Name;
 			chainCert.IssuerSerial.X509SerialNumber = cert.GetSerialNumberAsDecimalString();
-			DigestUtil.SetCertDigest(cert.GetRawCertData(), digestMethod, chainCert.CertDigest);
+			chainCert.CertDigest.DigestMethod.Algorithm = digestMethod.Uri;
+			chainCert.CertDigest.DigestValue = digestMethod.ComputeHash(cert.GetRawCertData());
 			chainCert.URI = "#Cert" + guidCert;
 			unsignedProperties.UnsignedSignatureProperties.CompleteCertificateRefs.CertRefs.CertCollection.Add(chainCert);
 
@@ -254,15 +255,11 @@ class XadesXLUpgrader : IXadesUpgrader
 						crlRef.CRLIdentifier.UriAttribute = "#" + idCrlValue;
 						crlRef.CRLIdentifier.Issuer = issuer.Subject;
 						crlRef.CRLIdentifier.IssueTime = crlEntry.ThisUpdate.ToLocalTime();
-
-						long? crlNumber = GetCRLNumber(crlEntry);
-						if (crlNumber.HasValue)
-						{
-							crlRef.CRLIdentifier.Number = crlNumber.Value;
-						}
+						crlRef.CRLIdentifier.Number = GetCRLNumber(crlEntry) ?? crlRef.CRLIdentifier.Number;
 
 						byte[] crlEncoded = crlEntry.GetEncoded();
-						DigestUtil.SetCertDigest(crlEncoded, digestMethod, crlRef.CertDigest);
+						crlRef.CertDigest.DigestMethod.Algorithm = digestMethod.Uri;
+						crlRef.CertDigest.DigestValue = digestMethod.ComputeHash(crlEncoded);
 
 						var crlValue = new CRLValue
 						{
@@ -313,47 +310,53 @@ class XadesXLUpgrader : IXadesUpgrader
 
 		foreach (OcspServer ocspServer in finalOcspServers)
 		{
-			byte[] resp = ocsp.QueryBinary(clientCert, issuerCert, ocspServer.Url, ocspServer.RequestorName,
-				ocspServer.SignCertificate);
+			byte[] resp = ocsp.QueryBinary(clientCert, issuerCert, ocspServer.Url,
+				ocspServer.RequestorName, ocspServer.SignCertificate);
 
 			Clients.CertificateStatus status = ocsp.ProcessOcspResponse(resp);
 
-			if (status == FirmaXadesNetCore.Clients.CertificateStatus.Revoked)
+			switch (status)
 			{
-				throw new Exception("Certificado revocado");
-			}
-			else if (status == FirmaXadesNetCore.Clients.CertificateStatus.Good)
-			{
-				var r = new OcspResp(resp);
-				byte[] rEncoded = r.GetEncoded();
-				var or = (BasicOcspResp)r.GetResponseObject();
+				case Clients.CertificateStatus.Revoked:
+					{
+						throw new Exception("The certificate has been revoked.");
+					}
+				case Clients.CertificateStatus.Good:
+					{
+						var r = new OcspResp(resp);
+						byte[] rEncoded = r.GetEncoded();
+						var or = (BasicOcspResp)r.GetResponseObject();
 
-				string guidOcsp = Guid.NewGuid().ToString();
+						string guidOcsp = Guid.NewGuid().ToString();
 
-				var ocspRef = new OCSPRef();
-				ocspRef.OCSPIdentifier.UriAttribute = "#OcspValue" + guidOcsp;
-				DigestUtil.SetCertDigest(rEncoded, digestMethod, ocspRef.CertDigest);
+						var ocspRef = new OCSPRef();
+						ocspRef.OCSPIdentifier.UriAttribute = $"#OcspValue{guidOcsp}";
+						ocspRef.CertDigest.DigestMethod.Algorithm = digestMethod.Uri;
+						ocspRef.CertDigest.DigestValue = digestMethod.ComputeHash(rEncoded);
 
-				ResponderID rpId = or.ResponderId.ToAsn1Object();
-				ocspRef.OCSPIdentifier.ResponderID = GetResponderName(rpId, ref byKey);
-				ocspRef.OCSPIdentifier.ByKey = byKey;
+						ResponderID rpId = or.ResponderId.ToAsn1Object();
+						ocspRef.OCSPIdentifier.ResponderID = GetResponderName(rpId, ref byKey);
+						ocspRef.OCSPIdentifier.ByKey = byKey;
 
-				ocspRef.OCSPIdentifier.ProducedAt = or.ProducedAt.ToLocalTime();
-				unsignedProperties.UnsignedSignatureProperties.CompleteRevocationRefs.OCSPRefs.OCSPRefCollection.Add(ocspRef);
+						ocspRef.OCSPIdentifier.ProducedAt = or.ProducedAt.ToLocalTime();
+						unsignedProperties.UnsignedSignatureProperties.CompleteRevocationRefs.OCSPRefs.OCSPRefCollection.Add(ocspRef);
 
-				var ocspValue = new OCSPValue
-				{
-					PkiData = rEncoded,
-					Id = "OcspValue" + guidOcsp
-				};
-				unsignedProperties.UnsignedSignatureProperties.RevocationValues.OCSPValues.OCSPValueCollection.Add(ocspValue);
+						var ocspValue = new OCSPValue
+						{
+							PkiData = rEncoded,
+							Id = "OcspValue" + guidOcsp
+						};
+						unsignedProperties.UnsignedSignatureProperties.RevocationValues.OCSPValues.OCSPValueCollection.Add(ocspValue);
 
-				return (from cert in or.GetCerts()
-						select new X509Certificate2(cert.GetEncoded())).ToArray();
+						return or
+							.GetCerts()
+							.Select(x => new X509Certificate2(x.GetEncoded()))
+							.ToArray();
+					}
 			}
 		}
 
-		throw new Exception("El certificado no ha podido ser validado");
+		throw new Exception("The certificate could not be validated.");
 	}
 
 	private X509Certificate2 DetermineStartCert(X509Certificate2[] certs)
@@ -425,7 +428,7 @@ class XadesXLUpgrader : IXadesUpgrader
 			"ds:Object/xades:QualifyingProperties/xades:UnsignedProperties/xades:UnsignedSignatureProperties/xades:CompleteCertificateRefs",
 			"ds:Object/xades:QualifyingProperties/xades:UnsignedProperties/xades:UnsignedSignatureProperties/xades:CompleteRevocationRefs",
 		};
-		signatureValueHash = DigestUtil.ComputeHashValue(XMLUtil.ComputeValueOfElementList(signatureDocument.XadesSignature, signatureValueElementXpaths), parameters.DigestMethod);
+		signatureValueHash = parameters.DigestMethod.ComputeHash(XMLUtil.ComputeValueOfElementList(signatureDocument.XadesSignature, signatureValueElementXpaths));
 
 		byte[] tsa = parameters.TimeStampClient.GetTimeStamp(signatureValueHash, parameters.DigestMethod, true);
 

@@ -32,44 +32,47 @@ namespace FirmaXadesNetCore.Upgraders;
 
 class XadesTUpgrader : IXadesUpgrader
 {
-
-	#region Public methods
-
 	public void Upgrade(SignatureDocument signatureDocument, UpgradeParameters parameters)
 	{
-		TimeStamp signatureTimeStamp;
-		ArrayList signatureValueElementXpaths;
-		byte[] signatureValueHash;
-		UnsignedProperties unsignedProperties = signatureDocument.XadesSignature.UnsignedProperties;
+		if (signatureDocument is null)
+		{
+			throw new ArgumentNullException(nameof(signatureDocument));
+		}
+
+		if (parameters is null)
+		{
+			throw new ArgumentNullException(nameof(parameters));
+		}
 
 		try
 		{
+			UnsignedProperties unsignedProperties = signatureDocument.XadesSignature.UnsignedProperties;
 			if (unsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count > 0)
 			{
-				throw new Exception("La firma ya contiene un sello de tiempo");
+				throw new Exception("The signature already contains a timestamp.");
 			}
 
 			var excTransform = new XmlDsigExcC14NTransform();
-
-			signatureValueElementXpaths = new ArrayList
+			var signatureValueElementXpaths = new ArrayList
 			{
 				"ds:SignatureValue",
 			};
-			signatureValueHash = DigestUtil
-				.ComputeHashValue(XMLUtil.ComputeValueOfElementList(signatureDocument.XadesSignature, signatureValueElementXpaths, excTransform), parameters.DigestMethod);
+
+			byte[] signatureValueHash = parameters.DigestMethod
+				.ComputeHash(XMLUtil.ComputeValueOfElementList(signatureDocument.XadesSignature, signatureValueElementXpaths, excTransform));
 
 			byte[] tsa = parameters.TimeStampClient.GetTimeStamp(signatureValueHash, parameters.DigestMethod, true);
 
-			signatureTimeStamp = new TimeStamp("SignatureTimeStamp")
+			var signatureTimeStamp = new TimeStamp("SignatureTimeStamp")
 			{
-				Id = "SignatureTimeStamp-" + signatureDocument.XadesSignature.Signature.Id,
+				Id = $"SignatureTimeStamp-{signatureDocument.XadesSignature.Signature.Id}",
 				CanonicalizationMethod = new CanonicalizationMethod
 				{
 					Algorithm = excTransform.Algorithm
 				}
 			};
 			signatureTimeStamp.EncapsulatedTimeStamp.PkiData = tsa;
-			signatureTimeStamp.EncapsulatedTimeStamp.Id = "SignatureTimeStamp-" + Guid.NewGuid().ToString();
+			signatureTimeStamp.EncapsulatedTimeStamp.Id = $"SignatureTimeStamp-{Guid.NewGuid()}";
 
 			unsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Add(signatureTimeStamp);
 
@@ -79,9 +82,7 @@ class XadesTUpgrader : IXadesUpgrader
 		}
 		catch (Exception ex)
 		{
-			throw new Exception("Ha ocurrido un error al insertar el sellado de tiempo.", ex);
+			throw new Exception("An error occurred while inserting the timestamp.", ex);
 		}
 	}
-
-	#endregion
 }

@@ -511,15 +511,37 @@ public class XadesService
 	/// <summary>
 	/// Realiza la validación de una firma XAdES
 	/// </summary>
-	/// <param name="sigDocument"></param>
+	/// <param name="signatureDocument"></param>
 	/// <returns></returns>
-	public ValidationResult Validate(SignatureDocument sigDocument)
+	public ValidationResult Validate(SignatureDocument signatureDocument)
 	{
-		SignatureDocument.CheckSignatureDocument(sigDocument);
+		if (signatureDocument is null)
+		{
+			throw new ArgumentNullException(nameof(signatureDocument));
+		}
 
-		var validator = new XadesValidator();
+		SignatureDocument.CheckSignatureDocument(signatureDocument);
 
-		return validator.Validate(sigDocument);
+		return XadesValidator.Validate(signatureDocument);
+	}
+
+	/// <summary>
+	/// Validates the signature document with the specified options.
+	/// </summary>
+	/// <param name="signatureDocument">the signature document</param>
+	/// <param name="validationFlags">the validation flags</param>
+	/// <param name="validateTimeStamp">a flag indicating whether to validate timestamps or not</param>
+	/// <returns>the validation result</returns>
+	public ValidationResult Validate(SignatureDocument signatureDocument, XadesValidationFlags validationFlags, bool validateTimeStamp)
+	{
+		if (signatureDocument is null)
+		{
+			throw new ArgumentNullException(nameof(signatureDocument));
+		}
+
+		SignatureDocument.CheckSignatureDocument(signatureDocument);
+
+		return XadesValidator.Validate(signatureDocument, validationFlags, validateTimeStamp);
 	}
 
 	#endregion
@@ -960,7 +982,9 @@ public class XadesService
 		var xadesCertificate = new Cert();
 		xadesCertificate.IssuerSerial.X509IssuerName = certificate.IssuerName.Name;
 		xadesCertificate.IssuerSerial.X509SerialNumber = certificate.GetSerialNumberAsDecimalString();
-		DigestUtil.SetCertDigest(certificate.GetRawCertData(), parameters.DigestMethod, xadesCertificate.CertDigest);
+		xadesCertificate.CertDigest.DigestMethod.Algorithm = parameters.DigestMethod.Uri;
+		xadesCertificate.CertDigest.DigestValue = parameters.DigestMethod.ComputeHash(certificate.GetRawCertData());
+
 		signedSignatureProperties.SigningCertificate.CertCollection.Add(xadesCertificate);
 
 		if (parameters.SignaturePolicyInfo != null)
