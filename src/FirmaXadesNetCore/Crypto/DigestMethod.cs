@@ -23,22 +23,23 @@
 
 
 using System.Security.Cryptography;
+using System.Security.Cryptography.Xml;
 
 namespace FirmaXadesNetCore.Crypto;
 
-public class DigestMethod
+public sealed class DigestMethod
 {
-	#region Private variables
-
-
-	#endregion
+	private const string Sha1OID = "1.3.14.3.2.26";
+	private const string Sha256OID = "2.16.840.1.101.3.4.2.1";
+	private const string Sha384OID = "2.16.840.1.101.3.4.2.2";
+	private const string Sha512OID = "2.16.840.1.101.3.4.2.3";
 
 	#region Public properties
 
-	public static DigestMethod SHA1 = new DigestMethod("SHA1", "http://www.w3.org/2000/09/xmldsig#sha1", "1.3.14.3.2.26");
-	public static DigestMethod SHA256 = new DigestMethod("SHA256", "http://www.w3.org/2001/04/xmlenc#sha256", "2.16.840.1.101.3.4.2.1");
-	public static DigestMethod SHA512 = new DigestMethod("SHA512", "http://www.w3.org/2001/04/xmlenc#sha512", "2.16.840.1.101.3.4.2.3");
-
+	public static readonly DigestMethod SHA1 = new("SHA1", SignedXml.XmlDsigSHA1Url, Sha1OID);
+	public static readonly DigestMethod SHA256 = new("SHA256", SignedXml.XmlDsigSHA256Url, Sha256OID);
+	public static readonly DigestMethod SHA384 = new("SHA384", SignedXml.XmlDsigSHA384Url, Sha384OID);
+	public static readonly DigestMethod SHA512 = new("SHA512", SignedXml.XmlDsigSHA512Url, Sha512OID);
 
 	public string Name { get; }
 
@@ -63,42 +64,63 @@ public class DigestMethod
 
 	public static DigestMethod GetByOid(string oid)
 	{
-		if (oid == SHA1.Oid)
+		if (oid is null)
 		{
-			return SHA1;
+			throw new ArgumentNullException(nameof(oid));
 		}
-		else if (oid == SHA256.Oid)
+
+		return oid switch
 		{
-			return SHA256;
-		}
-		else if (oid == SHA512.Oid)
-		{
-			return SHA512;
-		}
-		else
-		{
-			throw new Exception("Unsupported digest method");
-		}
+			Sha1OID
+				=> SHA1,
+			Sha256OID
+				=> SHA256,
+			Sha384OID
+				=> SHA384,
+			Sha512OID
+				=> SHA512,
+			_
+				=> throw new Exception($"Hash algorithm OID `{oid}` is not supported in this context.")
+		};
 	}
 
-	public HashAlgorithm GetHashAlgorithm()
+	public static DigestMethod GetByUri(string uri)
 	{
-		if (Name == "SHA1")
+		if (uri is null)
 		{
-			return System.Security.Cryptography.SHA1.Create();
+			throw new ArgumentNullException(nameof(uri));
 		}
-		else if (Name == "SHA256")
+
+		return uri switch
 		{
-			return System.Security.Cryptography.SHA256.Create();
-		}
-		else if (Name == "SHA512")
+			SignedXml.XmlDsigSHA1Url
+				=> SHA1,
+			SignedXml.XmlDsigSHA256Url
+				=> SHA256,
+			SignedXml.XmlDsigSHA384Url
+				=> SHA384,
+			SignedXml.XmlDsigSHA512Url
+				=> SHA512,
+			_
+				=> throw new Exception($"Hash algorithm URI `{uri}` is not supported in this context.")
+		};
+	}
+
+	public HashAlgorithm Create()
+	{
+		return Name switch
 		{
-			return System.Security.Cryptography.SHA512.Create();
-		}
-		else
-		{
-			throw new Exception("Algoritmo no soportado");
-		}
+			"SHA1"
+				=> System.Security.Cryptography.SHA1.Create(),
+			"SHA256"
+				=> System.Security.Cryptography.SHA256.Create(),
+			"SHA384"
+				=> System.Security.Cryptography.SHA384.Create(),
+			"SHA512"
+				=> System.Security.Cryptography.SHA512.Create(),
+			_
+				=> throw new Exception($"Hash algorithm name `{Name}` is not supported in this context.")
+		};
 	}
 
 	#endregion

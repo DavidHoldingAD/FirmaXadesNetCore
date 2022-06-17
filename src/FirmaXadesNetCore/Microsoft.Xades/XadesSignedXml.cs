@@ -586,19 +586,6 @@ public class XadesSignedXml : SignedXml
 			KeyInfo = keyInfo;
 		}
 
-
-		if (CryptoConfig.CreateFromName(SignedInfo.SignatureMethod) is not SignatureDescription)
-		{
-			if (SignedInfo.SignatureMethod == "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")
-			{
-				CryptoConfig.AddAlgorithm(typeof(RSAPKCS1SHA256SignatureDescription), "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
-			}
-			else if (SignedInfo.SignatureMethod == "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512")
-			{
-				CryptoConfig.AddAlgorithm(typeof(RSAPKCS1SHA512SignatureDescription), "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512");
-			}
-		}
-
 		foreach (Reference reference in SignedInfo.References)
 		{
 			foreach (System.Security.Cryptography.Xml.Transform transform in reference.TransformChain)
@@ -1292,26 +1279,6 @@ public class XadesSignedXml : SignedXml
 		return;
 	}
 
-
-	private SignatureDescription GetSignatureDescription()
-	{
-		if (CryptoConfig.CreateFromName(SignedInfo.SignatureMethod) is not SignatureDescription description)
-		{
-			if (SignedInfo.SignatureMethod == "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")
-			{
-				CryptoConfig.AddAlgorithm(typeof(RSAPKCS1SHA256SignatureDescription), "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
-			}
-			else if (SignedInfo.SignatureMethod == "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512")
-			{
-				CryptoConfig.AddAlgorithm(typeof(RSAPKCS1SHA512SignatureDescription), "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512");
-			}
-
-			description = CryptoConfig.CreateFromName(SignedInfo.SignatureMethod) as SignatureDescription;
-		}
-
-		return description;
-	}
-
 	public new byte[] ComputeSignature()
 	{
 		BuildDigestedReferences();
@@ -1340,7 +1307,9 @@ public class XadesSignedXml : SignedXml
 			}
 		}
 
-		SignatureDescription description = GetSignatureDescription();
+		SignatureDescription description = FirmaXadesNetCore.Crypto.SignatureMethod
+			.GetByUri(SignedInfo.SignatureMethod)
+			.CreateSignatureDescription();
 		if (description == null)
 		{
 			throw new CryptographicException("Cryptography_Xml_SignatureDescriptionNotCreated");
@@ -1684,10 +1653,9 @@ public class XadesSignedXml : SignedXml
 			throw new ArgumentNullException(nameof(key));
 		}
 
-		if (CryptoConfig.CreateFromName(SignatureMethod) is not SignatureDescription signatureDescription)
-		{
-			throw new CryptographicException("signature description can't be created");
-		}
+		SignatureDescription signatureDescription = FirmaXadesNetCore.Crypto.SignatureMethod
+			.GetByUri(SignatureMethod)
+			.CreateSignatureDescription();
 
 		HashAlgorithm hashAlgorithm = signatureDescription.CreateDigest();
 		if (hashAlgorithm == null)

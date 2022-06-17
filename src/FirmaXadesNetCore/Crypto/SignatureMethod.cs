@@ -21,13 +21,17 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Security.Cryptography;
+using System.Security.Cryptography.Xml;
+
 namespace FirmaXadesNetCore.Crypto;
 
-public class SignatureMethod
+public sealed class SignatureMethod
 {
-	public static SignatureMethod RSAwithSHA1 = new SignatureMethod("RSAwithSHA1", "http://www.w3.org/2000/09/xmldsig#rsa-sha1");
-	public static SignatureMethod RSAwithSHA256 = new SignatureMethod("RSAwithSHA256", "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
-	public static SignatureMethod RSAwithSHA512 = new SignatureMethod("RSAwithSHA512", "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512");
+	public static readonly SignatureMethod RSAwithSHA1 = new SignatureMethod("RSAwithSHA1", SignedXml.XmlDsigRSASHA1Url);
+	public static readonly SignatureMethod RSAwithSHA256 = new SignatureMethod("RSAwithSHA256", SignedXml.XmlDsigRSASHA256Url);
+	public static readonly SignatureMethod RSAwithSHA384 = new SignatureMethod("RSAwithSHA384", SignedXml.XmlDsigRSASHA384Url);
+	public static readonly SignatureMethod RSAwithSHA512 = new SignatureMethod("RSAwithSHA512", SignedXml.XmlDsigRSASHA512Url);
 
 	public string Name { get; }
 
@@ -37,6 +41,45 @@ public class SignatureMethod
 	{
 		Name = name;
 		URI = uri;
+	}
+
+	public SignatureDescription CreateSignatureDescription()
+	{
+		return URI switch
+		{
+			SignedXml.XmlDsigRSASHA1Url
+				=> new Microsoft.Xades.RSAPKCS1SHA1SignatureDescription(),
+			SignedXml.XmlDsigRSASHA256Url
+				=> new Microsoft.Xades.RSAPKCS1SHA256SignatureDescription(),
+			SignedXml.XmlDsigRSASHA384Url
+				=> new Microsoft.Xades.RSAPKCS1SHA384SignatureDescription(),
+			SignedXml.XmlDsigRSASHA512Url
+				=> new Microsoft.Xades.RSAPKCS1SHA512SignatureDescription(),
+			_
+				=> throw new Exception($"Signature method URI `{URI}` is not supported in this context.")
+		};
+	}
+
+	public static SignatureMethod GetByUri(string uri)
+	{
+		if (uri is null)
+		{
+			throw new ArgumentNullException(nameof(uri));
+		}
+
+		return uri switch
+		{
+			SignedXml.XmlDsigRSASHA1Url
+				=> RSAwithSHA1,
+			SignedXml.XmlDsigRSASHA256Url
+				=> RSAwithSHA256,
+			SignedXml.XmlDsigRSASHA384Url
+				=> RSAwithSHA384,
+			SignedXml.XmlDsigRSASHA512Url
+				=> RSAwithSHA512,
+			_
+				=> throw new Exception($"Signature method URI `{uri}` is not supported in this context.")
+		};
 	}
 }
 
