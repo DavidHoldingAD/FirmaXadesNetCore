@@ -936,33 +936,16 @@ public class XadesService
 			Id = $"KeyInfoId-{sigDocument.XadesSignature.Signature.Id}",
 		};
 
-		// Add public certificate
+		// Add key information
 		keyInfo.AddClause(new KeyInfoX509Data(certificate));
-
-		// Add public key
-		// TODO: get by DSA or RSA
-		AsymmetricAlgorithm publicKey = certificate.GetRSAPublicKey();
-		if (publicKey is RSA rsaPublicKey)
-		{
-			keyInfo.AddClause(new RSAKeyValue(rsaPublicKey));
-		}
-		else if (publicKey is DSA dsaPublicKey)
-		{
-			keyInfo.AddClause(new DSAKeyValue(dsaPublicKey));
-		}
-		else
-		{
-			throw new ArgumentException(
-				$"Certificate public key with OID `{certificate.PublicKey.Oid}` is not supported in this context.",
-				nameof(certificate));
-		}
+		keyInfo.AddClause(new RSAKeyValue(certificate.GetRSAPublicKey()));
 
 		sigDocument.XadesSignature.KeyInfo = keyInfo;
 
 		var reference = new Reference
 		{
 			Id = "ReferenceKeyInfo",
-			Uri = $"#KeyInfoId-{sigDocument.XadesSignature.Signature.Id}"
+			Uri = $"#KeyInfoId-{sigDocument.XadesSignature.Signature.Id}",
 		};
 
 		sigDocument.XadesSignature.AddReference(reference);
@@ -992,7 +975,7 @@ public class XadesService
 			{
 				var spq = new SigPolicyQualifier
 				{
-					AnyXmlElement = sigDocument.Document.CreateElement(XadesSignedXml.XmlXadesPrefix, "SPURI", XadesSignedXml.XadesNamespaceUri)
+					AnyXmlElement = sigDocument.Document.CreateElement(XadesSignedXml.XmlXadesPrefix, "SPURI", XadesSignedXml.XadesNamespaceUri),
 				};
 				spq.AnyXmlElement.InnerText = parameters.SignaturePolicyInfo.PolicyUri;
 
@@ -1015,7 +998,7 @@ public class XadesService
 				MimeType = _dataFormat.MimeType,
 				Encoding = _dataFormat.Encoding,
 				Description = _dataFormat.Description,
-				ObjectReferenceAttribute = "#" + _refContent.Id
+				ObjectReferenceAttribute = $"#{_refContent.Id}",
 			};
 
 			if (_dataFormat.ObjectIdentifier != null)
@@ -1033,7 +1016,10 @@ public class XadesService
 
 			foreach (X509Certificate certifiedRole in parameters.SignerRole.CertifiedRoles)
 			{
-				signedSignatureProperties.SignerRole.CertifiedRoles.CertifiedRoleCollection.Add(new CertifiedRole() { PkiData = certifiedRole.GetRawCertData() });
+				signedSignatureProperties.SignerRole.CertifiedRoles.CertifiedRoleCollection.Add(new CertifiedRole()
+				{
+					PkiData = certifiedRole.GetRawCertData(),
+				});
 			}
 
 			foreach (string claimedRole in parameters.SignerRole.ClaimedRoles)

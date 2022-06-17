@@ -1814,24 +1814,24 @@ public class XadesSignedXml : SignedXml
 
 	private DataObject GetXadesDataObject()
 	{
-		DataObject retVal = null;
+		DataObject result = null;
 
-		for (int dataObjectCounter = 0; dataObjectCounter < (Signature.ObjectList.Count); dataObjectCounter++)
+		for (int dataObjectCounter = 0; dataObjectCounter < Signature.ObjectList.Count; dataObjectCounter++)
 		{
 			var dataObject = (DataObject)Signature.ObjectList[dataObjectCounter];
 			XmlElement dataObjectXmlElement = dataObject.GetXml();
 			var xmlNamespaceManager = new XmlNamespaceManager(dataObjectXmlElement.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
+			xmlNamespaceManager.AddNamespace("xades", XadesNamespaceUri);
 			XmlNodeList xmlNodeList = dataObjectXmlElement.SelectNodes("xades:QualifyingProperties", xmlNamespaceManager);
 			if (xmlNodeList.Count != 0)
 			{
-				retVal = dataObject;
+				result = dataObject;
 
 				break;
 			}
 		}
 
-		return retVal;
+		return result;
 	}
 
 	private void SchemaValidationHandler(object sender, ValidationEventArgs validationEventArgs)
@@ -1861,13 +1861,13 @@ public class XadesSignedXml : SignedXml
 		{
 			string referenceId = ((Reference)SignedInfo.References[referenceCounter]).Id;
 			string referenceUri = ((Reference)SignedInfo.References[referenceCounter]).Uri;
-			if (referenceUri != ("#" + XadesObject.QualifyingProperties.SignedProperties.Id))
+			if (referenceUri != $"#{XadesObject.QualifyingProperties.SignedProperties.Id}")
 			{
 				bool hashDataInfoFound = false;
 				for (int hashDataInfoCounter = 0; hashDataInfoFound == false && (hashDataInfoCounter < timeStamp.HashDataInfoCollection.Count); hashDataInfoCounter++)
 				{
 					HashDataInfo hashDataInfo = timeStamp.HashDataInfoCollection[hashDataInfoCounter];
-					hashDataInfoFound = (("#" + referenceId) == hashDataInfo.UriAttribute);
+					hashDataInfoFound = $"#{referenceId}" == hashDataInfo.UriAttribute;
 				}
 				retVal = hashDataInfoFound;
 			}
@@ -1889,7 +1889,7 @@ public class XadesSignedXml : SignedXml
 			for (int referenceCounter = 0; referenceFound == false && (referenceCounter < SignedInfo.References.Count); referenceCounter++)
 			{
 				referenceId = ((Reference)SignedInfo.References[referenceCounter]).Id;
-				if (("#" + referenceId) == hashDataInfo.UriAttribute)
+				if ($"#{referenceId}" == hashDataInfo.UriAttribute)
 				{
 					referenceFound = true;
 				}
@@ -1908,7 +1908,7 @@ public class XadesSignedXml : SignedXml
 		for (int referenceCounter = 0; retVal == false && (referenceCounter < SignedInfo.References.Count); referenceCounter++)
 		{
 			string referenceId = ((Reference)SignedInfo.References[referenceCounter]).Id;
-			if (("#" + referenceId) == objectReference.ObjectReferenceUri)
+			if ($"#{referenceId}" == objectReference.ObjectReferenceUri)
 			{
 				retVal = true;
 			}
@@ -1919,13 +1919,14 @@ public class XadesSignedXml : SignedXml
 
 	private bool CheckHashDataInfoPointsToSignatureValue(TimeStamp timeStamp)
 	{
-		bool retVal = true;
+		bool result = true;
+
 		foreach (HashDataInfo hashDataInfo in timeStamp.HashDataInfoCollection)
 		{
-			retVal &= (hashDataInfo.UriAttribute == ("#" + SignatureValueId));
+			result &= hashDataInfo.UriAttribute == $"#{SignatureValueId}";
 		}
 
-		return retVal;
+		return result;
 	}
 
 	private bool CheckHashDataInfosOfSigAndRefsTimeStamp(TimeStamp timeStamp)
@@ -1942,12 +1943,12 @@ public class XadesSignedXml : SignedXml
 
 		foreach (TimeStamp signatureTimeStamp in unsignedSignatureProperties.SignatureTimeStampCollection)
 		{
-			signatureTimeStampIds.Add("#" + signatureTimeStamp.EncapsulatedTimeStamp.Id);
+			signatureTimeStampIds.Add($"#{signatureTimeStamp.EncapsulatedTimeStamp.Id}");
 		}
 		signatureTimeStampIds.Sort();
 		foreach (HashDataInfo hashDataInfo in timeStamp.HashDataInfoCollection)
 		{
-			if (hashDataInfo.UriAttribute == "#" + SignatureValueId)
+			if (hashDataInfo.UriAttribute == $"#{SignatureValueId}")
 			{
 				signatureValueHashDataInfoFound = true;
 			}
@@ -1956,11 +1957,11 @@ public class XadesSignedXml : SignedXml
 			{
 				signatureTimeStampIds.RemoveAt(signatureTimeStampIdIndex);
 			}
-			if (hashDataInfo.UriAttribute == "#" + unsignedSignatureProperties.CompleteCertificateRefs.Id)
+			if (hashDataInfo.UriAttribute == $"#{unsignedSignatureProperties.CompleteCertificateRefs.Id}")
 			{
 				completeCertificateRefsHashDataInfoFound = true;
 			}
-			if (hashDataInfo.UriAttribute == "#" + unsignedSignatureProperties.CompleteRevocationRefs.Id)
+			if (hashDataInfo.UriAttribute == $"#{unsignedSignatureProperties.CompleteRevocationRefs.Id}")
 			{
 				completeRevocationRefsHashDataInfoFound = true;
 			}
