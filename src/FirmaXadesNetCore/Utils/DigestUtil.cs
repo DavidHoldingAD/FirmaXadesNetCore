@@ -32,7 +32,7 @@ class DigestUtil
 	public static void SetCertDigest(byte[] rawCert, Crypto.DigestMethod digestMethod, DigestAlgAndValueType destination)
 	{
 		using System.Security.Cryptography.HashAlgorithm hashAlg = digestMethod.Create();
-		destination.DigestMethod.Algorithm = digestMethod.URI;
+		destination.DigestMethod.Algorithm = digestMethod.Uri;
 		destination.DigestValue = hashAlg.ComputeHash(rawCert);
 	}
 

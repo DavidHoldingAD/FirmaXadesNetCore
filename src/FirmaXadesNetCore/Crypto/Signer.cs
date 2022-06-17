@@ -28,61 +28,30 @@ namespace FirmaXadesNetCore.Crypto;
 
 public class Signer : IDisposable
 {
-	#region Private variables
-
-	private bool _disposeCryptoProvider;
-
-	#endregion
-
-	#region Public properties
-
 	public X509Certificate2 Certificate { get; }
 
-	public AsymmetricAlgorithm SigningKey { get; private set; }
-
-	#endregion
-
-	#region Constructors
+	public AsymmetricAlgorithm SigningKey { get; }
 
 	public Signer(X509Certificate2 certificate)
 	{
-		if (certificate == null)
+		if (certificate is null)
 		{
 			throw new ArgumentNullException(nameof(certificate));
 		}
 
 		if (!certificate.HasPrivateKey)
 		{
-			throw new Exception("El certificado no contiene ninguna clave privada");
+			throw new Exception("The certificate does not contain any private key.");
 		}
 
 		Certificate = certificate;
-
-		SetSigningKey(Certificate);
+		SigningKey = certificate.GetRSAPrivateKey();
 	}
 
-	#endregion
+	#region IDisposable Members
 
-	#region Public methods
-
-	public void Dispose()
-	{
-		if (_disposeCryptoProvider && SigningKey != null)
-		{
-			SigningKey.Dispose();
-		}
-	}
-
-	#endregion
-
-	#region Private methods
-
-	private void SetSigningKey(X509Certificate2 certificate)
-	{
-		RSA key = certificate.GetRSAPrivateKey();
-		SigningKey = key;
-		_disposeCryptoProvider = false;
-	}
+	/// <inheritdoc/>
+	public void Dispose() { }
 
 	#endregion
 }

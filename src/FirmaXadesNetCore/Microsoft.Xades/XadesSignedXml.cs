@@ -21,7 +21,6 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
 using System.Collections;
-using System.Globalization;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -41,6 +40,10 @@ namespace Microsoft.Xades;
 public class XadesSignedXml : SignedXml
 {
 	#region Constants
+
+	private const string XadesXSDResourceName = "FirmaXadesNetCore.Microsoft.Xades.XAdES.xsd";
+	private const string XmlDsigCoreXsdResourceName = "FirmaXadesNetCore.Microsoft.Xades.xmldsig-core-schema.xsd";
+
 	/// <summary>
 	/// The XAdES XML namespace URI
 	/// </summary>
@@ -56,8 +59,11 @@ public class XadesSignedXml : SignedXml
 	/// </summary>
 	public const string SignedPropertiesType = "http://uri.etsi.org/01903#SignedProperties";
 
-
+	/// <summary>
+	/// XMLDSIG object type
+	/// </summary>
 	public const string XmlDsigObjectType = "http://www.w3.org/2000/09/xmldsig#Object";
+
 	#endregion
 
 	#region Private variables
@@ -630,7 +636,7 @@ public class XadesSignedXml : SignedXml
 	{
 		bool retValue = false;
 
-		var assembly = Assembly.GetExecutingAssembly();
+		Assembly assembly = typeof(XadesSignedXml).Assembly;
 		var schemaSet = new XmlSchemaSet();
 		XmlSchema xmlSchema;
 		Stream schemaStream;
@@ -644,13 +650,12 @@ public class XadesSignedXml : SignedXml
 
 		try
 		{
-			schemaStream = assembly.GetManifestResourceStream("Microsoft.Xades.xmldsig-core-schema.xsd");
+			schemaStream = assembly.GetManifestResourceStream(XmlDsigCoreXsdResourceName);
 			xmlSchema = XmlSchema.Read(schemaStream, new ValidationEventHandler(SchemaValidationHandler));
 			schemaSet.Add(xmlSchema);
 			schemaStream.Close();
 
-
-			schemaStream = assembly.GetManifestResourceStream("Microsoft.Xades.XAdES.xsd");
+			schemaStream = assembly.GetManifestResourceStream(XadesXSDResourceName);
 			xmlSchema = XmlSchema.Read(schemaStream, new ValidationEventHandler(SchemaValidationHandler));
 			schemaSet.Add(xmlSchema);
 			schemaStream.Close();
@@ -706,38 +711,31 @@ public class XadesSignedXml : SignedXml
 	}
 
 	/// <summary>
-	/// Check to see if first XMLDSIG certificate has same hashvalue as first XAdES SignatureCertificate
+	/// Check to see if first XMLDSIG certificate has same hash as first XAdES SignatureCertificate
 	/// </summary>
 	/// <returns>If the function returns true the check was OK</returns>
 	public virtual bool CheckSameCertificate()
 	{
-
-		//KeyInfoX509Data keyInfoX509Data = new KeyInfoX509Data();
-		//keyInfoX509Data.LoadXml(this.KeyInfo.GetXml());
-		//if (keyInfoX509Data.Certificates.Count <= 0)
-		//{
-		//    throw new CryptographicException("Certificate not found in XMLDSIG signature while doing CheckSameCertificate()");
-		//}
-		//string xmldsigCertHash = Convert.ToBase64String(((X509Certificate)keyInfoX509Data.Certificates[0]).GetCertHash());
-
-		X509Certificate xmldsigCert = GetSigningCertificate();
-		string xmldsigCertHash = Convert.ToBase64String(xmldsigCert.GetCertHash());
-
 		CertCollection xadesSigningCertificateCollection = XadesObject.QualifyingProperties.SignedProperties.SignedSignatureProperties.SigningCertificate.CertCollection;
 		if (xadesSigningCertificateCollection.Count <= 0)
 		{
 			throw new CryptographicException("Certificate not found in SigningCertificate element while doing CheckSameCertificate()");
 		}
-		string xadesCertHash = Convert.ToBase64String(xadesSigningCertificateCollection[0].CertDigest.DigestValue);
 
+		DigestAlgAndValueType xadesCertificateDigest = xadesSigningCertificateCollection[0].CertDigest;
 
-		if (string.Compare(xmldsigCertHash, xadesCertHash, true, CultureInfo.InvariantCulture) != 0)
+		X509Certificate2 keyInfoCertificate = GetSigningCertificate();
+		HashAlgorithmName hashAlgorithmName = FirmaXadesNetCore.Crypto.DigestMethod
+			.GetByUri(xadesCertificateDigest.DigestMethod.Algorithm)
+			.GetHashAlgorithmName();
+		ReadOnlySpan<byte> keyInfoCertificateHash = keyInfoCertificate.GetCertHash(hashAlgorithmName);
+
+		if (!keyInfoCertificateHash.SequenceEqual(xadesCertificateDigest.DigestValue))
 		{
 			throw new CryptographicException("Certificate in XMLDSIG signature doesn't match certificate in SigningCertificate element");
 		}
-		bool retVal = true;
 
-		return retVal;
+		return true;
 	}
 
 	/// <summary>

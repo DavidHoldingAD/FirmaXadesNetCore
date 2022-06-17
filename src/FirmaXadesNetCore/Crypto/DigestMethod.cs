@@ -34,8 +34,6 @@ public sealed class DigestMethod
 	private const string Sha384OID = "2.16.840.1.101.3.4.2.2";
 	private const string Sha512OID = "2.16.840.1.101.3.4.2.3";
 
-	#region Public properties
-
 	public static readonly DigestMethod SHA1 = new("SHA1", SignedXml.XmlDsigSHA1Url, Sha1OID);
 	public static readonly DigestMethod SHA256 = new("SHA256", SignedXml.XmlDsigSHA256Url, Sha256OID);
 	public static readonly DigestMethod SHA384 = new("SHA384", SignedXml.XmlDsigSHA384Url, Sha384OID);
@@ -43,24 +41,50 @@ public sealed class DigestMethod
 
 	public string Name { get; }
 
-	public string URI { get; }
+	public string Uri { get; }
 
 	public string Oid { get; }
-
-	#endregion
-
-	#region Constructors
 
 	private DigestMethod(string name, string uri, string oid)
 	{
 		Name = name;
-		URI = uri;
+		Uri = uri;
 		Oid = oid;
 	}
 
-	#endregion
+	public HashAlgorithmName GetHashAlgorithmName()
+	{
+		return Uri switch
+		{
+			SignedXml.XmlDsigSHA1Url
+				=> HashAlgorithmName.SHA1,
+			SignedXml.XmlDsigSHA256Url
+				=> HashAlgorithmName.SHA256,
+			SignedXml.XmlDsigSHA384Url
+				=> HashAlgorithmName.SHA384,
+			SignedXml.XmlDsigSHA512Url
+				=> HashAlgorithmName.SHA512,
+			_
+				=> throw new Exception($"Hash algorithm URI `{Uri}` is not supported in this context.")
+		};
+	}
 
-	#region Public methods
+	public HashAlgorithm Create()
+	{
+		return Name switch
+		{
+			"SHA1"
+				=> System.Security.Cryptography.SHA1.Create(),
+			"SHA256"
+				=> System.Security.Cryptography.SHA256.Create(),
+			"SHA384"
+				=> System.Security.Cryptography.SHA384.Create(),
+			"SHA512"
+				=> System.Security.Cryptography.SHA512.Create(),
+			_
+				=> throw new Exception($"Hash algorithm name `{Name}` is not supported in this context.")
+		};
+	}
 
 	public static DigestMethod GetByOid(string oid)
 	{
@@ -105,23 +129,4 @@ public sealed class DigestMethod
 				=> throw new Exception($"Hash algorithm URI `{uri}` is not supported in this context.")
 		};
 	}
-
-	public HashAlgorithm Create()
-	{
-		return Name switch
-		{
-			"SHA1"
-				=> System.Security.Cryptography.SHA1.Create(),
-			"SHA256"
-				=> System.Security.Cryptography.SHA256.Create(),
-			"SHA384"
-				=> System.Security.Cryptography.SHA384.Create(),
-			"SHA512"
-				=> System.Security.Cryptography.SHA512.Create(),
-			_
-				=> throw new Exception($"Hash algorithm name `{Name}` is not supported in this context.")
-		};
-	}
-
-	#endregion
 }

@@ -300,7 +300,7 @@ public class XadesService
 
 		foreach (Reference signReference in counterSignature.SignedInfo.References)
 		{
-			signReference.DigestMethod = parameters.DigestMethod.URI;
+			signReference.DigestMethod = parameters.DigestMethod.Uri;
 		}
 
 		counterSignature.SignedInfo.SignatureMethod = parameters.SignatureMethod.URI;
@@ -347,6 +347,11 @@ public class XadesService
 		if (parameters.PublicCertificate is null)
 		{
 			throw new ArgumentException($"Public certificate is required.", nameof(parameters));
+		}
+
+		if (parameters.PublicCertificate.HasPrivateKey)
+		{
+			throw new ArgumentException($"Public certificate should contain only public key.", nameof(parameters));
 		}
 
 		var signatureDocument = new SignatureDocument();
@@ -837,12 +842,12 @@ public class XadesService
 	{
 		sigDocument.XadesSignature.SignedInfo.SignatureMethod = parameters.SignatureMethod.URI;
 
-		AddCertificateInfo(sigDocument, parameters);
+		AddCertificateInfo(sigDocument, parameters.Signer.Certificate);
 		AddXadesInfo(sigDocument, parameters, parameters.Signer.Certificate);
 
 		foreach (Reference reference in sigDocument.XadesSignature.SignedInfo.References)
 		{
-			reference.DigestMethod = parameters.DigestMethod.URI;
+			reference.DigestMethod = parameters.DigestMethod.Uri;
 		}
 
 		if (parameters.SignatureDestination != null)
@@ -863,12 +868,12 @@ public class XadesService
 	{
 		sigDocument.XadesSignature.SignedInfo.SignatureMethod = parameters.SignatureMethod.URI;
 
-		AddRemoteCertificateInfo(sigDocument, parameters);
+		AddCertificateInfo(sigDocument, parameters.PublicCertificate);
 		AddXadesInfo(sigDocument, parameters, parameters.PublicCertificate);
 
 		foreach (Reference reference in sigDocument.XadesSignature.SignedInfo.References)
 		{
-			reference.DigestMethod = parameters.DigestMethod.URI;
+			reference.DigestMethod = parameters.DigestMethod.Uri;
 		}
 
 		if (parameters.SignatureDestination != null)
@@ -904,11 +909,11 @@ public class XadesService
 	{
 		var xadesObject = new XadesObject
 		{
-			Id = "XadesObjectId-" + Guid.NewGuid().ToString()
+			Id = $"XadesObjectId-{Guid.NewGuid()}",
 		};
-		xadesObject.QualifyingProperties.Id = "QualifyingProperties-" + Guid.NewGuid().ToString();
-		xadesObject.QualifyingProperties.Target = "#" + sigDocument.XadesSignature.Signature.Id;
-		xadesObject.QualifyingProperties.SignedProperties.Id = "SignedProperties-" + sigDocument.XadesSignature.Signature.Id;
+		xadesObject.QualifyingProperties.Id = $"QualifyingProperties-{Guid.NewGuid()}";
+		xadesObject.QualifyingProperties.Target = $"#{sigDocument.XadesSignature.Signature.Id}";
+		xadesObject.QualifyingProperties.SignedProperties.Id = $"SignedProperties-{sigDocument.XadesSignature.Signature.Id}";
 
 		AddSignatureProperties(sigDocument,
 			xadesObject.QualifyingProperties.SignedProperties.SignedSignatureProperties,
@@ -919,45 +924,45 @@ public class XadesService
 		sigDocument.XadesSignature.AddXadesObject(xadesObject);
 	}
 
-	private void AddCertificateInfo(SignatureDocument sigDocument, SignatureParameters parameters)
-	{
-		sigDocument.XadesSignature.SigningKey = parameters.Signer.SigningKey;
-
-		var keyInfo = new KeyInfo
-		{
-			Id = "KeyInfoId-" + sigDocument.XadesSignature.Signature.Id
-		};
-		keyInfo.AddClause(new KeyInfoX509Data(parameters.Signer.Certificate));
-		keyInfo.AddClause(new RSAKeyValue((RSA)parameters.Signer.SigningKey));
-
-		sigDocument.XadesSignature.KeyInfo = keyInfo;
-
-		var reference = new Reference
-		{
-			Id = "ReferenceKeyInfo",
-			Uri = "#KeyInfoId-" + sigDocument.XadesSignature.Signature.Id
-		};
-
-		sigDocument.XadesSignature.AddReference(reference);
-	}
-
-	private void AddRemoteCertificateInfo(SignatureDocument sigDocument, RemoteSignatureParameters parameters)
+	private void AddCertificateInfo(SignatureDocument sigDocument, X509Certificate2 certificate)
 	{
 		// Compute temporary signature via RSA signing key
-		sigDocument.XadesSignature.SigningKey = RSA.Create();
+		sigDocument.XadesSignature.SigningKey = certificate.HasPrivateKey
+			? certificate.GetRSAPrivateKey()
+			: RSA.Create();
 
 		var keyInfo = new KeyInfo
 		{
-			Id = "KeyInfoId-" + sigDocument.XadesSignature.Signature.Id
+			Id = $"KeyInfoId-{sigDocument.XadesSignature.Signature.Id}",
 		};
-		keyInfo.AddClause(new KeyInfoX509Data(parameters.PublicCertificate));
+
+		// Add public certificate
+		keyInfo.AddClause(new KeyInfoX509Data(certificate));
+
+		// Add public key
+		// TODO: get by DSA or RSA
+		AsymmetricAlgorithm publicKey = certificate.GetRSAPublicKey();
+		if (publicKey is RSA rsaPublicKey)
+		{
+			keyInfo.AddClause(new RSAKeyValue(rsaPublicKey));
+		}
+		else if (publicKey is DSA dsaPublicKey)
+		{
+			keyInfo.AddClause(new DSAKeyValue(dsaPublicKey));
+		}
+		else
+		{
+			throw new ArgumentException(
+				$"Certificate public key with OID `{certificate.PublicKey.Oid}` is not supported in this context.",
+				nameof(certificate));
+		}
 
 		sigDocument.XadesSignature.KeyInfo = keyInfo;
 
 		var reference = new Reference
 		{
 			Id = "ReferenceKeyInfo",
-			Uri = "#KeyInfoId-" + sigDocument.XadesSignature.Signature.Id
+			Uri = $"#KeyInfoId-{sigDocument.XadesSignature.Signature.Id}"
 		};
 
 		sigDocument.XadesSignature.AddReference(reference);
@@ -969,13 +974,11 @@ public class XadesService
 		SignatureParametersBase parameters,
 		X509Certificate2 certificate)
 	{
-		Cert cert;
-
-		cert = new Cert();
-		cert.IssuerSerial.X509IssuerName = certificate.IssuerName.Name;
-		cert.IssuerSerial.X509SerialNumber = certificate.GetSerialNumberAsDecimalString();
-		DigestUtil.SetCertDigest(certificate.GetRawCertData(), parameters.DigestMethod, cert.CertDigest);
-		signedSignatureProperties.SigningCertificate.CertCollection.Add(cert);
+		var xadesCertificate = new Cert();
+		xadesCertificate.IssuerSerial.X509IssuerName = certificate.IssuerName.Name;
+		xadesCertificate.IssuerSerial.X509SerialNumber = certificate.GetSerialNumberAsDecimalString();
+		DigestUtil.SetCertDigest(certificate.GetRawCertData(), parameters.DigestMethod, xadesCertificate.CertDigest);
+		signedSignatureProperties.SigningCertificate.CertCollection.Add(xadesCertificate);
 
 		if (parameters.SignaturePolicyInfo != null)
 		{
@@ -998,7 +1001,7 @@ public class XadesService
 
 			if (!string.IsNullOrEmpty(parameters.SignaturePolicyInfo.PolicyHash))
 			{
-				signedSignatureProperties.SignaturePolicyIdentifier.SignaturePolicyId.SigPolicyHash.DigestMethod.Algorithm = parameters.SignaturePolicyInfo.PolicyDigestAlgorithm.URI;
+				signedSignatureProperties.SignaturePolicyIdentifier.SignaturePolicyId.SigPolicyHash.DigestMethod.Algorithm = parameters.SignaturePolicyInfo.PolicyDigestAlgorithm.Uri;
 				signedSignatureProperties.SignaturePolicyIdentifier.SignaturePolicyId.SigPolicyHash.DigestValue = Convert.FromBase64String(parameters.SignaturePolicyInfo.PolicyHash);
 			}
 		}

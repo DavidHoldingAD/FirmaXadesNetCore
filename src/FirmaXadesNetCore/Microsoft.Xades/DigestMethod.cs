@@ -30,26 +30,18 @@ namespace Microsoft.Xades;
 /// </summary>
 public class DigestMethod
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Contains the digest algorithm
 	/// </summary>
 	public string Algorithm { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
 	public DigestMethod()
 	{
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
@@ -98,5 +90,4 @@ public class DigestMethod
 
 		return retVal;
 	}
-	#endregion
 }

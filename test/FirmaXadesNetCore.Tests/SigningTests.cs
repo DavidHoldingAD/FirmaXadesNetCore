@@ -52,6 +52,7 @@ public class SigningTests : SigningTestsBase
 		ValidationResult result = service.Validate(document);
 
 		Assert.IsTrue(result.IsValid);
+		Assert.IsTrue(document.XadesSignature.XadesCheckSignature(Microsoft.Xades.XadesCheckSignatureMasks.AllChecks));
 	}
 
 	[TestMethod]
@@ -78,6 +79,7 @@ public class SigningTests : SigningTestsBase
 		ValidationResult result = service.Validate(document);
 
 		Assert.IsTrue(result.IsValid);
+		Assert.IsTrue(document.XadesSignature.XadesCheckSignature(Microsoft.Xades.XadesCheckSignatureMasks.AllChecks));
 	}
 
 	[TestMethod]
@@ -130,5 +132,6 @@ public class SigningTests : SigningTestsBase
 		ValidationResult result = service.Validate(document);
 
 		Assert.IsTrue(result.IsValid);
+		Assert.IsTrue(document.XadesSignature.XadesCheckSignature(Microsoft.Xades.XadesCheckSignatureMasks.AllChecks));
 	}
 }
