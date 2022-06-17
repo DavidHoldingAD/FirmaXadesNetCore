@@ -22,7 +22,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Collections;
-using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
 using FirmaXadesNetCore.Signature;
 using FirmaXadesNetCore.Utils;
@@ -68,15 +67,19 @@ class XadesValidator
 			byte[] tsHashValue = token.TimeStampInfo.GetMessageImprintDigest();
 			var tsDigestMethod = Crypto.DigestMethod.GetByOid(token.TimeStampInfo.HashAlgorithm.Algorithm.Id);
 
-			System.Security.Cryptography.Xml.Transform transform;
-			if (timeStamp.CanonicalizationMethod != null)
+			System.Security.Cryptography.Xml.Transform transform = timeStamp.CanonicalizationMethod?.Algorithm switch
 			{
-				transform = CryptoConfig.CreateFromName(timeStamp.CanonicalizationMethod.Algorithm) as System.Security.Cryptography.Xml.Transform;
-			}
-			else
-			{
-				transform = new XmlDsigC14NTransform();
-			}
+				SignedXml.XmlDsigC14NTransformUrl
+					=> new XmlDsigC14NTransform(),
+				SignedXml.XmlDsigC14NWithCommentsTransformUrl
+					=> new XmlDsigC14NWithCommentsTransform(),
+				SignedXml.XmlDsigExcC14NTransformUrl
+					=> new XmlDsigExcC14NTransform(),
+				SignedXml.XmlDsigExcC14NWithCommentsTransformUrl
+					=> new XmlDsigExcC14NWithCommentsTransform(),
+				_
+					=> new XmlDsigC14NTransform(),
+			};
 
 			var signatureValueElementXpaths = new ArrayList
 			{

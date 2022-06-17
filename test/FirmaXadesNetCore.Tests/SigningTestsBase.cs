@@ -46,10 +46,10 @@ public abstract class SigningTestsBase
 
 		using X509Certificate2 certificate = request.CreateSelfSigned(new DateTimeOffset(DateTime.UtcNow.AddDays(-1)), new DateTimeOffset(DateTime.UtcNow.AddDays(3650)));
 
-		//if (OperatingSystem.IsWindows())
-		//{
-		certificate.FriendlyName = name;
-		//}
+		if (OperatingSystem.IsWindows())
+		{
+			certificate.FriendlyName = name;
+		}
 
 		byte[] pfxBytes = certificate.Export(X509ContentType.Pfx, password);
 

@@ -328,128 +328,6 @@ public class XadesService
 	/// <summary>
 	/// Performs a system signing and gets the digest for remote singing.
 	/// </summary>
-	/// <param name="input">the input XML</param>
-	/// <param name="parameters">the signing parameters</param>
-	/// <param name="digest">the digest</param>
-	/// <returns>the signature document</returns>
-	public SignatureDocument GetRemotingSigningDigest(Stream input, RemoteSignatureParameters parameters, out byte[] digest)
-	{
-		if (input is null)
-		{
-			throw new ArgumentNullException(nameof(input));
-		}
-
-		if (parameters is null)
-		{
-			throw new ArgumentNullException(nameof(parameters));
-		}
-
-		if (input.Length <= 0
-			&& string.IsNullOrEmpty(parameters.ExternalContentUri))
-		{
-			throw new Exception("No content to sign has been specified.");
-		}
-
-		if (parameters.PublicCertificate is null)
-		{
-			throw new ArgumentException($"Public certificate is required.", nameof(parameters));
-		}
-
-		var signatureDocument = new SignatureDocument();
-		_dataFormat = new DataObjectFormat();
-
-		switch (parameters.SignaturePackaging)
-		{
-			case SignaturePackaging.INTERNALLY_DETACHED:
-				{
-					if (parameters.DataFormat == null || string.IsNullOrEmpty(parameters.DataFormat.MimeType))
-					{
-						throw new NullReferenceException("You need to specify the MIME type of the element to sign.");
-					}
-
-					_dataFormat.MimeType = parameters.DataFormat.MimeType;
-
-					if (parameters.DataFormat.MimeType == "text/xml")
-					{
-						_dataFormat.Encoding = "UTF-8";
-					}
-					else
-					{
-						_dataFormat.Encoding = "http://www.w3.org/2000/09/xmldsig#base64";
-					}
-
-					if (!string.IsNullOrEmpty(parameters.ElementIdToSign))
-					{
-						SetContentInternallyDetached(signatureDocument, XMLUtil.LoadDocument(input), parameters.ElementIdToSign);
-					}
-					else
-					{
-						SetContentInternallyDetached(signatureDocument, input);
-					}
-					break;
-				}
-			case SignaturePackaging.HASH_INTERNALLY_DETACHED:
-				{
-					if (parameters.DataFormat == null || string.IsNullOrEmpty(parameters.DataFormat.MimeType))
-					{
-						_dataFormat.MimeType = "application/octet-stream";
-					}
-					else
-					{
-						_dataFormat.MimeType = parameters.DataFormat.MimeType;
-					}
-					_dataFormat.Encoding = "http://www.w3.org/2000/09/xmldsig#base64";
-					SetContentInternallyDetachedHashed(signatureDocument, input);
-					break;
-				}
-			case SignaturePackaging.ENVELOPED:
-				{
-					_dataFormat.MimeType = "text/xml";
-					_dataFormat.Encoding = "UTF-8";
-					SetContentEnveloped(signatureDocument, XMLUtil.LoadDocument(input));
-					break;
-				}
-			case SignaturePackaging.ENVELOPING:
-				{
-					_dataFormat.MimeType = "text/xml";
-					_dataFormat.Encoding = "UTF-8";
-					SetContentEveloping(signatureDocument, XMLUtil.LoadDocument(input));
-					break;
-				}
-			case SignaturePackaging.EXTERNALLY_DETACHED:
-				{
-					SetContentExternallyDetached(signatureDocument, parameters.ExternalContentUri);
-					break;
-				}
-			default:
-				{
-					throw new ArgumentException($"Signature packaging `{parameters.SignaturePackaging}` is not supported in this context.", nameof(parameters));
-				}
-		}
-
-		if (parameters.DataFormat != null)
-		{
-			if (!string.IsNullOrEmpty(parameters.DataFormat.TypeIdentifier))
-			{
-				_dataFormat.ObjectIdentifier = new ObjectIdentifier();
-				_dataFormat.ObjectIdentifier.Identifier.IdentifierUri = parameters.DataFormat.TypeIdentifier;
-			}
-
-			_dataFormat.Description = parameters.DataFormat.Description;
-		}
-
-		SetSignatureId(signatureDocument.XadesSignature);
-
-		PrepareSignatureForRemoteSigning(signatureDocument, parameters);
-
-		digest = signatureDocument.XadesSignature.ComputeSignature();
-
-		return signatureDocument;
-	}
-
-	/// <summary>
-	/// Performs a system signing and gets the digest for remote singing.
-	/// </summary>
 	/// <param name="xmlDocument">the input XML</param>
 	/// <param name="parameters">the signing parameters</param>
 	/// <param name="digest">the digest</param>
@@ -548,6 +426,12 @@ public class XadesService
 		return signatureDocument;
 	}
 
+	/// <summary>
+	/// Attaches the signature value to the signature document.
+	/// </summary>
+	/// <param name="document">the signature document</param>
+	/// <param name="signatureValue">the signature value</param>
+	/// <returns>the updated signature document</returns>
 	public SignatureDocument AttachSignature(SignatureDocument document, byte[] signatureValue)
 	{
 		if (document is null)

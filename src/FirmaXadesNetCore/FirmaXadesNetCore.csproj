@@ -11,6 +11,8 @@
 		<Description>FirmaXadesNet is a library developed in C# for the generation of XAdES signatures carried out by the Department of New Technologies of the Town Planning Department of the Cartagena City Council, which is based on a modification of the XAdES starter kit developed by Microsoft France.</Description>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Version>2.0.0</Version>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 
 	<ItemGroup>
