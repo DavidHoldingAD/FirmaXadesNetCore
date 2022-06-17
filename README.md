@@ -1,6 +1,6 @@
 FirmaXadesNetCore
 =============
-![.NET Core](https://github.com/newverdun/FirmaXadesNetCore/workflows/.NET%20Core/badge.svg?branch=master)
+![.NET Core](https://github.com/DavidHoldingAD/FirmaXadesNetCore/workflows/.NET%20Core/badge.svg?branch=master)
 
 INTRODUCTION
 -------------
@@ -14,5 +14,5 @@ FEATURES
 - Generation of XAdES-BES, XAdES-EPES, XAdES-T and XAdES-XL signatures.
 - Externally Detached, Internally Detached, Enveloped and Enveloping formats.
 - Validation of certificates through OCSP and revocation lists.
-- Support for co-signatures and countersignatures.
-- Support for RSA-SHA1, RSA-SHA256 and RSA-SHA512 signature methods.
+- Support for co-signatures, countersignatures and remote digest signing.
+- Support for RSA-SHA1, RSA-SHA256, RSA-SHA384 and RSA-SHA512 signature methods.
