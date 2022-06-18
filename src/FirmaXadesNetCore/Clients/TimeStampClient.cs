@@ -29,85 +29,84 @@ using Org.BouncyCastle.Tsp;
 
 namespace FirmaXadesNetCore.Clients;
 
-public class TimeStampClient : ITimeStampClient
+public sealed class TimeStampClient : ITimeStampClient
 {
-	#region Private variables
 	private readonly string _url;
 	private readonly string _user;
 	private readonly string _password;
-	#endregion
-
-	#region Constructors
 
 	public TimeStampClient(string url)
 	{
-		_url = url;
+		_url = url ?? throw new ArgumentNullException(nameof(url));
 	}
 
 	public TimeStampClient(string url, string user, string password)
 		: this(url)
 	{
-		_user = user;
-		_password = password;
+		_user = user ?? throw new ArgumentNullException(nameof(user));
+		_password = password ?? throw new ArgumentNullException(nameof(password));
 	}
 
+	#region ITimeStampClient Members
 
-	#endregion
-
-	#region Public methods
-
-	/// <summary>
-	/// Realiza la petición de sellado del hash que se pasa como parametro y devuelve la
-	/// respuesta del servidor.
-	/// </summary>
-	/// <param name="hash"></param>
-	/// <param name="digestMethod"></param>
-	/// <param name="certReq"></param>
-	/// <returns></returns>
+	/// <inheritdoc/>
 	public byte[] GetTimeStamp(byte[] hash, DigestMethod digestMethod, bool certReq)
 	{
-		var tsrq = new TimeStampRequestGenerator();
-		tsrq.SetCertReq(certReq);
-
-		var nonce = BigInteger.ValueOf(DateTime.Now.Ticks);
-
-		TimeStampRequest tsr = tsrq.Generate(digestMethod.Oid, hash, nonce);
-		byte[] data = tsr.GetEncoded();
-
-		var req = (HttpWebRequest)WebRequest.Create(_url);
-		req.Method = "POST";
-		req.ContentType = "application/timestamp-query";
-		req.ContentLength = data.Length;
-
-		if (!string.IsNullOrEmpty(_user) && !string.IsNullOrEmpty(_password))
+		if (hash is null)
 		{
-			string auth = string.Format("{0}:{1}", _user, _password);
-			req.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.Default.GetBytes(auth), Base64FormattingOptions.None);
+			throw new ArgumentNullException(nameof(hash));
 		}
 
-		Stream reqStream = req.GetRequestStream();
-		reqStream.Write(data, 0, data.Length);
-		reqStream.Close();
-
-		var res = (HttpWebResponse)req.GetResponse();
-		if (res.StatusCode != HttpStatusCode.OK)
+		if (digestMethod is null)
 		{
-			throw new Exception("El servidor ha devuelto una respuesta no válida");
+			throw new ArgumentNullException(nameof(digestMethod));
+		}
+
+		var timeStampRequestGenerator = new TimeStampRequestGenerator();
+		timeStampRequestGenerator.SetCertReq(certReq);
+
+		TimeStampRequest timeStampRequest = timeStampRequestGenerator
+			.Generate(digestMethod.Oid, hash, BigInteger.ValueOf(DateTime.Now.Ticks));
+		byte[] timeStampRequestBytes = timeStampRequest.GetEncoded();
+
+		var request = (HttpWebRequest)WebRequest.Create(_url);
+		request.Method = "POST";
+		request.ContentType = "application/timestamp-query";
+		request.ContentLength = timeStampRequestBytes.Length;
+
+		if (!string.IsNullOrEmpty(_user)
+			&& !string.IsNullOrEmpty(_password))
+		{
+			string basicAuthenticationValue = Convert.ToBase64String(
+				Encoding.Default.GetBytes($"{_user}:{_password}"),
+				Base64FormattingOptions.None);
+
+			request.Headers["Authorization"] = $"Basic {basicAuthenticationValue}";
+		}
+
+		using Stream requestStream = request.GetRequestStream();
+		requestStream.Write(timeStampRequestBytes, 0, timeStampRequestBytes.Length);
+		requestStream.Close();
+
+		var response = (HttpWebResponse)request.GetResponse();
+		if (response.StatusCode != HttpStatusCode.OK)
+		{
+			throw new Exception("The server has returned an invalid response.");
 		}
 		else
 		{
-			Stream resStream = new BufferedStream(res.GetResponseStream());
-			var tsRes = new TimeStampResponse(resStream);
-			resStream.Close();
+			using Stream responseStream = new BufferedStream(response.GetResponseStream());
+			var timeStampResponse = new TimeStampResponse(responseStream);
+			responseStream.Close();
 
-			tsRes.Validate(tsr);
+			timeStampResponse.Validate(timeStampRequest);
 
-			if (tsRes.TimeStampToken == null)
+			if (timeStampResponse.TimeStampToken == null)
 			{
-				throw new Exception("El servidor no ha devuelto ningún sello de tiempo");
+				throw new Exception("The server has not returned any timestamp.");
 			}
 
-			return tsRes.TimeStampToken.GetEncoded();
+			return timeStampResponse.TimeStampToken.GetEncoded();
 		}
 	}
 

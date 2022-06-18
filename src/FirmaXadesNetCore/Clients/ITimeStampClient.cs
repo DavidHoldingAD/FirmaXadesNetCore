@@ -27,5 +27,12 @@ namespace FirmaXadesNetCore.Clients;
 
 public interface ITimeStampClient
 {
+	/// <summary>
+	/// Makes the sealing request of the hash that is passed as a parameter and returns the response from the server.
+	/// </summary>
+	/// <param name="hash"></param>
+	/// <param name="digestMethod"></param>
+	/// <param name="certReq"></param>
+	/// <returns></returns>
 	byte[] GetTimeStamp(byte[] hash, DigestMethod digestMethod, bool certReq);
 }
