@@ -251,7 +251,7 @@ public class XadesService
 		var counterSignature = new XadesSignedXml(counterSigDocument.Document);
 		SetSignatureId(counterSignature);
 
-		counterSignature.SigningKey = parameters.Signer.SigningKey;
+		counterSignature.SigningKey = parameters.Signer.Certificate.GetRSAPrivateKey();
 
 		_refContent = new Reference
 		{
@@ -273,7 +273,7 @@ public class XadesService
 			Id = "KeyInfoId-" + counterSignature.Signature.Id
 		};
 		keyInfo.AddClause(new KeyInfoX509Data(parameters.Signer.Certificate));
-		keyInfo.AddClause(new RSAKeyValue((RSA)parameters.Signer.SigningKey));
+		keyInfo.AddClause(new RSAKeyValue((RSA)counterSignature.SigningKey));
 		counterSignature.KeyInfo = keyInfo;
 
 		var referenceKeyInfo = new Reference

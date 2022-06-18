@@ -21,16 +21,13 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 namespace FirmaXadesNetCore.Crypto;
 
-public class Signer : IDisposable
+public class Signer
 {
 	public X509Certificate2 Certificate { get; }
-
-	public AsymmetricAlgorithm SigningKey { get; }
 
 	public Signer(X509Certificate2 certificate)
 	{
@@ -45,13 +42,5 @@ public class Signer : IDisposable
 		}
 
 		Certificate = certificate;
-		SigningKey = certificate.GetRSAPrivateKey();
 	}
-
-	#region IDisposable Members
-
-	/// <inheritdoc/>
-	public void Dispose() { }
-
-	#endregion
 }
