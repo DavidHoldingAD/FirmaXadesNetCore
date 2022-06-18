@@ -25,13 +25,6 @@ namespace FirmaXadesNetCore.Signature.Parameters;
 
 public class SignatureCommitmentType
 {
-	#region Private variables
-
-
-	#endregion
-
-	#region Public properties
-
 	public static SignatureCommitmentType ProofOfOrigin = new SignatureCommitmentType("http://uri.etsi.org/01903/v1.2.2#ProofOfOrigin");
 	public static SignatureCommitmentType ProofOfReceipt = new SignatureCommitmentType("http://uri.etsi.org/01903/v1.2.2#ProofOfReceipt");
 	public static SignatureCommitmentType ProofOfDelivery = new SignatureCommitmentType("http://uri.etsi.org/01903/v1.2.2#ProofOfDelivery");
@@ -41,14 +34,8 @@ public class SignatureCommitmentType
 
 	public string URI { get; }
 
-	#endregion
-
-	#region Constructors
-
 	public SignatureCommitmentType(string uri)
 	{
-		URI = uri;
+		URI = uri ?? throw new ArgumentNullException(nameof(uri));
 	}
-
-	#endregion
 }

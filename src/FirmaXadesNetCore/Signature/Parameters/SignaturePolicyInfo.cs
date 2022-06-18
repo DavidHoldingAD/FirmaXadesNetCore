@@ -27,30 +27,11 @@ namespace FirmaXadesNetCore.Signature.Parameters;
 
 public class SignaturePolicyInfo
 {
-	#region Private variables
-
-	private readonly DigestMethod _defaultPolicyDigestAlgorithm = DigestMethod.SHA1;
-
-	#endregion
-
-	#region Public properties
-
 	public string PolicyIdentifier { get; set; }
 
 	public string PolicyHash { get; set; }
 
-	public DigestMethod PolicyDigestAlgorithm { get; set; }
+	public DigestMethod PolicyDigestAlgorithm { get; set; } = DigestMethod.SHA1;
 
 	public string PolicyUri { get; set; }
-
-	#endregion
-
-	#region Constructors
-
-	public SignaturePolicyInfo()
-	{
-		PolicyDigestAlgorithm = _defaultPolicyDigestAlgorithm;
-	}
-
-	#endregion
 }

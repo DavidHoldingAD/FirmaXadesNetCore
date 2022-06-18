@@ -46,8 +46,9 @@ public class OcspServer
 
 	public OcspServer(string url)
 	{
-		Url = url;
+		Url = url ?? throw new ArgumentNullException(nameof(url));
 	}
 
-	public void SetRequestorName(int tag, string name) => RequestorName = new GeneralName(tag, name);
+	public void SetRequestorName(int tag, string name)
+		=> RequestorName = new GeneralName(tag, name);
 }

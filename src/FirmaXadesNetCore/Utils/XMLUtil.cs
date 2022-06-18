@@ -32,8 +32,6 @@ namespace FirmaXadesNetCore.Utils;
 
 class XMLUtil
 {
-	#region Public methods
-
 	/// <summary>
 	/// Aplica una transformación al elemento especificado
 	/// </summary>
@@ -124,6 +122,4 @@ class XMLUtil
 
 		return document;
 	}
-
-	#endregion
 }

@@ -38,7 +38,6 @@ namespace FirmaXadesNetCore.Utils;
 /// </summary>
 static class OcspReqGeneratorExtensions
 {
-
 	public static OcspReq Generate(this OcspReqGenerator ocspRegGenerator, RSA rsa, X509Chain chain)
 	{
 		var requests = new Asn1EncodableVector();

@@ -27,27 +27,7 @@ namespace FirmaXadesNetCore.Signature.Parameters;
 
 public class SignerRole
 {
-	#region Private variables
+	public List<X509Certificate> CertifiedRoles { get; } = new();
 
-
-	#endregion
-
-
-	#region Public properties
-
-	public List<X509Certificate> CertifiedRoles { get; }
-
-	public List<string> ClaimedRoles { get; }
-
-	#endregion
-
-	#region Constructors
-
-	public SignerRole()
-	{
-		CertifiedRoles = new List<X509Certificate>();
-		ClaimedRoles = new List<string>();
-	}
-
-	#endregion
+	public List<string> ClaimedRoles { get; } = new();
 }

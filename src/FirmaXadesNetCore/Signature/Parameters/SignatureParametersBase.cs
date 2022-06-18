@@ -27,28 +27,19 @@ namespace FirmaXadesNetCore.Signature.Parameters;
 
 public abstract class SignatureParametersBase
 {
-	#region Private variables
+	public SignatureMethod SignatureMethod { get; set; } = SignatureMethod.RSAwithSHA256;
 
-	private readonly SignatureMethod _defaultSignatureMethod = SignatureMethod.RSAwithSHA256;
-	private readonly DigestMethod _defaultDigestMethod = DigestMethod.SHA256;
-
-	#endregion
-
-	#region Public properties
-
-	public SignatureMethod SignatureMethod { get; set; }
-
-	public DigestMethod DigestMethod { get; set; }
+	public DigestMethod DigestMethod { get; set; } = DigestMethod.SHA256;
 
 	public DateTime? SigningDate { get; set; }
 
 	public SignerRole SignerRole { get; set; }
 
-	public List<SignatureCommitment> SignatureCommitments { get; private set; }
+	public List<SignatureCommitment> SignatureCommitments { get; } = new();
 
 	public SignatureProductionPlace SignatureProductionPlace { get; set; }
 
-	public List<SignatureXPathExpression> XPathTransformations { get; private set; }
+	public List<SignatureXPathExpression> XPathTransformations { get; } = new();
 
 	public SignaturePolicyInfo SignaturePolicyInfo { get; set; }
 
@@ -61,19 +52,4 @@ public abstract class SignatureParametersBase
 	public string ElementIdToSign { get; set; }
 
 	public string ExternalContentUri { get; set; }
-
-	#endregion
-
-	#region Constructors
-
-	public SignatureParametersBase()
-	{
-		XPathTransformations = new List<SignatureXPathExpression>();
-		SignatureCommitments = new List<SignatureCommitment>();
-		SignatureMethod = _defaultSignatureMethod;
-		DigestMethod = _defaultDigestMethod;
-	}
-
-	#endregion
 }
-

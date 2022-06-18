@@ -25,11 +25,10 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace FirmaXadesNetCore.Signature.Parameters;
 
-public class RemoteSignatureParameters : SignatureParametersBase
+public sealed class RemoteSignatureParameters : SignatureParametersBase
 {
 	/// <summary>
 	/// Gets or sets the public certificate.
 	/// </summary>
 	public X509Certificate2 PublicCertificate { get; set; }
 }
-

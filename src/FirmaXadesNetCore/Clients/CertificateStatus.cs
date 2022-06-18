@@ -23,4 +23,9 @@
 
 namespace FirmaXadesNetCore.Clients;
 
-public enum CertificateStatus { Good = 0, Revoked = 1, Unknown = 2 };
+public enum CertificateStatus
+{
+	Good = 0,
+	Revoked = 1,
+	Unknown = 2
+};

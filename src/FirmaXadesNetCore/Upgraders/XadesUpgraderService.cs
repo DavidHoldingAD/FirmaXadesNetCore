@@ -26,37 +26,36 @@ using FirmaXadesNetCore.Upgraders.Parameters;
 
 namespace FirmaXadesNetCore.Upgraders;
 
-public enum SignatureFormat
+public sealed class XadesUpgraderService
 {
-	XAdES_T,
-	XAdES_XL
-}
+	#region IXadesUpgraderService Members
 
-public class XadesUpgraderService
-{
-	#region Public methods
-
-	public void Upgrade(SignatureDocument sigDocument, SignatureFormat toFormat, UpgradeParameters parameters)
+	/// <inheritdoc/>
+	public void Upgrade(SignatureDocument signatureDocument, SignatureFormat toFormat, UpgradeParameters parameters)
 	{
-		SignatureDocument.CheckSignatureDocument(sigDocument);
-
-		XadesTUpgrader xadesTUpgrader;
-		if (toFormat == SignatureFormat.XAdES_T)
+		if (signatureDocument is null)
 		{
-			xadesTUpgrader = new XadesTUpgrader();
-			xadesTUpgrader.Upgrade(sigDocument, parameters);
+			throw new ArgumentNullException(nameof(signatureDocument));
 		}
-		else
-		{
-			if (sigDocument.XadesSignature.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count == 0)
-			{
-				xadesTUpgrader = new XadesTUpgrader();
-				xadesTUpgrader.Upgrade(sigDocument, parameters);
-			}
 
-			var xadesXLUpgrader = new XadesXLUpgrader();
-			xadesXLUpgrader.Upgrade(sigDocument, parameters);
+		if (parameters is null)
+		{
+			throw new ArgumentNullException(nameof(parameters));
 		}
+
+		SignatureDocument.CheckSignatureDocument(signatureDocument);
+
+		IXadesUpgrader xadesUpgrader = toFormat switch
+		{
+			SignatureFormat.XAdES_T
+				=> new XadesTUpgrader(),
+			_
+				=> signatureDocument.XadesSignature.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count == 0
+					? new XadesTUpgrader()
+					: new XadesXLUpgrader(),
+		};
+
+		xadesUpgrader.Upgrade(signatureDocument, parameters);
 	}
 
 	#endregion

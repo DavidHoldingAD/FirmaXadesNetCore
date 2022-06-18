@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// X509Certificate2Extensions.cs
+// XadesUpgrader.cs
 //
 // FirmaXadesNet - Librería para la generación de firmas XADES
 // Copyright (C) 2016 Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
@@ -21,39 +21,10 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Security.Cryptography.X509Certificates;
+namespace FirmaXadesNetCore.Upgraders;
 
-namespace FirmaXadesNetCore.Utils;
-
-static class X509Certificate2Extensions
+public enum SignatureFormat
 {
-	public static string GetSerialNumberAsDecimalString(this X509Certificate2 certificate)
-	{
-		var dec = new List<int> { 0 };
-
-		foreach (char c in certificate.SerialNumber)
-		{
-			int carry = Convert.ToInt32(c.ToString(), 16);
-
-			for (int i = 0; i < dec.Count; ++i)
-			{
-				int val = dec[i] * 16 + carry;
-				dec[i] = val % 10;
-				carry = val / 10;
-			}
-
-			while (carry > 0)
-			{
-				dec.Add(carry % 10);
-				carry /= 10;
-			}
-		}
-
-		IEnumerable<char> chars = dec.Select(d => (char)('0' + d));
-		char[] cArr = chars.Reverse().ToArray();
-		return new string(cArr);
-	}
-
-	public static Org.BouncyCastle.X509.X509Certificate ToBouncyX509Certificate(this X509Certificate2 certificate)
-		=> new Org.BouncyCastle.X509.X509CertificateParser().ReadCertificate(certificate.GetRawCertData());
+	XAdES_T,
+	XAdES_XL
 }

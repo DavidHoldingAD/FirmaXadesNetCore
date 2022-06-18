@@ -27,8 +27,6 @@ namespace FirmaXadesNetCore.Utils;
 
 public static class CertUtil
 {
-	#region Public methods
-
 	public static X509Chain GetCertChain(X509Certificate2 certificate, X509Certificate2[] certificates = null)
 	{
 		var chain = new X509Chain();
@@ -96,7 +94,4 @@ public static class CertUtil
 		}
 		return true;
 	}
-	#endregion
-
-
 }

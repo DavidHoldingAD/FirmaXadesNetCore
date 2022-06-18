@@ -27,34 +27,26 @@ namespace FirmaXadesNetCore.Signature.Parameters;
 
 public class SignatureCommitment
 {
-	#region Public properties
-
 	public SignatureCommitmentType CommitmentType { get; set; }
 
-	public List<XmlElement> CommitmentTypeQualifiers { get; private set; }
-
-	#endregion
-
-	#region Constructors
+	public List<XmlElement> CommitmentTypeQualifiers { get; }
 
 	public SignatureCommitment(SignatureCommitmentType commitmentType)
 	{
-		CommitmentType = commitmentType;
+		CommitmentType = commitmentType ?? throw new ArgumentNullException(nameof(commitmentType));
 		CommitmentTypeQualifiers = new List<XmlElement>();
 	}
 
-	#endregion
-
-	#region Public methods
-
 	public void AddQualifierFromXml(string xml)
 	{
-		var doc = new XmlDocument();
-		doc.LoadXml(xml);
+		if (xml is null)
+		{
+			throw new ArgumentNullException(nameof(xml));
+		}
 
-		CommitmentTypeQualifiers.Add(doc.DocumentElement);
+		var document = new XmlDocument();
+		document.LoadXml(xml);
+
+		CommitmentTypeQualifiers.Add(document.DocumentElement);
 	}
-
-	#endregion
-
 }

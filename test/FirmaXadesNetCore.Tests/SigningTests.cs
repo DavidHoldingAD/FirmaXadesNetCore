@@ -39,7 +39,7 @@ public class SigningTests : SigningTestsBase
 		using Stream stream = CreateExampleDocumentStream(elementID: "test");
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
-		SignatureDocument document = service.Sign(stream, new SignatureParameters
+		SignatureDocument document = service.Sign(stream, new LocalSignatureParameters
 		{
 			SignaturePackaging = SignaturePackaging.ENVELOPED,
 			Signer = new Crypto.Signer(certificate),
@@ -82,7 +82,7 @@ public class SigningTests : SigningTestsBase
 		using Stream stream = CreateExampleDocumentStream(elementID: "test");
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
-		SignatureDocument document = service.Sign(stream, new SignatureParameters
+		SignatureDocument document = service.Sign(stream, new LocalSignatureParameters
 		{
 			SignaturePackaging = SignaturePackaging.ENVELOPED,
 			Signer = new Crypto.Signer(certificate),
@@ -93,7 +93,7 @@ public class SigningTests : SigningTestsBase
 		});
 
 		// Counter sign
-		document = service.CounterSign(document, new SignatureParameters
+		document = service.CounterSign(document, new LocalSignatureParameters
 		{
 			SignaturePackaging = SignaturePackaging.ENVELOPED,
 			Signer = new Crypto.Signer(certificate),
@@ -136,7 +136,7 @@ public class SigningTests : SigningTestsBase
 		using Stream stream = CreateExampleDocumentStream(elementID: "test");
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
-		SignatureDocument document = service.Sign(stream, new SignatureParameters
+		SignatureDocument document = service.Sign(stream, new LocalSignatureParameters
 		{
 			SignaturePackaging = SignaturePackaging.INTERNALLY_DETACHED,
 			Signer = new Crypto.Signer(certificate),
@@ -147,7 +147,7 @@ public class SigningTests : SigningTestsBase
 		});
 
 		// Counter sign
-		document = service.CoSign(document, new SignatureParameters
+		document = service.CoSign(document, new LocalSignatureParameters
 		{
 			SignaturePackaging = SignaturePackaging.INTERNALLY_DETACHED,
 			Signer = new Crypto.Signer(certificate),
@@ -173,7 +173,7 @@ public class SigningTests : SigningTestsBase
 		using Stream stream = CreateExampleDocumentStream(elementID: "test");
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
-		SignatureDocument document = service.Sign(stream, new SignatureParameters
+		SignatureDocument document = service.Sign(stream, new LocalSignatureParameters
 		{
 			SignaturePackaging = packaging,
 			Signer = new Crypto.Signer(certificate),

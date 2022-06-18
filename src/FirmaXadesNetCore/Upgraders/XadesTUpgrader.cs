@@ -30,8 +30,11 @@ using Microsoft.Xades;
 
 namespace FirmaXadesNetCore.Upgraders;
 
-class XadesTUpgrader : IXadesUpgrader
+internal sealed class XadesTUpgrader : IXadesUpgrader
 {
+	#region IXadesUpgrader Members
+
+	/// <inheritdoc/>
 	public void Upgrade(SignatureDocument signatureDocument, UpgradeParameters parameters)
 	{
 		if (signatureDocument is null)
@@ -85,4 +88,6 @@ class XadesTUpgrader : IXadesUpgrader
 			throw new Exception("An error occurred while inserting the timestamp.", ex);
 		}
 	}
+
+	#endregion
 }

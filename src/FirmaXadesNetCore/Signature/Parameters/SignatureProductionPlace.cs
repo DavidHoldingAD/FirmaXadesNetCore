@@ -25,8 +25,6 @@ namespace FirmaXadesNetCore.Signature.Parameters;
 
 public class SignatureProductionPlace
 {
-	#region Public properties
-
 	public string City { get; set; }
 
 	public string StateOrProvince { get; set; }
@@ -34,6 +32,4 @@ public class SignatureProductionPlace
 	public string PostalCode { get; set; }
 
 	public string CountryName { get; set; }
-
-	#endregion
 }

@@ -29,53 +29,29 @@ namespace FirmaXadesNetCore.Upgraders.Parameters;
 
 public class UpgradeParameters
 {
-	#region Private variables
+	private readonly List<X509Crl> _crls = new();
+	private readonly X509CrlParser _crlParser = new();
 
-
-	private readonly List<X509Crl> _crls;
-	private readonly X509CrlParser _crlParser;
-
-	private readonly DigestMethod _defaultDigestMethod = DigestMethod.SHA1;
-
-	#endregion
-
-	#region Public properties
-
-	public List<OcspServer> OCSPServers { get; }
+	public List<OcspServer> OCSPServers { get; } = new();
 
 	public IEnumerable<X509Crl> CRL => _crls;
 
-	public DigestMethod DigestMethod { get; set; }
+	public DigestMethod DigestMethod { get; set; } = DigestMethod.SHA1;
 
 	public ITimeStampClient TimeStampClient { get; set; }
 
-	public bool GetOcspUrlFromCertificate { get; set; }
-
-	#endregion
-
-	#region Constructors
-
-	public UpgradeParameters()
-	{
-		OCSPServers = new List<OcspServer>();
-		_crls = new List<X509Crl>();
-		DigestMethod = _defaultDigestMethod;
-		_crlParser = new X509CrlParser();
-		GetOcspUrlFromCertificate = true;
-	}
-
-	#endregion
-
-	#region Public methods
+	public bool GetOcspUrlFromCertificate { get; set; } = true;
 
 	public void AddCRL(Stream stream)
 	{
-		X509Crl x509crl = _crlParser.ReadCrl(stream);
+		if (stream is null)
+		{
+			throw new ArgumentNullException(nameof(stream));
+		}
 
-		_crls.Add(x509crl);
+		_crls.Add(_crlParser.ReadCrl(stream));
 	}
 
-	public void ClearCRL() => _crls.Clear();
-
-	#endregion
+	public void ClearCRL()
+		=> _crls.Clear();
 }

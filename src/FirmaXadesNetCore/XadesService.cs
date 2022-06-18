@@ -35,21 +35,17 @@ namespace FirmaXadesNetCore;
 
 public class XadesService
 {
-	#region Private variables
-
 	private Reference _refContent;
 	private DataObjectFormat _dataFormat;
 
-	#endregion
-
-	#region Public methods
+	#region IXadesService Members
 
 	/// <summary>
 	/// Complete the signing process.
 	/// </summary>
 	/// <param name="input"></param>
 	/// <param name="parameters"></param>
-	public SignatureDocument Sign(Stream input, SignatureParameters parameters)
+	public SignatureDocument Sign(Stream input, LocalSignatureParameters parameters)
 	{
 		if (parameters.Signer == null)
 		{
@@ -150,7 +146,7 @@ public class XadesService
 	/// </summary>
 	/// <param name="sigDocument"></param>
 	/// <param name="parameters"></param>
-	public SignatureDocument CoSign(SignatureDocument sigDocument, SignatureParameters parameters)
+	public SignatureDocument CoSign(SignatureDocument sigDocument, LocalSignatureParameters parameters)
 	{
 		SignatureDocument.CheckSignatureDocument(sigDocument);
 
@@ -233,7 +229,7 @@ public class XadesService
 	/// </summary>
 	/// <param name="sigDocument"></param>
 	/// <param name="parameters"></param>
-	public SignatureDocument CounterSign(SignatureDocument sigDocument, SignatureParameters parameters)
+	public SignatureDocument CounterSign(SignatureDocument sigDocument, LocalSignatureParameters parameters)
 	{
 		if (parameters.Signer == null)
 		{
@@ -545,8 +541,6 @@ public class XadesService
 	}
 
 	#endregion
-
-	#region Private methods
 
 	/// <summary>
 	/// Establece el identificador para la firma
@@ -860,7 +854,7 @@ public class XadesService
 		sigDocument.XadesSignature.AddReference(_refContent);
 	}
 
-	private void PrepareSignature(SignatureDocument sigDocument, SignatureParameters parameters)
+	private void PrepareSignature(SignatureDocument sigDocument, LocalSignatureParameters parameters)
 	{
 		sigDocument.XadesSignature.SignedInfo.SignatureMethod = parameters.SignatureMethod.URI;
 
@@ -922,8 +916,6 @@ public class XadesService
 		sigDocument.XadesSignature = new XadesSignedXml(sigDocument.Document);
 		sigDocument.XadesSignature.LoadXml(signatureElement);
 	}
-
-	#region Information and properties of the firm
 
 	private void AddXadesInfo(SignatureDocument sigDocument,
 		SignatureParametersBase parameters,
@@ -1080,8 +1072,4 @@ public class XadesService
 		}
 
 	}
-
-	#endregion
-
-	#endregion
 }

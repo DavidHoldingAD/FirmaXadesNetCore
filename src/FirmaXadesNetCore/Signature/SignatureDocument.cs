@@ -31,19 +31,9 @@ namespace FirmaXadesNetCore.Signature;
 
 public class SignatureDocument
 {
-	#region Private variables        
-
-	#endregion
-
-	#region Public properties
-
 	public XmlDocument Document { get; set; }
 
 	public XadesSignedXml XadesSignature { get; set; }
-
-	#endregion
-
-	#region Public methods
 
 	public byte[] GetDocumentBytes()
 	{
@@ -79,19 +69,14 @@ public class SignatureDocument
 	{
 		var settings = new XmlWriterSettings
 		{
-			Encoding = new UTF8Encoding()
+			Encoding = new UTF8Encoding(),
 		};
+
 		using var writer = XmlWriter.Create(output, settings);
+
 		Document.Save(writer);
 	}
 
-	#endregion
-
-	#region Private methods
-
-	/// <summary>
-	/// Actualiza el documento resultante
-	/// </summary>
 	internal void UpdateDocument()
 	{
 		if (Document == null)
@@ -171,7 +156,6 @@ public class SignatureDocument
 		}
 	}
 
-
 	internal static void CheckSignatureDocument(SignatureDocument sigDocument)
 	{
 		if (sigDocument is null)
@@ -184,6 +168,4 @@ public class SignatureDocument
 			throw new Exception("There is no information about the firm.");
 		}
 	}
-
-	#endregion
 }

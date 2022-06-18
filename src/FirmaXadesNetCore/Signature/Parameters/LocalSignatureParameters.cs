@@ -25,7 +25,7 @@ using FirmaXadesNetCore.Crypto;
 
 namespace FirmaXadesNetCore.Signature.Parameters;
 
-public class SignatureParameters : SignatureParametersBase
+public sealed class LocalSignatureParameters : SignatureParametersBase
 {
 	/// <summary>
 	/// Gets or sets the signer.

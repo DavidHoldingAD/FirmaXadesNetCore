@@ -26,7 +26,7 @@ using FirmaXadesNetCore.Upgraders.Parameters;
 
 namespace FirmaXadesNetCore.Upgraders;
 
-interface IXadesUpgrader
+internal interface IXadesUpgrader
 {
 	void Upgrade(SignatureDocument signatureDocument, UpgradeParameters parameters);
 }

@@ -42,33 +42,42 @@ using Org.BouncyCastle.X509.Store;
 
 namespace FirmaXadesNetCore.Upgraders;
 
-class XadesXLUpgrader : IXadesUpgrader
+internal sealed class XadesXLUpgrader : IXadesUpgrader
 {
+	#region IXadesUpgrader Members
 
-	#region Public methods
-
+	/// <inheritdoc/>
 	public void Upgrade(SignatureDocument signatureDocument, UpgradeParameters parameters)
 	{
+		if (signatureDocument is null)
+		{
+			throw new ArgumentNullException(nameof(signatureDocument));
+		}
+
+		if (parameters is null)
+		{
+			throw new ArgumentNullException(nameof(parameters));
+		}
+
 		X509Certificate2 signingCertificate = signatureDocument.XadesSignature.GetSigningCertificate();
 
 		UnsignedProperties unsignedProperties = signatureDocument.XadesSignature.UnsignedProperties;
 		unsignedProperties.UnsignedSignatureProperties.CompleteCertificateRefs = new CompleteCertificateRefs
 		{
-			Id = "CompleteCertificates-" + Guid.NewGuid().ToString()
+			Id = $"CompleteCertificates-{Guid.NewGuid()}",
 		};
 
 		unsignedProperties.UnsignedSignatureProperties.CertificateValues = new CertificateValues();
 		CertificateValues certificateValues = unsignedProperties.UnsignedSignatureProperties.CertificateValues;
-		certificateValues.Id = "CertificatesValues-" + Guid.NewGuid().ToString();
+		certificateValues.Id = $"CertificatesValues-{Guid.NewGuid()}";
 
 		unsignedProperties.UnsignedSignatureProperties.CompleteRevocationRefs = new CompleteRevocationRefs
 		{
-			Id = "CompleteRev-" + Guid.NewGuid().ToString()
+			Id = $"CompleteRev-{Guid.NewGuid()}",
 		};
-
 		unsignedProperties.UnsignedSignatureProperties.RevocationValues = new RevocationValues
 		{
-			Id = "RevocationValues-" + Guid.NewGuid().ToString()
+			Id = $"RevocationValues-{Guid.NewGuid()}",
 		};
 
 		AddCertificate(signingCertificate, unsignedProperties, false, parameters.OCSPServers, parameters.CRL, parameters.DigestMethod, parameters.GetOcspUrlFromCertificate);
@@ -83,8 +92,6 @@ class XadesXLUpgrader : IXadesUpgrader
 	}
 
 	#endregion
-
-	#region Private methods
 
 	private string GetResponderName(ResponderID responderId, ref bool byKey)
 	{
@@ -446,6 +453,4 @@ class XadesXLUpgrader : IXadesUpgrader
 
 		signatureDocument.XadesSignature.UnsignedProperties = unsignedProperties;
 	}
-
-	#endregion
 }

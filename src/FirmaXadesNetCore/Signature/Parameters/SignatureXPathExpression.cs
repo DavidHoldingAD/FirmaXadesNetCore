@@ -25,25 +25,7 @@ namespace FirmaXadesNetCore.Signature.Parameters;
 
 public class SignatureXPathExpression
 {
-	#region Private variables
-
-
-	#endregion
-
-	#region Public properties
-
 	public string XPathExpression { get; set; }
 
-	public Dictionary<string, string> Namespaces { get; }
-
-	#endregion
-
-	#region Constructors
-
-	public SignatureXPathExpression()
-	{
-		Namespaces = new Dictionary<string, string>();
-	}
-
-	#endregion
+	public Dictionary<string, string> Namespaces { get; } = new();
 }
