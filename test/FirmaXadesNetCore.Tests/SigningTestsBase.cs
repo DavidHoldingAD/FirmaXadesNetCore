@@ -17,6 +17,7 @@ public abstract class SigningTestsBase
 		XmlElement innerElement = xmlDocument.CreateElement("example-inner");
 		innerElement.InnerText = "test text";
 		innerElement.SetAttribute("id", elementID ?? "exampleID");
+		innerElement.SetAttribute("xmlns:test", "http://www.test.org/");
 		xmlDocument.DocumentElement.AppendChild(innerElement);
 
 		var stream = new MemoryStream();

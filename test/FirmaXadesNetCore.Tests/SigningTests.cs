@@ -55,6 +55,114 @@ public class SigningTests : SigningTestsBase
 	}
 
 	[TestMethod]
+	// RSA-SHA1
+	[DataRow(SignedXml.XmlDsigRSASHA1Url, SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA1Url, SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA1Url, SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA1Url, SignedXml.XmlDsigSHA512Url)]
+	// RSA-SHA256
+	[DataRow(SignedXml.XmlDsigRSASHA256Url, SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA256Url, SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA256Url, SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA256Url, SignedXml.XmlDsigSHA512Url)]
+	// RSA-SHA384
+	[DataRow(SignedXml.XmlDsigRSASHA384Url, SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA384Url, SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA384Url, SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA384Url, SignedXml.XmlDsigSHA512Url)]
+	// RSA-SHA512
+	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA512Url)]
+	public void Sign_Counter_Validate(string signatureMethod, string digestMethod)
+	{
+		var service = new XadesService();
+
+		using Stream stream = CreateExampleDocumentStream(elementID: "test");
+		using X509Certificate2 certificate = CreateSelfSignedCertificate();
+
+		SignatureDocument document = service.Sign(stream, new SignatureParameters
+		{
+			SignaturePackaging = SignaturePackaging.ENVELOPED,
+			Signer = new Crypto.Signer(certificate),
+			DataFormat = new DataFormat { MimeType = "text/xml" },
+			ElementIdToSign = "test",
+			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = Crypto.SignatureMethod.GetByUri(signatureMethod),
+		});
+
+		// Counter sign
+		document = service.CounterSign(document, new SignatureParameters
+		{
+			SignaturePackaging = SignaturePackaging.ENVELOPED,
+			Signer = new Crypto.Signer(certificate),
+			DataFormat = new DataFormat { MimeType = "text/xml" },
+			ElementIdToSign = "test",
+			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = Crypto.SignatureMethod.GetByUri(signatureMethod),
+		});
+
+		// Verify
+		ValidationResult result = service.Validate(document, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
+		Assert.IsTrue(result.IsValid);
+	}
+
+	[TestMethod]
+	// RSA-SHA1
+	[DataRow(SignedXml.XmlDsigRSASHA1Url, SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA1Url, SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA1Url, SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA1Url, SignedXml.XmlDsigSHA512Url)]
+	// RSA-SHA256
+	[DataRow(SignedXml.XmlDsigRSASHA256Url, SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA256Url, SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA256Url, SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA256Url, SignedXml.XmlDsigSHA512Url)]
+	// RSA-SHA384
+	[DataRow(SignedXml.XmlDsigRSASHA384Url, SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA384Url, SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA384Url, SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA384Url, SignedXml.XmlDsigSHA512Url)]
+	// RSA-SHA512
+	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA512Url)]
+	public void Sign_Co_Validate(string signatureMethod, string digestMethod)
+	{
+		var service = new XadesService();
+
+		using Stream stream = CreateExampleDocumentStream(elementID: "test");
+		using X509Certificate2 certificate = CreateSelfSignedCertificate();
+
+		SignatureDocument document = service.Sign(stream, new SignatureParameters
+		{
+			SignaturePackaging = SignaturePackaging.INTERNALLY_DETACHED,
+			Signer = new Crypto.Signer(certificate),
+			DataFormat = new DataFormat { MimeType = "text/xml" },
+			ElementIdToSign = "test",
+			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = Crypto.SignatureMethod.GetByUri(signatureMethod),
+		});
+
+		// Counter sign
+		document = service.CoSign(document, new SignatureParameters
+		{
+			SignaturePackaging = SignaturePackaging.INTERNALLY_DETACHED,
+			Signer = new Crypto.Signer(certificate),
+			DataFormat = new DataFormat { MimeType = "text/xml" },
+			ElementIdToSign = "test",
+			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = Crypto.SignatureMethod.GetByUri(signatureMethod),
+		});
+
+		// Verify
+		ValidationResult result = service.Validate(document, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
+		Assert.IsTrue(result.IsValid);
+	}
+
+	[TestMethod]
 	[DataRow(SignaturePackaging.ENVELOPED)]
 	[DataRow(SignaturePackaging.ENVELOPING)]
 	[DataRow(SignaturePackaging.INTERNALLY_DETACHED)]
