@@ -29,7 +29,7 @@ public class ValidationResult
 
 	public string Message { get; set; }
 
-	public Exception? Exception { get; set; }
+	public Exception Exception { get; set; }
 
 	internal static ValidationResult Invalid(string message, Exception exception = null)
 	{
