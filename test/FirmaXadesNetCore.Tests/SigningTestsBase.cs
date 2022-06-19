@@ -1,6 +1,8 @@
 ﻿using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
+using FirmaXadesNetCore.Signature;
+using Microsoft.Xades;
 
 namespace FirmaXadesNetCore.Tests;
 
@@ -34,6 +36,26 @@ public abstract class SigningTestsBase
 		stream.Seek(0, SeekOrigin.Begin);
 
 		return stream;
+	}
+
+	protected static void AssertValid(SignatureDocument signatureDocument,
+		XadesValidationFlags validationFlags = XadesValidationFlags.AllChecks,
+		bool validateTimestamps = true)
+	{
+		Assert.IsNotNull(signatureDocument);
+
+		// Serialize to stream
+		using var stream = new MemoryStream();
+		signatureDocument.Save(stream);
+		stream.Seek(0, SeekOrigin.Begin);
+
+		// Validate
+		var service = new XadesService();
+		ValidationResult result = service.Validate(signatureDocument, validationFlags, validateTimestamps);
+
+		// Assert
+		Assert.IsNotNull(result);
+		Assert.IsTrue(result.IsValid);
 	}
 
 	protected static X509Certificate2 CreateSelfSignedCertificate(int keySizeInBits = 4096, string name = "test", string password = "WeNeedASaf3rPassword")

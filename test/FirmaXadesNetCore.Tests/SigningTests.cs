@@ -41,6 +41,7 @@ public class SigningTests : SigningTestsBase
 		using Stream stream = CreateExampleDocumentStream(elementID: "test");
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
+		// Sign
 		SignatureDocument document = service.Sign(stream, new LocalSignatureParameters
 		{
 			SignaturePackaging = SignaturePackaging.ENVELOPED,
@@ -51,9 +52,7 @@ public class SigningTests : SigningTestsBase
 			SignatureMethod = Crypto.SignatureMethod.GetByUri(signatureMethod),
 		});
 
-		// Verify
-		ValidationResult result = service.Validate(document, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
-		Assert.IsTrue(result.IsValid);
+		AssertValid(document);
 	}
 
 	[TestMethod]
@@ -84,7 +83,8 @@ public class SigningTests : SigningTestsBase
 		using Stream stream = CreateExampleDocumentStream(elementID: "test");
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
-		SignatureDocument document = service.Sign(stream, new LocalSignatureParameters
+		// Sign
+		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
 		{
 			SignaturePackaging = SignaturePackaging.ENVELOPED,
 			Signer = new Crypto.Signer(certificate),
@@ -95,7 +95,7 @@ public class SigningTests : SigningTestsBase
 		});
 
 		// Counter sign
-		document = service.CounterSign(document, new LocalSignatureParameters
+		signatureDocument = service.CounterSign(signatureDocument, new LocalSignatureParameters
 		{
 			SignaturePackaging = SignaturePackaging.ENVELOPED,
 			Signer = new Crypto.Signer(certificate),
@@ -105,9 +105,7 @@ public class SigningTests : SigningTestsBase
 			SignatureMethod = Crypto.SignatureMethod.GetByUri(signatureMethod),
 		});
 
-		// Verify
-		ValidationResult result = service.Validate(document, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
-		Assert.IsTrue(result.IsValid);
+		AssertValid(signatureDocument);
 	}
 
 	[TestMethod]
@@ -138,7 +136,8 @@ public class SigningTests : SigningTestsBase
 		using Stream stream = CreateExampleDocumentStream(elementID: "test");
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
-		SignatureDocument document = service.Sign(stream, new LocalSignatureParameters
+		// Sign
+		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
 		{
 			SignaturePackaging = SignaturePackaging.INTERNALLY_DETACHED,
 			Signer = new Crypto.Signer(certificate),
@@ -149,7 +148,7 @@ public class SigningTests : SigningTestsBase
 		});
 
 		// Counter sign
-		document = service.CoSign(document, new LocalSignatureParameters
+		signatureDocument = service.CoSign(signatureDocument, new LocalSignatureParameters
 		{
 			SignaturePackaging = SignaturePackaging.INTERNALLY_DETACHED,
 			Signer = new Crypto.Signer(certificate),
@@ -159,9 +158,7 @@ public class SigningTests : SigningTestsBase
 			SignatureMethod = Crypto.SignatureMethod.GetByUri(signatureMethod),
 		});
 
-		// Verify
-		ValidationResult result = service.Validate(document, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
-		Assert.IsTrue(result.IsValid);
+		AssertValid(signatureDocument);
 	}
 
 	[TestMethod]
@@ -178,6 +175,7 @@ public class SigningTests : SigningTestsBase
 		using Stream stream = CreateExampleDocumentStream(elementID: "test");
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
+		// Sign
 		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
 		{
 			SignaturePackaging = SignaturePackaging.ENVELOPED,
@@ -188,6 +186,7 @@ public class SigningTests : SigningTestsBase
 			SignatureMethod = Crypto.SignatureMethod.RSAwithSHA256,
 		});
 
+		// Add timestamp
 		using var timestampClient = new TimeStampClient(new Uri(FreeTSAUrl));
 		upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesT, new Upgraders.Parameters.UpgradeParameters
 		{
@@ -195,9 +194,7 @@ public class SigningTests : SigningTestsBase
 			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
 		});
 
-		// Verify
-		ValidationResult result = service.Validate(signatureDocument, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
-		Assert.IsTrue(result.IsValid);
+		AssertValid(signatureDocument);
 	}
 
 	[TestMethod]
@@ -215,6 +212,7 @@ public class SigningTests : SigningTestsBase
 		using Stream stream = CreateExampleDocumentStream(elementID: "test");
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
+		// Sign
 		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
 		{
 			SignaturePackaging = SignaturePackaging.ENVELOPED,
@@ -225,6 +223,7 @@ public class SigningTests : SigningTestsBase
 			SignatureMethod = Crypto.SignatureMethod.RSAwithSHA256,
 		});
 
+		// Add timestamp
 		using var timestampClient = new TimeStampClient(new Uri(FreeTSAUrl));
 		upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesXL, new Upgraders.Parameters.UpgradeParameters
 		{
@@ -232,9 +231,7 @@ public class SigningTests : SigningTestsBase
 			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
 		});
 
-		// Verify
-		ValidationResult result = service.Validate(signatureDocument, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
-		Assert.IsTrue(result.IsValid);
+		AssertValid(signatureDocument);
 	}
 
 	[TestMethod]
@@ -248,7 +245,8 @@ public class SigningTests : SigningTestsBase
 		using Stream stream = CreateExampleDocumentStream(elementID: "test");
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
-		SignatureDocument document = service.Sign(stream, new LocalSignatureParameters
+		// Sign
+		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
 		{
 			SignaturePackaging = packaging,
 			Signer = new Crypto.Signer(certificate),
@@ -258,9 +256,7 @@ public class SigningTests : SigningTestsBase
 				: null,
 		});
 
-		// Verify
-		ValidationResult result = service.Validate(document, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
-		Assert.IsTrue(result.IsValid);
+		AssertValid(signatureDocument);
 	}
 
 	[TestMethod]
@@ -283,7 +279,7 @@ public class SigningTests : SigningTestsBase
 		using var publicCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
 
 		// Get digest
-		SignatureDocument document = service.GetRemotingSigningDigest(xmlDocument, new RemoteSignatureParameters
+		SignatureDocument signatureDocument = service.GetRemotingSigningDigest(xmlDocument, new RemoteSignatureParameters
 		{
 			PublicCertificate = publicCertificate,
 			SignaturePackaging = packaging,
@@ -293,12 +289,12 @@ public class SigningTests : SigningTestsBase
 				: null,
 		}, out byte[] digestValue);
 
-		Assert.IsNotNull(document);
-		Assert.IsNotNull(document.XadesSignature);
+		Assert.IsNotNull(signatureDocument);
+		Assert.IsNotNull(signatureDocument.XadesSignature);
 
 		if (packaging != SignaturePackaging.ENVELOPING)
 		{
-			Assert.IsNotNull(document.Document);
+			Assert.IsNotNull(signatureDocument.Document);
 		}
 
 		// Sign digest
@@ -307,10 +303,8 @@ public class SigningTests : SigningTestsBase
 		byte[] signatureValue = asymmetricSignatureFormatter.CreateSignature(digestValue);
 
 		// Attach signature
-		service.AttachSignature(document, signatureValue);
+		signatureDocument = service.AttachSignature(signatureDocument, signatureValue);
 
-		// Verify
-		ValidationResult result = service.Validate(document, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
-		Assert.IsTrue(result.IsValid);
+		AssertValid(signatureDocument);
 	}
 }

@@ -101,7 +101,7 @@ public interface IXadesService
 	/// </summary>
 	/// <param name="signatureDocument">the signature document</param>
 	/// <param name="validationFlags">the validation flags</param>
-	/// <param name="validateTimeStamp">a flag indicating whether to validate timestamps or not</param>
+	/// <param name="validateTimestamps">a flag indicating whether to validate timestamps or not</param>
 	/// <returns>the validation result</returns>
-	ValidationResult Validate(SignatureDocument signatureDocument, XadesValidationFlags validationFlags, bool validateTimeStamp);
+	ValidationResult Validate(SignatureDocument signatureDocument, XadesValidationFlags validationFlags, bool validateTimestamps);
 }

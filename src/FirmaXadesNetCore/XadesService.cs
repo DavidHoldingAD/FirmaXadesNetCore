@@ -519,7 +519,7 @@ public class XadesService : IXadesService
 	}
 
 	/// <inheritdoc/>
-	public ValidationResult Validate(SignatureDocument signatureDocument, XadesValidationFlags validationFlags, bool validateTimeStamp)
+	public ValidationResult Validate(SignatureDocument signatureDocument, XadesValidationFlags validationFlags, bool validateTimestamps)
 	{
 		if (signatureDocument is null)
 		{
@@ -528,7 +528,7 @@ public class XadesService : IXadesService
 
 		SignatureDocument.CheckSignatureDocument(signatureDocument);
 
-		return XadesValidator.Validate(signatureDocument, validationFlags, validateTimeStamp);
+		return XadesValidator.Validate(signatureDocument, validationFlags, validateTimestamps);
 	}
 
 	#endregion
