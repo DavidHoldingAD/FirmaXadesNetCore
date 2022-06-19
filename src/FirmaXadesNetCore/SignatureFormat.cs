@@ -21,7 +21,7 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace FirmaXadesNetCore.Upgraders;
+namespace FirmaXadesNetCore;
 
 /// <summary>
 /// Represents an enumeration of signature formats.

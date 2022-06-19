@@ -64,7 +64,11 @@ internal sealed class XadesTUpgrader : IXadesUpgrader
 			byte[] signatureValueHash = parameters.DigestMethod
 				.ComputeHash(XmlUtils.ComputeValueOfElementList(signatureDocument.XadesSignature, signatureValueElementXpaths, excTransform));
 
-			byte[] tsa = parameters.TimeStampClient.GetTimeStamp(signatureValueHash, parameters.DigestMethod, true);
+			byte[] timestampData = parameters.TimeStampClient
+				.GetTimeStampAsync(signatureValueHash, parameters.DigestMethod, true, CancellationToken.None)
+				.ConfigureAwait(continueOnCapturedContext: false)
+				.GetAwaiter()
+				.GetResult();
 
 			var signatureTimeStamp = new TimeStamp("SignatureTimeStamp")
 			{
@@ -74,7 +78,7 @@ internal sealed class XadesTUpgrader : IXadesUpgrader
 					Algorithm = excTransform.Algorithm
 				}
 			};
-			signatureTimeStamp.EncapsulatedTimeStamp.PkiData = tsa;
+			signatureTimeStamp.EncapsulatedTimeStamp.PkiData = timestampData;
 			signatureTimeStamp.EncapsulatedTimeStamp.Id = $"SignatureTimeStamp-{Guid.NewGuid()}";
 
 			unsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Add(signatureTimeStamp);

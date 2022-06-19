@@ -33,6 +33,10 @@ public interface ITimeStampClient
 	/// <param name="hash"></param>
 	/// <param name="digestMethod"></param>
 	/// <param name="certReq"></param>
+	/// <param name="cancellationToken"></param>
 	/// <returns></returns>
-	byte[] GetTimeStamp(byte[] hash, DigestMethod digestMethod, bool certReq);
+	Task<byte[]> GetTimeStampAsync(byte[] hash,
+		DigestMethod digestMethod,
+		bool certReq,
+		CancellationToken cancellationToken);
 }

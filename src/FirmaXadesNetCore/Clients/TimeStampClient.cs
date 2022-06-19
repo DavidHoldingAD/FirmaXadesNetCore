@@ -21,7 +21,7 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using FirmaXadesNetCore.Crypto;
 using Org.BouncyCastle.Math;
@@ -29,28 +29,55 @@ using Org.BouncyCastle.Tsp;
 
 namespace FirmaXadesNetCore.Clients;
 
-public sealed class TimeStampClient : ITimeStampClient
+public sealed class TimeStampClient : ITimeStampClient, IDisposable
 {
-	private readonly string _url;
-	private readonly string _user;
-	private readonly string _password;
+	private readonly HttpClient _httpClient;
+	private bool _disposed;
 
-	public TimeStampClient(string url)
+	public TimeStampClient(Uri uri)
 	{
-		_url = url ?? throw new ArgumentNullException(nameof(url));
+		if (uri is null)
+		{
+			throw new ArgumentNullException(nameof(uri));
+		}
+
+		_httpClient = new HttpClient
+		{
+			BaseAddress = uri,
+		};
 	}
 
-	public TimeStampClient(string url, string user, string password)
-		: this(url)
+	public TimeStampClient(Uri uri, string username, string password)
+		: this(uri)
 	{
-		_user = user ?? throw new ArgumentNullException(nameof(user));
-		_password = password ?? throw new ArgumentNullException(nameof(password));
+		if (uri is null)
+		{
+			throw new ArgumentNullException(nameof(uri));
+		}
+
+		if (username is null)
+		{
+			throw new ArgumentNullException(nameof(username));
+		}
+
+		if (password is null)
+		{
+			throw new ArgumentNullException(nameof(password));
+		}
+
+		byte[] basicAuthenticationBytes = Encoding.Default.GetBytes($"{username}:{password}");
+		string basicAuthenticationBase64 = Convert.ToBase64String(basicAuthenticationBytes, Base64FormattingOptions.None);
+
+		_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuthenticationBase64);
 	}
 
 	#region ITimeStampClient Members
 
 	/// <inheritdoc/>
-	public byte[] GetTimeStamp(byte[] hash, DigestMethod digestMethod, bool certReq)
+	public async Task<byte[]> GetTimeStampAsync(byte[] hash,
+		DigestMethod digestMethod,
+		bool certReq,
+		CancellationToken cancellationToken)
 	{
 		if (hash is null)
 		{
@@ -69,45 +96,57 @@ public sealed class TimeStampClient : ITimeStampClient
 			.Generate(digestMethod.Oid, hash, BigInteger.ValueOf(DateTime.Now.Ticks));
 		byte[] timeStampRequestBytes = timeStampRequest.GetEncoded();
 
-		var request = (HttpWebRequest)WebRequest.Create(_url);
-		request.Method = "POST";
-		request.ContentType = "application/timestamp-query";
-		request.ContentLength = timeStampRequestBytes.Length;
+		using var requestContent = new ByteArrayContent(timeStampRequestBytes);
+		requestContent.Headers.ContentType = new MediaTypeHeaderValue("application/timestamp-query");
+		requestContent.Headers.ContentLength = timeStampRequestBytes.Length;
 
-		if (!string.IsNullOrEmpty(_user)
-			&& !string.IsNullOrEmpty(_password))
+		using HttpResponseMessage response = await _httpClient
+			.PostAsync(string.Empty, requestContent, cancellationToken)
+			.ConfigureAwait(continueOnCapturedContext: false);
+
+		response.EnsureSuccessStatusCode();
+
+		using Stream responseStream = await response.Content
+			.ReadAsStreamAsync(cancellationToken)
+			.ConfigureAwait(continueOnCapturedContext: false);
+		using Stream bufferedResponseStream = new BufferedStream(responseStream);
+
+		var timeStampResponse = new TimeStampResponse(bufferedResponseStream);
+		timeStampResponse.Validate(timeStampRequest);
+
+		if (timeStampResponse.TimeStampToken is null)
 		{
-			string basicAuthenticationValue = Convert.ToBase64String(
-				Encoding.Default.GetBytes($"{_user}:{_password}"),
-				Base64FormattingOptions.None);
-
-			request.Headers["Authorization"] = $"Basic {basicAuthenticationValue}";
+			throw new Exception("The server has not returned any timestamp.");
 		}
 
-		using Stream requestStream = request.GetRequestStream();
-		requestStream.Write(timeStampRequestBytes, 0, timeStampRequestBytes.Length);
-		requestStream.Close();
+		return timeStampResponse.TimeStampToken.GetEncoded();
+	}
 
-		var response = (HttpWebResponse)request.GetResponse();
-		if (response.StatusCode != HttpStatusCode.OK)
+	#endregion
+
+	#region IDisposable Members
+
+	/// <inheritdoc/>
+	public void Dispose()
+	{
+		Dispose(disposing: true);
+
+		GC.SuppressFinalize(this);
+	}
+
+	private void Dispose(bool disposing)
+	{
+		if (_disposed)
 		{
-			throw new Exception("The server has returned an invalid response.");
+			return;
 		}
-		else
+
+		if (disposing)
 		{
-			using Stream responseStream = new BufferedStream(response.GetResponseStream());
-			var timeStampResponse = new TimeStampResponse(responseStream);
-			responseStream.Close();
-
-			timeStampResponse.Validate(timeStampRequest);
-
-			if (timeStampResponse.TimeStampToken == null)
-			{
-				throw new Exception("The server has not returned any timestamp.");
-			}
-
-			return timeStampResponse.TimeStampToken.GetEncoded();
+			_httpClient.Dispose();
 		}
+
+		_disposed = true;
 	}
 
 	#endregion

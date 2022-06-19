@@ -2,6 +2,7 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
+using FirmaXadesNetCore.Clients;
 using FirmaXadesNetCore.Signature;
 using FirmaXadesNetCore.Signature.Parameters;
 
@@ -10,6 +11,8 @@ namespace FirmaXadesNetCore.Tests;
 [TestClass]
 public class SigningTests : SigningTestsBase
 {
+	private const string FreeTSAUrl = "https://freetsa.org/tsr";
+
 	[TestMethod]
 	// RSA-SHA1
 	[DataRow(SignedXml.XmlDsigRSASHA1Url, SignedXml.XmlDsigSHA1Url)]
@@ -158,6 +161,79 @@ public class SigningTests : SigningTestsBase
 
 		// Verify
 		ValidationResult result = service.Validate(document, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
+		Assert.IsTrue(result.IsValid);
+	}
+
+	[TestMethod]
+	[DoNotParallelize]
+	[DataRow(SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigSHA512Url)]
+	public void Sign_UpgradeXAdES_T_Validate(string digestMethod)
+	{
+		var service = new XadesService();
+		var upgraderService = new XadesUpgraderService();
+
+		using Stream stream = CreateExampleDocumentStream(elementID: "test");
+		using X509Certificate2 certificate = CreateSelfSignedCertificate();
+
+		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
+		{
+			SignaturePackaging = SignaturePackaging.ENVELOPED,
+			Signer = new Crypto.Signer(certificate),
+			DataFormat = new DataFormat { MimeType = "text/xml" },
+			ElementIdToSign = "test",
+			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = Crypto.SignatureMethod.RSAwithSHA256,
+		});
+
+		using var timestampClient = new TimeStampClient(new Uri(FreeTSAUrl));
+		upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesT, new Upgraders.Parameters.UpgradeParameters
+		{
+			TimeStampClient = timestampClient,
+			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
+		});
+
+		// Verify
+		ValidationResult result = service.Validate(signatureDocument, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
+		Assert.IsTrue(result.IsValid);
+	}
+
+	[TestMethod]
+	[DoNotParallelize]
+	[DataRow(SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigSHA512Url)]
+	[DataRow(SignedXml.XmlDsigSHA512Url)]
+	public void Sign_UpgradeXAdES_XL_Validate(string digestMethod)
+	{
+		var service = new XadesService();
+		var upgraderService = new XadesUpgraderService();
+
+		using Stream stream = CreateExampleDocumentStream(elementID: "test");
+		using X509Certificate2 certificate = CreateSelfSignedCertificate();
+
+		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
+		{
+			SignaturePackaging = SignaturePackaging.ENVELOPED,
+			Signer = new Crypto.Signer(certificate),
+			DataFormat = new DataFormat { MimeType = "text/xml" },
+			ElementIdToSign = "test",
+			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = Crypto.SignatureMethod.RSAwithSHA256,
+		});
+
+		using var timestampClient = new TimeStampClient(new Uri(FreeTSAUrl));
+		upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesXL, new Upgraders.Parameters.UpgradeParameters
+		{
+			TimeStampClient = timestampClient,
+			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
+		});
+
+		// Verify
+		ValidationResult result = service.Validate(signatureDocument, Microsoft.Xades.XadesValidationFlags.AllChecks, validateTimeStamp: true);
 		Assert.IsTrue(result.IsValid);
 	}
 
