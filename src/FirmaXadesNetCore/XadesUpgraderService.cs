@@ -22,11 +22,12 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using FirmaXadesNetCore.Signature;
+using FirmaXadesNetCore.Upgraders;
 using FirmaXadesNetCore.Upgraders.Parameters;
 
-namespace FirmaXadesNetCore.Upgraders;
+namespace FirmaXadesNetCore;
 
-public sealed class XadesUpgraderService
+public class XadesUpgraderService : IXadesUpgraderService
 {
 	#region IXadesUpgraderService Members
 
@@ -47,10 +48,10 @@ public sealed class XadesUpgraderService
 
 		IXadesUpgrader xadesUpgrader = toFormat switch
 		{
-			SignatureFormat.XAdES_T
+			SignatureFormat.XadesT
 				=> new XadesTUpgrader(),
 			_
-				=> signatureDocument.XadesSignature.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count == 0
+				=> signatureDocument.XadesSignature.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count <= 0
 					? new XadesTUpgrader()
 					: new XadesXLUpgrader(),
 		};

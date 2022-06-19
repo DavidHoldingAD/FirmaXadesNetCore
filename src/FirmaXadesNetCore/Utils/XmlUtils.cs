@@ -85,14 +85,14 @@ internal static class XmlUtils
 
 			if (searchXmlNodeList.Count == 0)
 			{
-				throw new CryptographicException("Element " + elementXpath + " not found while calculating hash");
+				throw new CryptographicException($"Element `{elementXpath}` not found while calculating hash.");
 			}
 
 			foreach (XmlNode xmlNode in searchXmlNodeList)
 			{
 				var clonedElement = (XmlElement)xmlNode.Clone();
 
-				clonedElement.SetAttribute("xmlns:" + XadesSignedXml.XmlDSigPrefix, XadesSignedXml.XmlDsigNamespaceUrl);
+				clonedElement.SetAttribute("xmlns:" + XadesSignedXml.XmlDSigPrefix, SignedXml.XmlDsigNamespaceUrl);
 
 				foreach (XmlAttribute attr in namespaces)
 				{

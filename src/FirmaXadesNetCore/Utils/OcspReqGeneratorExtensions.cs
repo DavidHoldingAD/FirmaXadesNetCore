@@ -90,7 +90,7 @@ static class OcspReqGeneratorExtensions
 			}
 			catch (Exception e)
 			{
-				throw new OcspException("exception processing TBSRequest: " + e, e);
+				throw new OcspException($"An error has occurred while processing timestamp request.", e);
 			}
 
 			var sigAlgId = new AlgorithmIdentifier(signingAlgorithm, DerNull.Instance);

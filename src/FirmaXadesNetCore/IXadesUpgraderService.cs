@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// ValidationResult.cs
+// XadesUpgrader.cs
 //
 // FirmaXadesNet - Librería para la generación de firmas XADES
 // Copyright (C) 2016 Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
@@ -21,42 +21,19 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace FirmaXadesNetCore.Validation;
+using FirmaXadesNetCore.Signature;
+using FirmaXadesNetCore.Upgraders;
+using FirmaXadesNetCore.Upgraders.Parameters;
 
-public class ValidationResult
+namespace FirmaXadesNetCore;
+
+public interface IXadesUpgraderService
 {
-	public bool IsValid { get; set; }
-
-	public string Message { get; set; }
-
-	public Exception Exception { get; set; }
-
-	internal static ValidationResult Invalid(string message, Exception exception = null)
-	{
-		if (message is null)
-		{
-			throw new ArgumentNullException(nameof(message));
-		}
-
-		return new ValidationResult
-		{
-			IsValid = false,
-			Message = message,
-			Exception = exception,
-		};
-	}
-
-	internal static ValidationResult Valid(string message)
-	{
-		if (message is null)
-		{
-			throw new ArgumentNullException(nameof(message));
-		}
-
-		return new ValidationResult
-		{
-			IsValid = true,
-			Message = message,
-		};
-	}
+	/// <summary>
+	/// Upgrades the specified signature document.
+	/// </summary>
+	/// <param name="signatureDocument">the signature document</param>
+	/// <param name="toFormat">the to signature format</param>
+	/// <param name="parameters">the signature parameters</param>
+	void Upgrade(SignatureDocument signatureDocument, SignatureFormat toFormat, UpgradeParameters parameters);
 }

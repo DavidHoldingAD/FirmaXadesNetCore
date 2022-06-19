@@ -4,7 +4,6 @@ using System.Security.Cryptography.Xml;
 using System.Xml;
 using FirmaXadesNetCore.Signature;
 using FirmaXadesNetCore.Signature.Parameters;
-using FirmaXadesNetCore.Validation;
 
 namespace FirmaXadesNetCore.Tests;
 

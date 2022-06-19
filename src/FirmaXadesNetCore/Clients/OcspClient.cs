@@ -173,7 +173,7 @@ public class OcspClient
 		}
 		else
 		{
-			throw new Exception("Unknow status '" + r.Status + "'.");
+			throw new Exception($"Unknown status `{r.Status}`.");
 		}
 
 		return cStatus;

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// XadesUpgrader.cs
+// ValidationResult.cs
 //
 // FirmaXadesNet - Librería para la generación de firmas XADES
 // Copyright (C) 2016 Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
@@ -21,20 +21,42 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace FirmaXadesNetCore.Upgraders;
+namespace FirmaXadesNetCore;
 
-/// <summary>
-/// Represents an enumeration of signature formats.
-/// </summary>
-public enum SignatureFormat
+public class ValidationResult
 {
-	/// <summary>
-	/// XAdES_T
-	/// </summary>
-	XadesT,
+	public bool IsValid { get; set; }
 
-	/// <summary>
-	/// XAdES_XL
-	/// </summary>
-	XadesXL,
+	public string Message { get; set; }
+
+	public Exception Exception { get; set; }
+
+	internal static ValidationResult Invalid(string message, Exception exception = null)
+	{
+		if (message is null)
+		{
+			throw new ArgumentNullException(nameof(message));
+		}
+
+		return new ValidationResult
+		{
+			IsValid = false,
+			Message = message,
+			Exception = exception,
+		};
+	}
+
+	internal static ValidationResult Valid(string message)
+	{
+		if (message is null)
+		{
+			throw new ArgumentNullException(nameof(message));
+		}
+
+		return new ValidationResult
+		{
+			IsValid = true,
+			Message = message,
+		};
+	}
 }

@@ -112,7 +112,7 @@ public class Identifier
 
 		if (xmlElement.HasAttribute("Qualifier"))
 		{
-			Qualifier = (KnownQualifier)KnownQualifier.Parse(typeof(KnownQualifier), xmlElement.GetAttribute("Qualifier"), true);
+			Qualifier = (KnownQualifier)Enum.Parse(typeof(KnownQualifier), xmlElement.GetAttribute("Qualifier"), true);
 		}
 		else
 		{

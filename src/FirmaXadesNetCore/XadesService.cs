@@ -33,18 +33,17 @@ using Microsoft.Xades;
 
 namespace FirmaXadesNetCore;
 
-public class XadesService
+/// <summary>
+/// Represents a XAdES signing service.
+/// </summary>
+public class XadesService : IXadesService
 {
 	private Reference _refContent;
 	private DataObjectFormat _dataFormat;
 
 	#region IXadesService Members
 
-	/// <summary>
-	/// Complete the signing process.
-	/// </summary>
-	/// <param name="stream"></param>
-	/// <param name="parameters"></param>
+	/// <inheritdoc/>
 	public SignatureDocument Sign(Stream stream, LocalSignatureParameters parameters)
 	{
 		if (parameters is null)
@@ -147,11 +146,7 @@ public class XadesService
 		return signatureDocument;
 	}
 
-	/// <summary>
-	/// Add a signature to the document
-	/// </summary>
-	/// <param name="signatureDocument"></param>
-	/// <param name="parameters"></param>
+	/// <inheritdoc/>
 	public SignatureDocument CoSign(SignatureDocument signatureDocument, LocalSignatureParameters parameters)
 	{
 		if (signatureDocument is null)
@@ -169,7 +164,7 @@ public class XadesService
 		_refContent = signatureDocument.XadesSignature.GetContentReference();
 		if (_refContent is null)
 		{
-			throw new Exception("No se ha podido encontrar la referencia del contenido firmado.");
+			throw new Exception("The signed content reference could not be found.");
 		}
 
 		_dataFormat = null;
@@ -239,11 +234,7 @@ public class XadesService
 		return coSignatureDocument;
 	}
 
-	/// <summary>
-	/// Performs the countersignature of the current signature
-	/// </summary>
-	/// <param name="signatureDocument"></param>
-	/// <param name="parameters"></param>
+	/// <inheritdoc/>
 	public SignatureDocument CounterSign(SignatureDocument signatureDocument, LocalSignatureParameters parameters)
 	{
 		if (parameters.Signer == null)
@@ -336,13 +327,7 @@ public class XadesService
 		return counterSigDocument;
 	}
 
-	/// <summary>
-	/// Performs a system signing and gets the digest for remote singing.
-	/// </summary>
-	/// <param name="xmlDocument">the input XML</param>
-	/// <param name="parameters">the signing parameters</param>
-	/// <param name="digest">the digest</param>
-	/// <returns>the signature document</returns>
+	/// <inheritdoc/>
 	public SignatureDocument GetRemotingSigningDigest(XmlDocument xmlDocument, RemoteSignatureParameters parameters, out byte[] digest)
 	{
 		if (xmlDocument is null)
@@ -442,12 +427,7 @@ public class XadesService
 		return signatureDocument;
 	}
 
-	/// <summary>
-	/// Attaches the signature value to the signature document.
-	/// </summary>
-	/// <param name="document">the signature document</param>
-	/// <param name="signatureValue">the signature value</param>
-	/// <returns>the updated signature document</returns>
+	/// <inheritdoc/>
 	public SignatureDocument AttachSignature(SignatureDocument document, byte[] signatureValue)
 	{
 		if (document is null)
@@ -469,11 +449,7 @@ public class XadesService
 		return document;
 	}
 
-	/// <summary>
-	/// Carga un archivo de firma.
-	/// </summary>
-	/// <param name="stream"></param>
-	/// <returns></returns>
+	/// <inheritdoc/>
 	public SignatureDocument[] Load(Stream stream)
 	{
 		if (stream is null)
@@ -484,11 +460,7 @@ public class XadesService
 		return Load(XmlUtils.LoadDocument(stream));
 	}
 
-	/// <summary>
-	/// Carga un archivo de firma.
-	/// </summary>
-	/// <param name="fileName"></param>
-	/// <returns></returns>
+	/// <inheritdoc/>
 	public SignatureDocument[] Load(string fileName)
 	{
 		if (fileName is null)
@@ -501,10 +473,7 @@ public class XadesService
 		return Load(fileStream);
 	}
 
-	/// <summary>
-	/// Carga un archivo de firma.
-	/// </summary>
-	/// <param name="xmlDocument"></param>
+	/// <inheritdoc/>
 	public SignatureDocument[] Load(XmlDocument xmlDocument)
 	{
 		if (xmlDocument is null)
@@ -536,11 +505,7 @@ public class XadesService
 		return signatureDocuments.ToArray();
 	}
 
-	/// <summary>
-	/// Realiza la validación de una firma XAdES
-	/// </summary>
-	/// <param name="signatureDocument"></param>
-	/// <returns></returns>
+	/// <inheritdoc/>
 	public ValidationResult Validate(SignatureDocument signatureDocument)
 	{
 		if (signatureDocument is null)
@@ -553,13 +518,7 @@ public class XadesService
 		return XadesValidator.Validate(signatureDocument);
 	}
 
-	/// <summary>
-	/// Validates the signature document with the specified options.
-	/// </summary>
-	/// <param name="signatureDocument">the signature document</param>
-	/// <param name="validationFlags">the validation flags</param>
-	/// <param name="validateTimeStamp">a flag indicating whether to validate timestamps or not</param>
-	/// <returns>the validation result</returns>
+	/// <inheritdoc/>
 	public ValidationResult Validate(SignatureDocument signatureDocument, XadesValidationFlags validationFlags, bool validateTimeStamp)
 	{
 		if (signatureDocument is null)
@@ -574,9 +533,6 @@ public class XadesService
 
 	#endregion
 
-	/// <summary>
-	/// Establece el identificador para la firma
-	/// </summary>
 	private void SetSignatureId(XadesSignedXml xadesSignedXml)
 	{
 		string id = Guid.NewGuid().ToString();
@@ -585,12 +541,6 @@ public class XadesService
 		xadesSignedXml.SignatureValueId = "SignatureValue-" + id;
 	}
 
-	/// <summary>
-	/// Carga el documento XML especificado y establece para firmar el elemento especificado en elementId
-	/// </summary>
-	/// <param name="xmlDocument"></param>
-	/// <param name="elementId"></param>
-	/// <param name="mimeType"></param>
 	private void SetContentInternallyDetached(SignatureDocument sigDocument, XmlDocument xmlDocument, string elementId)
 	{
 		sigDocument.Document = xmlDocument;
@@ -617,11 +567,6 @@ public class XadesService
 		sigDocument.XadesSignature.AddReference(_refContent);
 	}
 
-	/// <summary>
-	/// Inserta un documento para generar una firma internally detached.
-	/// </summary>
-	/// <param name="content"></param>
-	/// <param name="mimeType"></param>
 	private void SetContentInternallyDetached(SignatureDocument sigDocument, Stream input)
 	{
 		sigDocument.Document = new XmlDocument();
@@ -675,11 +620,6 @@ public class XadesService
 		sigDocument.XadesSignature.AddReference(_refContent);
 	}
 
-	/// <summary>
-	/// Inserta un documento para generar una firma internally detached.
-	/// </summary>
-	/// <param name="content"></param>
-	/// <param name="mimeType"></param>
 	private void SetContentInternallyDetachedHashed(SignatureDocument sigDocument, Stream input)
 	{
 		sigDocument.Document = new XmlDocument();
@@ -717,10 +657,6 @@ public class XadesService
 		sigDocument.XadesSignature.AddReference(_refContent);
 	}
 
-	/// <summary>
-	/// Inserta un contenido XML para generar una firma enveloping.
-	/// </summary>
-	/// <param name="xmlDocument"></param>
 	private void SetContentEveloping(SignatureDocument sigDocument, XmlDocument xmlDocument)
 	{
 		_refContent = new Reference();
@@ -754,42 +690,33 @@ public class XadesService
 		sigDocument.XadesSignature.AddReference(_refContent);
 	}
 
-	/// <summary>
-	/// Especifica el nodo en el cual se añadira la firma
-	/// </summary>
-	/// <param name="elementXPath"></param>
-	/// <param name="namespaces"></param>
-	private void SetSignatureDestination(SignatureDocument sigDocument, SignatureXPathExpression destination)
+	private void SetSignatureDestination(SignatureDocument signatureDocument, SignatureXPathExpression destination)
 	{
-		XmlNode nodo;
+		XmlNode node;
 
 		if (destination.Namespaces.Count > 0)
 		{
-			var xmlnsMgr = new XmlNamespaceManager(sigDocument.Document.NameTable);
+			var xmlnsMgr = new XmlNamespaceManager(signatureDocument.Document.NameTable);
 			foreach (KeyValuePair<string, string> item in destination.Namespaces)
 			{
 				xmlnsMgr.AddNamespace(item.Key, item.Value);
 			}
 
-			nodo = sigDocument.Document.SelectSingleNode(destination.XPathExpression, xmlnsMgr);
+			node = signatureDocument.Document.SelectSingleNode(destination.XPathExpression, xmlnsMgr);
 		}
 		else
 		{
-			nodo = sigDocument.Document.SelectSingleNode(destination.XPathExpression);
+			node = signatureDocument.Document.SelectSingleNode(destination.XPathExpression);
 		}
 
-		if (nodo == null)
+		if (node == null)
 		{
-			throw new Exception("Elemento no encontrado");
+			throw new Exception($"Element `{destination.XPathExpression}` was not found.");
 		}
 
-		sigDocument.XadesSignature.SignatureNodeDestination = (XmlElement)nodo;
+		signatureDocument.XadesSignature.SignatureNodeDestination = (XmlElement)node;
 	}
 
-	/// <summary>
-	/// Inserta un documento para generar una firma externally detached.
-	/// </summary>
-	/// <param name="fileName"></param>
 	private void SetContentExternallyDetached(SignatureDocument sigDocument, string fileName)
 	{
 		_refContent = new Reference();
@@ -811,10 +738,6 @@ public class XadesService
 		sigDocument.XadesSignature.AddReference(_refContent);
 	}
 
-	/// <summary>
-	/// Añade una transformación XPath al contenido a firmar
-	/// </summary>
-	/// <param name="XPathString"></param>
 	private void AddXPathTransform(SignatureDocument sigDocument, Dictionary<string, string> namespaces, string XPathString)
 	{
 		XmlDocument document;
@@ -849,10 +772,6 @@ public class XadesService
 		reference.AddTransform(transform);
 	}
 
-	/// <summary>
-	/// Inserta un contenido XML para generar una firma enveloped.
-	/// </summary>
-	/// <param name="xmlDocument"></param>
 	private void SetContentEnveloped(SignatureDocument sigDocument, XmlDocument xmlDocument)
 	{
 		sigDocument.Document = xmlDocument;

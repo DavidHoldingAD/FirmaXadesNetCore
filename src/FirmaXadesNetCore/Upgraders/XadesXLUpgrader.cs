@@ -282,7 +282,7 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 				}
 				else
 				{
-					throw new Exception("Certificado revocado");
+					throw new Exception("The certificate has been revoked.");
 				}
 			}
 		}
