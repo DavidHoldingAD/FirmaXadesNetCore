@@ -39,8 +39,6 @@ namespace Microsoft.Xades;
 /// </summary>
 public class XadesSignedXml : SignedXml
 {
-	#region Constants
-
 	private const string XadesXSDResourceName = "FirmaXadesNetCore.Microsoft.Xades.XAdES.xsd";
 	private const string XmlDsigCoreXsdResourceName = "FirmaXadesNetCore.Microsoft.Xades.xmldsig-core-schema.xsd";
 
@@ -64,9 +62,8 @@ public class XadesSignedXml : SignedXml
 	/// </summary>
 	public const string XmlDsigObjectType = "http://www.w3.org/2000/09/xmldsig#Object";
 
-	#endregion
-
 	#region Private variables
+
 	private static readonly string[] _idAttrs = new string[]
 	{
 		"_id",
@@ -87,7 +84,6 @@ public class XadesSignedXml : SignedXml
 	public static string XmlDSigPrefix { get; set; }
 
 	public static string XmlXadesPrefix { get; set; }
-
 
 	/// <summary>
 	/// Property indicating the type of signature (XmlDsig or XAdES)
@@ -142,7 +138,7 @@ public class XadesSignedXml : SignedXml
 			{
 				dataObjectXmlElement = xadesDataObject.GetXml();
 				xmlNamespaceManager = new XmlNamespaceManager(dataObjectXmlElement.OwnerDocument.NameTable);
-				xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
+				xmlNamespaceManager.AddNamespace("xades", XadesNamespaceUri);
 				xmlNodeList = dataObjectXmlElement.SelectNodes("xades:QualifyingProperties/xades:UnsignedProperties", xmlNamespaceManager);
 				if (xmlNodeList.Count != 0)
 				{
@@ -170,7 +166,7 @@ public class XadesSignedXml : SignedXml
 			{
 				XmlElement dataObjectXmlElement = xadesDataObject.GetXml();
 				xmlNamespaceManager = new XmlNamespaceManager(dataObjectXmlElement.OwnerDocument.NameTable);
-				xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
+				xmlNamespaceManager.AddNamespace("xades", XadesNamespaceUri);
 				qualifyingPropertiesXmlNodeList = dataObjectXmlElement.SelectNodes("xades:QualifyingProperties", xmlNamespaceManager);
 				unsignedPropertiesXmlNodeList = dataObjectXmlElement.SelectNodes("xades:QualifyingProperties/xades:UnsignedProperties", xmlNamespaceManager);
 				if (unsignedPropertiesXmlNodeList.Count != 0)
@@ -201,6 +197,7 @@ public class XadesSignedXml : SignedXml
 	#endregion
 
 	#region Constructors
+
 	/// <summary>
 	/// Default constructor for the XadesSignedXml class
 	/// </summary>
@@ -240,6 +237,7 @@ public class XadesSignedXml : SignedXml
 
 		_cachedXadesObjectDocument = null;
 	}
+
 	#endregion
 
 	#region Public methods
@@ -259,11 +257,11 @@ public class XadesSignedXml : SignedXml
 		{
 			if (attr.Name.StartsWith("xmlns"))
 			{
-				if (attr.Value.ToUpper() == XadesSignedXml.XadesNamespaceUri.ToUpper())
+				if (attr.Value.ToUpper() == XadesNamespaceUri.ToUpper())
 				{
 					XmlXadesPrefix = attr.Name.Split(':')[1];
 				}
-				else if (attr.Value.ToUpper() == XadesSignedXml.XmlDsigNamespaceUrl.ToUpper())
+				else if (attr.Value.ToUpper() == XmlDsigNamespaceUrl.ToUpper())
 				{
 					XmlDSigPrefix = attr.Name.Split(':')[1];
 				}
@@ -280,8 +278,8 @@ public class XadesSignedXml : SignedXml
 
 		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 
-		xmlNamespaceManager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
-		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
+		xmlNamespaceManager.AddNamespace("ds", XmlDsigNamespaceUrl);
+		xmlNamespaceManager.AddNamespace("xades", XadesNamespaceUri);
 
 		XmlNodeList xmlNodeList = xmlElement.SelectNodes("ds:SignatureValue", xmlNamespaceManager);
 		if (xmlNodeList.Count > 0)
@@ -322,7 +320,7 @@ public class XadesSignedXml : SignedXml
 		SetPrefix(XmlDSigPrefix, retVal);
 
 		xmlNamespaceManager = new XmlNamespaceManager(retVal.OwnerDocument.NameTable);
-		xmlNamespaceManager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
+		xmlNamespaceManager.AddNamespace("ds", XmlDsigNamespaceUrl);
 
 
 		/*if (this.signatureDocument != null)
@@ -356,7 +354,7 @@ public class XadesSignedXml : SignedXml
 		if (SignatureValueId != null && SignatureValueId != "")
 		{ //Id on Signature value is needed for XAdES-T. We inject it here.
 			xmlNamespaceManager = new XmlNamespaceManager(retVal.OwnerDocument.NameTable);
-			xmlNamespaceManager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
+			xmlNamespaceManager.AddNamespace("ds", XmlDsigNamespaceUrl);
 			xmlNodeList = retVal.SelectNodes("ds:SignatureValue", xmlNamespaceManager);
 			if (xmlNodeList.Count > 0)
 			{
@@ -576,20 +574,28 @@ public class XadesSignedXml : SignedXml
 		return result;
 	}
 
-
+	/// <summary>
+	/// Gets the signing certificate from the key information tag.
+	/// </summary>
+	/// <returns>the singing certificate</returns>
 	public X509Certificate2 GetSigningCertificate()
 	{
-		XmlNode keyXml = KeyInfo.GetXml().GetElementsByTagName("X509Certificate", SignedXml.XmlDsigNamespaceUrl)[0];
+		XmlNodeList certificateElements = KeyInfo
+			.GetXml()
+			.GetElementsByTagName("X509Certificate", XmlDsigNamespaceUrl);
 
-		if (keyXml == null)
+		if (certificateElements is null
+			|| certificateElements.Count <= 0
+			|| certificateElements[0] is not XmlNode certificateElement)
 		{
-			throw new Exception("No se ha podido obtener el certificado de firma");
+			throw new Exception("Failed to get signing certificate.");
 		}
 
-		return new X509Certificate2(Convert.FromBase64String(keyXml.InnerText));
+		return new X509Certificate2(Convert.FromBase64String(certificateElement.InnerText));
 	}
 
 	#region XadesCheckSignature routines
+
 	/// <summary>
 	/// Check the signature of the underlying XMLDSIG signature
 	/// </summary>
@@ -692,7 +698,7 @@ public class XadesSignedXml : SignedXml
 
 		xadesNameTable = new NameTable();
 		xmlNamespaceManager = new XmlNamespaceManager(xadesNameTable);
-		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+		xmlNamespaceManager.AddNamespace("xsd", XadesNamespaceUri);
 
 		xmlParserContext = new XmlParserContext(null, xmlNamespaceManager, null, XmlSpace.None);
 
@@ -1037,8 +1043,8 @@ public class XadesSignedXml : SignedXml
 
 		signatureElement = GetXml();
 		xmlNamespaceManager = new XmlNamespaceManager(signatureElement.OwnerDocument.NameTable);
-		xmlNamespaceManager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
-		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
+		xmlNamespaceManager.AddNamespace("ds", XmlDsigNamespaceUrl);
+		xmlNamespaceManager.AddNamespace("xsd", XadesNamespaceUri);
 		xmlNodeList = signatureElement.SelectNodes("ds:Object/xsd:QualifyingProperties", xmlNamespaceManager);
 		if (xmlNodeList.Count > 1)
 		{
@@ -1268,6 +1274,7 @@ public class XadesSignedXml : SignedXml
 
 		return retVal;
 	}
+
 	#endregion
 
 	#endregion
@@ -1276,11 +1283,9 @@ public class XadesSignedXml : SignedXml
 
 	private void SetPrefix(string prefix, XmlNode node)
 	{
-		if (node.NamespaceURI == SignedXml.XmlDsigNamespaceUrl)
+		if (node.NamespaceURI == XmlDsigNamespaceUrl)
 		{
 			node.Prefix = prefix;
-
-
 		}
 
 		foreach (XmlNode child in node.ChildNodes)
@@ -1413,7 +1418,6 @@ public class XadesSignedXml : SignedXml
 		}
 	}
 
-
 	public List<XmlAttribute> GetAllNamespaces(XmlElement fromElement)
 	{
 		var namespaces = new List<XmlAttribute>();
@@ -1516,7 +1520,7 @@ public class XadesSignedXml : SignedXml
 		if (AddXadesNamespace)
 		{
 			XmlAttribute attr = _signatureDocument.CreateAttribute("xmlns:xades");
-			attr.Value = XadesSignedXml.XadesNamespaceUri;
+			attr.Value = XadesNamespaceUri;
 
 			signatureParentNodeNameSpaces.Add(attr);
 		}
@@ -1657,7 +1661,6 @@ public class XadesSignedXml : SignedXml
 		return true;
 	}
 
-
 	private bool CheckSignedInfo(AsymmetricAlgorithm key)
 	{
 		if (key == null)
@@ -1732,7 +1735,7 @@ public class XadesSignedXml : SignedXml
 			if (AddXadesNamespace)
 			{
 				XmlAttribute attr = _signatureDocument.CreateAttribute("xmlns:xades");
-				attr.Value = XadesSignedXml.XadesNamespaceUri;
+				attr.Value = XadesNamespaceUri;
 
 				docNamespaces.Add(attr);
 			}
@@ -1797,8 +1800,8 @@ public class XadesSignedXml : SignedXml
 	private XmlElement GetXadesObjectElement(XmlElement signatureElement)
 	{
 		var xmlNamespaceManager = new XmlNamespaceManager(signatureElement.OwnerDocument.NameTable); //Create an XmlNamespaceManager to resolve namespace
-		xmlNamespaceManager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
-		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
+		xmlNamespaceManager.AddNamespace("ds", XmlDsigNamespaceUrl);
+		xmlNamespaceManager.AddNamespace("xades", XadesNamespaceUri);
 
 		XmlNodeList xmlNodeList = signatureElement.SelectNodes("ds:Object/xades:QualifyingProperties", xmlNamespaceManager);
 		XmlElement retVal;
@@ -1913,7 +1916,6 @@ public class XadesSignedXml : SignedXml
 
 		return retVal;
 	}
-
 
 	private bool CheckObjectReference(ObjectReference objectReference)
 	{

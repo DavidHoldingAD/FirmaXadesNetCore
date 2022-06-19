@@ -30,7 +30,7 @@ using Microsoft.Xades;
 
 namespace FirmaXadesNetCore.Utils;
 
-class XMLUtil
+internal static class XmlUtils
 {
 	/// <summary>
 	/// Aplica una transformación al elemento especificado

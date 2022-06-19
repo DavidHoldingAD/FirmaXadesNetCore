@@ -137,7 +137,7 @@ public class SignatureDocument
 			{
 				XmlElement xmlSigned = XadesSignature.GetXml();
 
-				byte[] canonicalizedElement = XMLUtil.ApplyTransform(xmlSigned, new XmlDsigC14NTransform());
+				byte[] canonicalizedElement = XmlUtils.ApplyTransform(xmlSigned, new XmlDsigC14NTransform());
 
 				var doc = new XmlDocument
 				{

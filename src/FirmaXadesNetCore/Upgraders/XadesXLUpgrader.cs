@@ -59,7 +59,7 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 			throw new ArgumentNullException(nameof(parameters));
 		}
 
-		X509Certificate2 signingCertificate = signatureDocument.XadesSignature.GetSigningCertificate();
+		using X509Certificate2 signingCertificate = signatureDocument.XadesSignature.GetSigningCertificate();
 
 		UnsignedProperties unsignedProperties = signatureDocument.XadesSignature.UnsignedProperties;
 		unsignedProperties.UnsignedSignatureProperties.CompleteCertificateRefs = new CompleteCertificateRefs
@@ -182,7 +182,7 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 			unsignedProperties.UnsignedSignatureProperties.CertificateValues.EncapsulatedX509CertificateCollection.Add(encapsulatedX509Certificate);
 		}
 
-		X509ChainElementCollection chain = CertUtil.GetCertChain(cert, extraCerts).ChainElements;
+		X509ChainElementCollection chain = CertificateUtils.GetCertChain(cert, extraCerts).ChainElements;
 
 		if (chain.Count > 1)
 		{
@@ -203,7 +203,7 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 
 					if (!EquivalentDN(startOcspCert.IssuerName, enumerator.Current.Certificate.SubjectName))
 					{
-						X509Chain chainOcsp = CertUtil.GetCertChain(startOcspCert, ocspCerts);
+						X509Chain chainOcsp = CertificateUtils.GetCertChain(startOcspCert, ocspCerts);
 
 						AddCertificate(chainOcsp.ChainElements[1].Certificate, unsignedProperties, true, ocspServers, crlList, digestMethod, addCertificateOcspUrl, ocspCerts);
 					}
@@ -435,7 +435,7 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 			"ds:Object/xades:QualifyingProperties/xades:UnsignedProperties/xades:UnsignedSignatureProperties/xades:CompleteCertificateRefs",
 			"ds:Object/xades:QualifyingProperties/xades:UnsignedProperties/xades:UnsignedSignatureProperties/xades:CompleteRevocationRefs",
 		};
-		signatureValueHash = parameters.DigestMethod.ComputeHash(XMLUtil.ComputeValueOfElementList(signatureDocument.XadesSignature, signatureValueElementXpaths));
+		signatureValueHash = parameters.DigestMethod.ComputeHash(XmlUtils.ComputeValueOfElementList(signatureDocument.XadesSignature, signatureValueElementXpaths));
 
 		byte[] tsa = parameters.TimeStampClient.GetTimeStamp(signatureValueHash, parameters.DigestMethod, true);
 

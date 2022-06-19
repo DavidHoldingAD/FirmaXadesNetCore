@@ -109,7 +109,7 @@ internal sealed class XadesValidator
 				"ds:SignatureValue",
 			};
 
-			byte[] signatureHash = XMLUtil.ComputeValueOfElementList(xadesSignature, signatureValueElementXpaths, transform);
+			byte[] signatureHash = XmlUtils.ComputeValueOfElementList(xadesSignature, signatureValueElementXpaths, transform);
 			byte[] signatureValueHash = timeStampHashMethod.ComputeHash(signatureHash);
 
 			if (!Arrays.AreEqual(timeStampHash, signatureValueHash))

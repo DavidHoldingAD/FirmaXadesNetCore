@@ -25,10 +25,16 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace FirmaXadesNetCore.Utils;
 
-public static class CertUtil
+public static class CertificateUtils
 {
-	public static X509Chain GetCertChain(X509Certificate2 certificate, X509Certificate2[] certificates = null)
+	public static X509Chain GetCertChain(X509Certificate2 certificate,
+		X509Certificate2[] certificates = null)
 	{
+		if (certificate is null)
+		{
+			throw new ArgumentNullException(nameof(certificate));
+		}
+
 		var chain = new X509Chain();
 
 		chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
@@ -55,8 +61,20 @@ public static class CertUtil
 	/// <param name="rootCertificate">The certificate chain should terminate in this root certificate.</param>
 	/// <param name="revocationChecks">Specifies what kind of revocation check should be performed. None by default.</param>
 	/// <returns></returns>
-	public static bool VerifyCertificate(X509Certificate2 certificateToValidate, X509Certificate2 rootCertificate, X509RevocationMode revocationChecks = X509RevocationMode.NoCheck)
+	public static bool VerifyCertificate(X509Certificate2 certificateToValidate,
+		X509Certificate2 rootCertificate,
+		X509RevocationMode revocationChecks = X509RevocationMode.NoCheck)
 	{
+		if (certificateToValidate is null)
+		{
+			throw new ArgumentNullException(nameof(certificateToValidate));
+		}
+
+		if (rootCertificate is null)
+		{
+			throw new ArgumentNullException(nameof(rootCertificate));
+		}
+
 		var chain = new X509Chain();
 		chain.ChainPolicy.RevocationMode = revocationChecks;
 		chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;

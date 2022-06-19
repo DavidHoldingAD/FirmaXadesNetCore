@@ -62,7 +62,7 @@ internal sealed class XadesTUpgrader : IXadesUpgrader
 			};
 
 			byte[] signatureValueHash = parameters.DigestMethod
-				.ComputeHash(XMLUtil.ComputeValueOfElementList(signatureDocument.XadesSignature, signatureValueElementXpaths, excTransform));
+				.ComputeHash(XmlUtils.ComputeValueOfElementList(signatureDocument.XadesSignature, signatureValueElementXpaths, excTransform));
 
 			byte[] tsa = parameters.TimeStampClient.GetTimeStamp(signatureValueHash, parameters.DigestMethod, true);
 

@@ -43,16 +43,22 @@ public class XadesService
 	/// <summary>
 	/// Complete the signing process.
 	/// </summary>
-	/// <param name="input"></param>
+	/// <param name="stream"></param>
 	/// <param name="parameters"></param>
-	public SignatureDocument Sign(Stream input, LocalSignatureParameters parameters)
+	public SignatureDocument Sign(Stream stream, LocalSignatureParameters parameters)
 	{
-		if (parameters.Signer == null)
+		if (parameters is null)
+		{
+			throw new ArgumentNullException(nameof(parameters));
+		}
+
+		if (parameters.Signer is null)
 		{
 			throw new Exception("A valid certificate is required for signing.");
 		}
 
-		if (input == null && string.IsNullOrEmpty(parameters.ExternalContentUri))
+		if (stream is null
+			&& string.IsNullOrEmpty(parameters.ExternalContentUri))
 		{
 			throw new Exception("No content to sign has been specified.");
 		}
@@ -81,11 +87,11 @@ public class XadesService
 
 				if (!string.IsNullOrEmpty(parameters.ElementIdToSign))
 				{
-					SetContentInternallyDetached(signatureDocument, XMLUtil.LoadDocument(input), parameters.ElementIdToSign);
+					SetContentInternallyDetached(signatureDocument, XmlUtils.LoadDocument(stream), parameters.ElementIdToSign);
 				}
 				else
 				{
-					SetContentInternallyDetached(signatureDocument, input);
+					SetContentInternallyDetached(signatureDocument, stream);
 				}
 				break;
 
@@ -99,19 +105,19 @@ public class XadesService
 					_dataFormat.MimeType = parameters.DataFormat.MimeType;
 				}
 				_dataFormat.Encoding = "http://www.w3.org/2000/09/xmldsig#base64";
-				SetContentInternallyDetachedHashed(signatureDocument, input);
+				SetContentInternallyDetachedHashed(signatureDocument, stream);
 				break;
 
 			case SignaturePackaging.ENVELOPED:
 				_dataFormat.MimeType = "text/xml";
 				_dataFormat.Encoding = "UTF-8";
-				SetContentEnveloped(signatureDocument, XMLUtil.LoadDocument(input));
+				SetContentEnveloped(signatureDocument, XmlUtils.LoadDocument(stream));
 				break;
 
 			case SignaturePackaging.ENVELOPING:
 				_dataFormat.MimeType = "text/xml";
 				_dataFormat.Encoding = "UTF-8";
-				SetContentEveloping(signatureDocument, XMLUtil.LoadDocument(input));
+				SetContentEveloping(signatureDocument, XmlUtils.LoadDocument(stream));
 				break;
 
 			case SignaturePackaging.EXTERNALLY_DETACHED:
@@ -144,22 +150,31 @@ public class XadesService
 	/// <summary>
 	/// Add a signature to the document
 	/// </summary>
-	/// <param name="sigDocument"></param>
+	/// <param name="signatureDocument"></param>
 	/// <param name="parameters"></param>
-	public SignatureDocument CoSign(SignatureDocument sigDocument, LocalSignatureParameters parameters)
+	public SignatureDocument CoSign(SignatureDocument signatureDocument, LocalSignatureParameters parameters)
 	{
-		SignatureDocument.CheckSignatureDocument(sigDocument);
+		if (signatureDocument is null)
+		{
+			throw new ArgumentNullException(nameof(signatureDocument));
+		}
 
-		_refContent = sigDocument.XadesSignature.GetContentReference();
+		if (parameters is null)
+		{
+			throw new ArgumentNullException(nameof(parameters));
+		}
 
-		if (_refContent == null)
+		SignatureDocument.CheckSignatureDocument(signatureDocument);
+
+		_refContent = signatureDocument.XadesSignature.GetContentReference();
+		if (_refContent is null)
 		{
 			throw new Exception("No se ha podido encontrar la referencia del contenido firmado.");
 		}
 
 		_dataFormat = null;
 
-		foreach (DataObjectFormat dof in sigDocument.XadesSignature.XadesObject.QualifyingProperties.SignedProperties.SignedDataObjectProperties.DataObjectFormatCollection)
+		foreach (DataObjectFormat dof in signatureDocument.XadesSignature.XadesObject.QualifyingProperties.SignedProperties.SignedDataObjectProperties.DataObjectFormatCollection)
 		{
 			if (dof.ObjectReferenceAttribute == ("#" + _refContent.Id))
 			{
@@ -183,12 +198,12 @@ public class XadesService
 
 		var coSignatureDocument = new SignatureDocument
 		{
-			Document = (XmlDocument)sigDocument.Document.Clone()
+			Document = (XmlDocument)signatureDocument.Document.Clone()
 		};
 		coSignatureDocument.Document.PreserveWhitespace = true;
 
 		coSignatureDocument.XadesSignature = new XadesSignedXml(coSignatureDocument.Document);
-		coSignatureDocument.XadesSignature.LoadXml(sigDocument.XadesSignature.GetXml());
+		coSignatureDocument.XadesSignature.LoadXml(signatureDocument.XadesSignature.GetXml());
 
 		XmlNode destination = coSignatureDocument.XadesSignature.GetSignatureElement().ParentNode;
 
@@ -227,20 +242,20 @@ public class XadesService
 	/// <summary>
 	/// Performs the countersignature of the current signature
 	/// </summary>
-	/// <param name="sigDocument"></param>
+	/// <param name="signatureDocument"></param>
 	/// <param name="parameters"></param>
-	public SignatureDocument CounterSign(SignatureDocument sigDocument, LocalSignatureParameters parameters)
+	public SignatureDocument CounterSign(SignatureDocument signatureDocument, LocalSignatureParameters parameters)
 	{
 		if (parameters.Signer == null)
 		{
 			throw new Exception("A valid certificate is required for signing.");
 		}
 
-		SignatureDocument.CheckSignatureDocument(sigDocument);
+		SignatureDocument.CheckSignatureDocument(signatureDocument);
 
 		var counterSigDocument = new SignatureDocument
 		{
-			Document = (XmlDocument)sigDocument.Document.Clone()
+			Document = (XmlDocument)signatureDocument.Document.Clone()
 		};
 		counterSigDocument.Document.PreserveWhitespace = true;
 
@@ -251,7 +266,7 @@ public class XadesService
 
 		_refContent = new Reference
 		{
-			Uri = "#" + sigDocument.XadesSignature.SignatureValueId,
+			Uri = "#" + signatureDocument.XadesSignature.SignatureValueId,
 			Id = "Reference-" + Guid.NewGuid().ToString(),
 			Type = "http://uri.etsi.org/01903#CountersignedSignature"
 		};
@@ -304,16 +319,16 @@ public class XadesService
 		counterSignature.AddXadesNamespace = true;
 		counterSignature.ComputeSignature();
 
-		UnsignedProperties unsignedProperties = sigDocument.XadesSignature.UnsignedProperties;
+		UnsignedProperties unsignedProperties = signatureDocument.XadesSignature.UnsignedProperties;
 		unsignedProperties.UnsignedSignatureProperties.CounterSignatureCollection.Add(counterSignature);
-		sigDocument.XadesSignature.UnsignedProperties = unsignedProperties;
+		signatureDocument.XadesSignature.UnsignedProperties = unsignedProperties;
 
-		UpdateXadesSignature(sigDocument);
+		UpdateXadesSignature(signatureDocument);
 
-		counterSigDocument.Document = (XmlDocument)sigDocument.Document.Clone();
+		counterSigDocument.Document = (XmlDocument)signatureDocument.Document.Clone();
 		counterSigDocument.Document.PreserveWhitespace = true;
 
-		var signatureElement = (XmlElement)sigDocument.Document.SelectSingleNode("//*[@Id='" + counterSignature.Signature.Id + "']");
+		var signatureElement = (XmlElement)signatureDocument.Document.SelectSingleNode("//*[@Id='" + counterSignature.Signature.Id + "']");
 
 		counterSigDocument.XadesSignature = new XadesSignedXml(counterSigDocument.Document);
 		counterSigDocument.XadesSignature.LoadXml(signatureElement);
@@ -457,10 +472,17 @@ public class XadesService
 	/// <summary>
 	/// Carga un archivo de firma.
 	/// </summary>
-	/// <param name="input"></param>
+	/// <param name="stream"></param>
 	/// <returns></returns>
-	public SignatureDocument[] Load(Stream input)
-		=> Load(XMLUtil.LoadDocument(input));
+	public SignatureDocument[] Load(Stream stream)
+	{
+		if (stream is null)
+		{
+			throw new ArgumentNullException(nameof(stream));
+		}
+
+		return Load(XmlUtils.LoadDocument(stream));
+	}
 
 	/// <summary>
 	/// Carga un archivo de firma.
@@ -469,8 +491,14 @@ public class XadesService
 	/// <returns></returns>
 	public SignatureDocument[] Load(string fileName)
 	{
-		using var fs = new FileStream(fileName, FileMode.Open);
-		return Load(fs);
+		if (fileName is null)
+		{
+			throw new ArgumentNullException(nameof(fileName));
+		}
+
+		using FileStream fileStream = File.OpenRead(fileName);
+
+		return Load(fileStream);
 	}
 
 	/// <summary>
@@ -479,29 +507,33 @@ public class XadesService
 	/// <param name="xmlDocument"></param>
 	public SignatureDocument[] Load(XmlDocument xmlDocument)
 	{
+		if (xmlDocument is null)
+		{
+			throw new ArgumentNullException(nameof(xmlDocument));
+		}
+
 		XmlNodeList signatureNodeList = xmlDocument.GetElementsByTagName("Signature", SignedXml.XmlDsigNamespaceUrl);
-
-		if (signatureNodeList.Count == 0)
+		if (signatureNodeList.Count <= 0)
 		{
-			throw new Exception("No signature found.");
+			return Array.Empty<SignatureDocument>();
 		}
 
-		var firmas = new List<SignatureDocument>();
+		var signatureDocuments = new List<SignatureDocument>();
 
-		foreach (object signatureNode in signatureNodeList)
+		foreach (XmlElement signatureNode in signatureNodeList)
 		{
-			var sigDocument = new SignatureDocument
+			var signatureDocument = new SignatureDocument
 			{
-				Document = (XmlDocument)xmlDocument.Clone()
+				Document = (XmlDocument)xmlDocument.Clone(),
 			};
-			sigDocument.Document.PreserveWhitespace = true;
-			sigDocument.XadesSignature = new XadesSignedXml(sigDocument.Document);
-			sigDocument.XadesSignature.LoadXml((XmlElement)signatureNode);
+			signatureDocument.Document.PreserveWhitespace = true;
+			signatureDocument.XadesSignature = new XadesSignedXml(signatureDocument.Document);
+			signatureDocument.XadesSignature.LoadXml(signatureNode);
 
-			firmas.Add(sigDocument);
+			signatureDocuments.Add(signatureDocument);
 		}
 
-		return firmas.ToArray();
+		return signatureDocuments.ToArray();
 	}
 
 	/// <summary>
@@ -1070,6 +1102,5 @@ public class XadesService
 			signedSignatureProperties.SignatureProductionPlace.PostalCode = parameters.SignatureProductionPlace.PostalCode;
 			signedSignatureProperties.SignatureProductionPlace.CountryName = parameters.SignatureProductionPlace.CountryName;
 		}
-
 	}
 }

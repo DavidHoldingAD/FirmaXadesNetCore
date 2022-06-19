@@ -235,7 +235,7 @@ public class OcspClient
 
 		if (signCertificate != null)
 		{
-			return ocspRequestGenerator.Generate(RSA_CERTIFICATE_EXTENSIONS.GetRSAPrivateKey(signCertificate), CertUtil.GetCertChain(signCertificate));
+			return ocspRequestGenerator.Generate(RSA_CERTIFICATE_EXTENSIONS.GetRSAPrivateKey(signCertificate), CertificateUtils.GetCertChain(signCertificate));
 		}
 		else
 		{
