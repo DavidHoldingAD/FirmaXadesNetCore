@@ -1,6 +1,6 @@
 FirmaXadesNetCore
 =============
-![.NET Core](https://github.com/DavidHoldingAD/FirmaXadesNetCore/workflows/.NET%20Core/badge.svg?branch=master)
+![.NET Core](https://github.com/DavidHoldingAD/FirmaXadesNetCore/workflows/Build/badge.svg?branch=master)
 
 INTRODUCTION
 -------------
