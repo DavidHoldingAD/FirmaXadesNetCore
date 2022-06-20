@@ -838,9 +838,9 @@ public class XadesSignedXml : SignedXml
 	/// <summary>
 	/// Perform XAdES checks on contained counter signatures.  If couter signature is XMLDSIG, only XMLDSIG check (CheckSignature()) is done.
 	/// </summary>
-	/// <param name="counterSignatureMask">Check mask applied to counter signatures</param>
+	/// <param name="validationFlags">Check mask applied to counter signatures</param>
 	/// <returns>If the function returns true the check was OK</returns>
-	public virtual bool CheckCounterSignatures(XadesValidationFlags counterSignatureMask)
+	public virtual bool CheckCounterSignatures(XadesValidationFlags validationFlags)
 	{
 		CounterSignatureCollection counterSignatureCollection;
 		XadesSignedXml counterSignature;
@@ -854,7 +854,7 @@ public class XadesSignedXml : SignedXml
 			//TODO: check if parent signature document is present in counterSignature (maybe a deep copy is required)
 			if (counterSignature.SignatureStandard == KnownSignatureStandard.Xades)
 			{
-				retVal &= counterSignature.CheckSignature(counterSignatureMask);
+				retVal &= counterSignature.CheckSignature(validationFlags);
 			}
 			else
 			{

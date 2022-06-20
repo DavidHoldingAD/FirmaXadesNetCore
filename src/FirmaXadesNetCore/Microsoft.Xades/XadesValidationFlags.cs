@@ -126,5 +126,5 @@ public enum XadesValidationFlags : ulong
 	/// <summary>
 	/// Do all known tests on XAdES signature
 	/// </summary>
-	AllChecks = 0xFFFFFF,
+	AllChecks = int.MaxValue,
 }
