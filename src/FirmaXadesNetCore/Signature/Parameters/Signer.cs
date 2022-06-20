@@ -23,12 +23,22 @@
 
 using System.Security.Cryptography.X509Certificates;
 
-namespace FirmaXadesNetCore.Crypto;
+namespace FirmaXadesNetCore.Signature.Parameters;
 
+/// <summary>
+/// Represents a signer.
+/// </summary>
 public class Signer
 {
+	/// <summary>
+	/// Gets the certificate.
+	/// </summary>
 	public X509Certificate2 Certificate { get; }
 
+	/// <summary>
+	/// Initializes a new instance of <see cref="Signer"/> class.
+	/// </summary>
+	/// <param name="certificate">the certificate</param>
 	public Signer(X509Certificate2 certificate)
 	{
 		if (certificate is null)

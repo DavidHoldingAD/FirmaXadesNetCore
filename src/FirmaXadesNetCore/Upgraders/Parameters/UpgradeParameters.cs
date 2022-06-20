@@ -22,27 +22,49 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using FirmaXadesNetCore.Clients;
-using FirmaXadesNetCore.Crypto;
 using Org.BouncyCastle.X509;
 
 namespace FirmaXadesNetCore.Upgraders.Parameters;
 
+/// <summary>
+/// Represents a upgrade parameters.
+/// </summary>
 public class UpgradeParameters
 {
 	private readonly List<X509Crl> _crls = new();
 	private readonly X509CrlParser _crlParser = new();
 
-	public List<OcspServer> OCSPServers { get; } = new();
+	/// <summary>
+	/// Gets the OCSP servers.
+	/// </summary>
+	public List<OcspServer> OcspServers { get; } = new();
 
-	public IEnumerable<X509Crl> CRL => _crls;
+	/// <summary>
+	/// Gets the CRLS.
+	/// </summary>
+	public IEnumerable<X509Crl> Crls
+		=> _crls;
 
+	/// <summary>
+	/// Gets or sets the digest method.
+	/// </summary>
 	public DigestMethod DigestMethod { get; set; } = DigestMethod.SHA1;
 
+	/// <summary>
+	/// Gets or sets the timestamp client.
+	/// </summary>
 	public ITimeStampClient TimeStampClient { get; set; }
 
+	/// <summary>
+	/// Gets or sets a flag indicating whether to get the OCSP URL from certificate or not.
+	/// </summary>
 	public bool GetOcspUrlFromCertificate { get; set; } = true;
 
-	public void AddCRL(Stream stream)
+	/// <summary>
+	/// Adds a CRL.
+	/// </summary>
+	/// <param name="stream">the CRL stream</param>
+	public void AddCrl(Stream stream)
 	{
 		if (stream is null)
 		{
@@ -52,6 +74,9 @@ public class UpgradeParameters
 		_crls.Add(_crlParser.ReadCrl(stream));
 	}
 
-	public void ClearCRL()
+	/// <summary>
+	/// Clears the CRLs.
+	/// </summary>
+	public void ClearCrls()
 		=> _crls.Clear();
 }

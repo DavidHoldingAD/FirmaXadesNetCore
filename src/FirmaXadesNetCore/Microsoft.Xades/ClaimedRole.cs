@@ -30,28 +30,16 @@ namespace Microsoft.Xades;
 /// </summary>
 public class ClaimedRole
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// The generic XML element that represents a claimed role
 	/// </summary>
 	public XmlElement AnyXmlElement { get; set; }
 
-	public string InnerText { get; set; }
-	#endregion
-
-	#region Constructors
 	/// <summary>
-	/// Default constructor
+	/// Gets or sets the inner text.
 	/// </summary>
-	public ClaimedRole()
-	{
-	}
-	#endregion
+	public string InnerText { get; set; }
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
@@ -107,5 +95,4 @@ public class ClaimedRole
 
 		return retVal;
 	}
-	#endregion
 }

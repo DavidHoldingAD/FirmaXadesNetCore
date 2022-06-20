@@ -21,10 +21,11 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-using FirmaXadesNetCore.Crypto;
-
 namespace FirmaXadesNetCore.Signature.Parameters;
 
+/// <summary>
+/// Represents a local signature parameters.
+/// </summary>
 public sealed class LocalSignatureParameters : SignatureParametersBase
 {
 	/// <summary>

@@ -23,13 +23,32 @@
 
 namespace FirmaXadesNetCore;
 
+/// <summary>
+/// Represents a validation result.
+/// </summary>
 public class ValidationResult
 {
-	public bool IsValid { get; set; }
+	/// <summary>
+	/// Gets a flag indicating whether the result is valid or not.
+	/// </summary>
+	public bool IsValid { get; }
 
-	public string Message { get; set; }
+	/// <summary>
+	/// Gets the message.
+	/// </summary>
+	public string Message { get; }
 
-	public Exception Exception { get; set; }
+	/// <summary>
+	/// Gets the exception.
+	/// </summary>
+	public Exception Exception { get; }
+
+	private ValidationResult(bool isValid, string message, Exception exception)
+	{
+		IsValid = isValid;
+		Message = message;
+		Exception = exception;
+	}
 
 	internal static ValidationResult Invalid(string message, Exception exception = null)
 	{
@@ -38,12 +57,7 @@ public class ValidationResult
 			throw new ArgumentNullException(nameof(message));
 		}
 
-		return new ValidationResult
-		{
-			IsValid = false,
-			Message = message,
-			Exception = exception,
-		};
+		return new ValidationResult(false, message, exception);
 	}
 
 	internal static ValidationResult Valid(string message)
@@ -53,10 +67,6 @@ public class ValidationResult
 			throw new ArgumentNullException(nameof(message));
 		}
 
-		return new ValidationResult
-		{
-			IsValid = true,
-			Message = message,
-		};
+		return new ValidationResult(true, message, exception: null);
 	}
 }

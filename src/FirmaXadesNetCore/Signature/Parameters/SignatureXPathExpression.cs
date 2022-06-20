@@ -23,9 +23,18 @@
 
 namespace FirmaXadesNetCore.Signature.Parameters;
 
+/// <summary>
+/// Represents a signature XPath expression.
+/// </summary>
 public class SignatureXPathExpression
 {
+	/// <summary>
+	/// Gets or sets the XPath expression.
+	/// </summary>
 	public string XPathExpression { get; set; }
 
+	/// <summary>
+	/// Gets or sets the namespaces.
+	/// </summary>
 	public Dictionary<string, string> Namespaces { get; } = new();
 }

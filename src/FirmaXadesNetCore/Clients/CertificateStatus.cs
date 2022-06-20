@@ -23,9 +23,23 @@
 
 namespace FirmaXadesNetCore.Clients;
 
+/// <summary>
+/// Represents an enumeration of certificate statuses.
+/// </summary>
 public enum CertificateStatus
 {
+	/// <summary>
+	/// Good
+	/// </summary>
 	Good = 0,
+
+	/// <summary>
+	/// Revoked
+	/// </summary>
 	Revoked = 1,
-	Unknown = 2
+
+	/// <summary>
+	/// Unknown
+	/// </summary>
+	Unknown = 2,
 };

@@ -23,15 +23,33 @@
 
 namespace FirmaXadesNetCore.Signature.Parameters;
 
+/// <summary>
+/// Represents an enumeration of signature packagings.
+/// </summary>
 public enum SignaturePackaging
 {
-	INTERNALLY_DETACHED,
+	/// <summary>
+	/// Internally detached
+	/// </summary>
+	InternallyDetached,
 
-	HASH_INTERNALLY_DETACHED,
+	/// <summary>
+	/// Internally detached hash
+	/// </summary>
+	InternallyDetachedHash,
 
-	EXTERNALLY_DETACHED,
+	/// <summary>
+	/// Externally detached
+	/// </summary>
+	ExternallyDetached,
 
-	ENVELOPED,
+	/// <summary>
+	/// Enveloped
+	/// </summary>
+	Enveloped,
 
-	ENVELOPING
+	/// <summary>
+	/// Enveloping
+	/// </summary>
+	Enveloping,
 }

@@ -25,9 +25,18 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace FirmaXadesNetCore.Utils;
 
+/// <summary>
+/// Contains certificate utilities.
+/// </summary>
 public static class CertificateUtils
 {
-	public static X509Chain GetCertChain(X509Certificate2 certificate,
+	/// <summary>
+	/// Gets the certificate chain.
+	/// </summary>
+	/// <param name="certificate">the certificate</param>
+	/// <param name="certificates">the chain certificates</param>
+	/// <returns>the certificate chain</returns>
+	public static X509Chain GetCertificateChain(X509Certificate2 certificate,
 		X509Certificate2[] certificates = null)
 	{
 		if (certificate is null)

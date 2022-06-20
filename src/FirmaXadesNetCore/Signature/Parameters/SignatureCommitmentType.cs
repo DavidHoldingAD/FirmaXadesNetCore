@@ -23,19 +23,52 @@
 
 namespace FirmaXadesNetCore.Signature.Parameters;
 
-public class SignatureCommitmentType
+/// <summary>
+/// Represents a XAdES signature commitment type.
+/// </summary>
+public sealed class SignatureCommitmentType
 {
-	public static SignatureCommitmentType ProofOfOrigin = new SignatureCommitmentType("http://uri.etsi.org/01903/v1.2.2#ProofOfOrigin");
-	public static SignatureCommitmentType ProofOfReceipt = new SignatureCommitmentType("http://uri.etsi.org/01903/v1.2.2#ProofOfReceipt");
-	public static SignatureCommitmentType ProofOfDelivery = new SignatureCommitmentType("http://uri.etsi.org/01903/v1.2.2#ProofOfDelivery");
-	public static SignatureCommitmentType ProofOfSender = new SignatureCommitmentType("http://uri.etsi.org/01903/v1.2.2#ProofOfSender");
-	public static SignatureCommitmentType ProofOfApproval = new SignatureCommitmentType("http://uri.etsi.org/01903/v1.2.2#ProofOfApproval");
-	public static SignatureCommitmentType ProofOfCreation = new SignatureCommitmentType("http://uri.etsi.org/01903/v1.2.2#ProofOfCreation");
+	/// <summary>
+	/// ProofOfOrigin
+	/// </summary>
+	public static readonly SignatureCommitmentType ProofOfOrigin = new("http://uri.etsi.org/01903/v1.2.2#ProofOfOrigin");
 
-	public string URI { get; }
+	/// <summary>
+	/// ProofOfReceipt
+	/// </summary>
+	public static readonly SignatureCommitmentType ProofOfReceipt = new("http://uri.etsi.org/01903/v1.2.2#ProofOfReceipt");
 
+	/// <summary>
+	/// ProofOfDelivery
+	/// </summary>
+	public static readonly SignatureCommitmentType ProofOfDelivery = new("http://uri.etsi.org/01903/v1.2.2#ProofOfDelivery");
+
+	/// <summary>
+	/// ProofOfSender
+	/// </summary>
+	public static readonly SignatureCommitmentType ProofOfSender = new("http://uri.etsi.org/01903/v1.2.2#ProofOfSender");
+
+	/// <summary>
+	/// ProofOfApproval
+	/// </summary>
+	public static readonly SignatureCommitmentType ProofOfApproval = new("http://uri.etsi.org/01903/v1.2.2#ProofOfApproval");
+
+	/// <summary>
+	/// ProofOfCreation
+	/// </summary>
+	public static readonly SignatureCommitmentType ProofOfCreation = new("http://uri.etsi.org/01903/v1.2.2#ProofOfCreation");
+
+	/// <summary>
+	/// Gets the URI.
+	/// </summary>
+	public string Uri { get; }
+
+	/// <summary>
+	/// Initializes a new instance of <see cref="SignatureCommitmentType"/> class.
+	/// </summary>
+	/// <param name="uri">the URI</param>
 	public SignatureCommitmentType(string uri)
 	{
-		URI = uri ?? throw new ArgumentNullException(nameof(uri));
+		Uri = uri ?? throw new ArgumentNullException(nameof(uri));
 	}
 }

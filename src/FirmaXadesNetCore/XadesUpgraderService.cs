@@ -27,7 +27,10 @@ using FirmaXadesNetCore.Upgraders.Parameters;
 
 namespace FirmaXadesNetCore;
 
-public class XadesUpgraderService : IXadesUpgraderService
+/// <summary>
+/// Represents a XAdES upgrader service.
+/// </summary>
+public sealed class XadesUpgraderService : IXadesUpgraderService
 {
 	#region IXadesUpgraderService Members
 

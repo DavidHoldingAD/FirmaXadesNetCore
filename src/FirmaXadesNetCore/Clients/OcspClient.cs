@@ -34,9 +34,13 @@ using RSA_CERTIFICATE_EXTENSIONS = System.Security.Cryptography.X509Certificates
 
 namespace FirmaXadesNetCore.Clients;
 
+/// <summary>
+/// Represents a OCSP client.
+/// </summary>
 public class OcspClient
 {
 	private static readonly HttpClient _httpClient;
+	private Asn1OctetString _nonceAsn1OctetString;
 
 	static OcspClient()
 	{
@@ -44,20 +48,14 @@ public class OcspClient
 		_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/ocsp-response"));
 	}
 
-	#region Private variables
-
-	private Asn1OctetString _nonceAsn1OctetString;
-
-	#endregion
-
-	#region Public methods
-
 	/// <summary>
-	/// Método que comprueba el estado de un certificado
+	/// Method that checks the status of a certificate.
 	/// </summary>
 	/// <param name="eeCert"></param>
 	/// <param name="issuerCert"></param>
 	/// <param name="url"></param>
+	/// <param name="requestorName"></param>
+	/// <param name="signCertificate"></param>
 	/// <returns></returns>
 	public byte[] QueryBinary(X509Certificate eeCert, X509Certificate issuerCert, string url, GeneralName requestorName = null,
 		System.Security.Cryptography.X509Certificates.X509Certificate2 signCertificate = null)
@@ -83,17 +81,22 @@ public class OcspClient
 	}
 
 	/// <summary>
-	/// Devuelve la URL del servidor OCSP que contenga el certificado
+	/// Returns the URL of the OCSP server that contains the certificate.
 	/// </summary>
-	/// <param name="cert"></param>
+	/// <param name="certificate"></param>
 	/// <returns></returns>
-	public string GetAuthorityInformationAccessOcspUrl(X509Certificate cert)
+	public string GetAuthorityInformationAccessOcspUrl(X509Certificate certificate)
 	{
+		if (certificate is null)
+		{
+			throw new ArgumentNullException(nameof(certificate));
+		}
+
 		var ocspUrls = new List<string>();
 
 		try
 		{
-			Asn1Object obj = GetExtensionValue(cert, X509Extensions.AuthorityInfoAccess.Id);
+			Asn1Object obj = GetExtensionValue(certificate, X509Extensions.AuthorityInfoAccess.Id);
 
 			if (obj == null)
 			{
@@ -126,12 +129,17 @@ public class OcspClient
 	}
 
 	/// <summary>
-	/// Procesa la respuesta del servidor OCSP y devuelve el estado del certificado
+	/// Processes the response from the OCSP server and returns the status of the certificate.
 	/// </summary>
 	/// <param name="binaryResp"></param>
 	/// <returns></returns>
 	public CertificateStatus ProcessOcspResponse(byte[] binaryResp)
 	{
+		if (binaryResp is null)
+		{
+			throw new ArgumentNullException(nameof(binaryResp));
+		}
+
 		if (binaryResp.Length == 0)
 		{
 			return CertificateStatus.Unknown;
@@ -179,31 +187,6 @@ public class OcspClient
 		return cStatus;
 	}
 
-	#endregion
-
-	#region Private methods
-
-
-	protected static Asn1Object GetExtensionValue(X509Certificate certificate, string oid)
-	{
-		if (certificate == null)
-		{
-			return null;
-		}
-
-		byte[] bytes = certificate.GetExtensionValue(new DerObjectIdentifier(oid)).GetOctets();
-
-		if (bytes == null)
-		{
-			return null;
-		}
-
-		var aIn = new Asn1InputStream(bytes);
-
-		return aIn.ReadObject();
-	}
-
-
 	private OcspReq GenerateOcspRequest(X509Certificate issuerCert, BigInteger serialNumber, GeneralName requestorName,
 		System.Security.Cryptography.X509Certificates.X509Certificate2 signCertificate)
 	{
@@ -235,7 +218,7 @@ public class OcspClient
 
 		if (signCertificate != null)
 		{
-			return ocspRequestGenerator.Generate(RSA_CERTIFICATE_EXTENSIONS.GetRSAPrivateKey(signCertificate), CertificateUtils.GetCertChain(signCertificate));
+			return ocspRequestGenerator.Generate(RSA_CERTIFICATE_EXTENSIONS.GetRSAPrivateKey(signCertificate), CertificateUtils.GetCertificateChain(signCertificate));
 		}
 		else
 		{
@@ -243,5 +226,17 @@ public class OcspClient
 		}
 	}
 
-	#endregion
+	private static Asn1Object GetExtensionValue(X509Certificate certificate, string oid)
+	{
+		byte[] bytes = certificate.GetExtensionValue(new DerObjectIdentifier(oid)).GetOctets();
+
+		if (bytes == null)
+		{
+			return null;
+		}
+
+		var aIn = new Asn1InputStream(bytes);
+
+		return aIn.ReadObject();
+	}
 }

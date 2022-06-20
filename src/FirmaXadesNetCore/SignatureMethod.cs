@@ -24,28 +24,62 @@
 using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
 
-namespace FirmaXadesNetCore.Crypto;
+namespace FirmaXadesNetCore;
 
+/// <summary>
+/// Represents a signature method.
+/// </summary>
 public sealed class SignatureMethod
 {
-	public static readonly SignatureMethod RSAwithSHA1 = new SignatureMethod("RSAwithSHA1", SignedXml.XmlDsigRSASHA1Url);
-	public static readonly SignatureMethod RSAwithSHA256 = new SignatureMethod("RSAwithSHA256", SignedXml.XmlDsigRSASHA256Url);
-	public static readonly SignatureMethod RSAwithSHA384 = new SignatureMethod("RSAwithSHA384", SignedXml.XmlDsigRSASHA384Url);
-	public static readonly SignatureMethod RSAwithSHA512 = new SignatureMethod("RSAwithSHA512", SignedXml.XmlDsigRSASHA512Url);
+	/// <summary>
+	/// RSA-SHA-1
+	/// </summary>
+	public static readonly SignatureMethod RSAwithSHA1 = new SignatureMethod("RSAwithSHA1", SignedXml.XmlDsigRSASHA1Url, DigestMethod.SHA1);
 
+	/// <summary>
+	/// RSA-SHA-256
+	/// </summary>
+	public static readonly SignatureMethod RSAwithSHA256 = new SignatureMethod("RSAwithSHA256", SignedXml.XmlDsigRSASHA256Url, DigestMethod.SHA256);
+
+	/// <summary>
+	/// RSA-SHA-384
+	/// </summary>
+	public static readonly SignatureMethod RSAwithSHA384 = new SignatureMethod("RSAwithSHA384", SignedXml.XmlDsigRSASHA384Url, DigestMethod.SHA384);
+
+	/// <summary>
+	/// RSA-SHA-512
+	/// </summary>
+	public static readonly SignatureMethod RSAwithSHA512 = new SignatureMethod("RSAwithSHA512", SignedXml.XmlDsigRSASHA512Url, DigestMethod.SHA512);
+
+	/// <summary>
+	/// Gets the name.
+	/// </summary>
 	public string Name { get; }
 
-	public string URI { get; }
+	/// <summary>
+	/// Gets the URI.
+	/// </summary>
+	public string Uri { get; }
 
-	private SignatureMethod(string name, string uri)
+	/// <summary>
+	/// Gets the digest method.
+	/// </summary>
+	public DigestMethod DigestMethod { get; }
+
+	private SignatureMethod(string name, string uri, DigestMethod digestMethod)
 	{
 		Name = name;
-		URI = uri;
+		Uri = uri;
+		DigestMethod = digestMethod;
 	}
 
-	public SignatureDescription CreateSignatureDescription()
+	/// <summary>
+	/// Creates the signature description.
+	/// </summary>
+	/// <returns>the description</returns>
+	public SignatureDescription Create()
 	{
-		return URI switch
+		return Uri switch
 		{
 			SignedXml.XmlDsigRSASHA1Url
 				=> new Microsoft.Xades.RSAPKCS1SHA1SignatureDescription(),
@@ -56,10 +90,15 @@ public sealed class SignatureMethod
 			SignedXml.XmlDsigRSASHA512Url
 				=> new Microsoft.Xades.RSAPKCS1SHA512SignatureDescription(),
 			_
-				=> throw new Exception($"Signature method URI `{URI}` is not supported in this context.")
+				=> throw new Exception($"Signature method URI `{Uri}` is not supported in this context.")
 		};
 	}
 
+	/// <summary>
+	/// Gets the signature method by URI.
+	/// </summary>
+	/// <param name="uri">the URI</param>
+	/// <returns>the method</returns>
 	public static SignatureMethod GetByUri(string uri)
 	{
 		if (uri is null)
@@ -82,4 +121,3 @@ public sealed class SignatureMethod
 		};
 	}
 }
-

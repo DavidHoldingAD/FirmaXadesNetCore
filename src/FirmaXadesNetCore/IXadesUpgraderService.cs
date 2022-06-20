@@ -26,6 +26,9 @@ using FirmaXadesNetCore.Upgraders.Parameters;
 
 namespace FirmaXadesNetCore;
 
+/// <summary>
+/// Provides a mechanism for upgrading XAdES signatures.
+/// </summary>
 public interface IXadesUpgraderService
 {
 	/// <summary>

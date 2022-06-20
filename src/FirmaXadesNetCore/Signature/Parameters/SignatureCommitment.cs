@@ -25,18 +25,35 @@ using System.Xml;
 
 namespace FirmaXadesNetCore.Signature.Parameters;
 
+/// <summary>
+/// Represents a XAdES signature commitment.
+/// </summary>
 public class SignatureCommitment
 {
-	public SignatureCommitmentType CommitmentType { get; set; }
+	/// <summary>
+	/// Gets or sets the type.
+	/// </summary>
+	public SignatureCommitmentType Type { get; set; }
 
-	public List<XmlElement> CommitmentTypeQualifiers { get; }
+	/// <summary>
+	/// Gets or sets the type qualifiers.
+	/// </summary>
+	public List<XmlElement> TypeQualifiers { get; }
 
-	public SignatureCommitment(SignatureCommitmentType commitmentType)
+	/// <summary>
+	/// Initializes a new instance of <see cref="SignatureCommitment"/> class.
+	/// </summary>
+	/// <param name="type">the type</param>
+	public SignatureCommitment(SignatureCommitmentType type)
 	{
-		CommitmentType = commitmentType ?? throw new ArgumentNullException(nameof(commitmentType));
-		CommitmentTypeQualifiers = new List<XmlElement>();
+		Type = type ?? throw new ArgumentNullException(nameof(type));
+		TypeQualifiers = new List<XmlElement>();
 	}
 
+	/// <summary>
+	/// Adds a type qualifier from the specified XML.
+	/// </summary>
+	/// <param name="xml">the XML</param>
 	public void AddQualifierFromXml(string xml)
 	{
 		if (xml is null)
@@ -47,6 +64,6 @@ public class SignatureCommitment
 		var document = new XmlDocument();
 		document.LoadXml(xml);
 
-		CommitmentTypeQualifiers.Add(document.DocumentElement);
+		TypeQualifiers.Add(document.DocumentElement);
 	}
 }

@@ -25,9 +25,18 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace FirmaXadesNetCore.Signature.Parameters;
 
+/// <summary>
+/// Represents a signer role.
+/// </summary>
 public class SignerRole
 {
+	/// <summary>
+	/// Gets the certified roles.
+	/// </summary>
 	public List<X509Certificate> CertifiedRoles { get; } = new();
 
+	/// <summary>
+	/// Gets the claimed roles.
+	/// </summary>
 	public List<string> ClaimedRoles { get; } = new();
 }

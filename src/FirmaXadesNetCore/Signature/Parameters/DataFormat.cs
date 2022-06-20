@@ -23,11 +23,23 @@
 
 namespace FirmaXadesNetCore.Signature.Parameters;
 
+/// <summary>
+/// Represents a data format.
+/// </summary>
 public class DataFormat
 {
+	/// <summary>
+	/// Gets or sets the mime type.
+	/// </summary>
 	public string MimeType { get; set; }
 
+	/// <summary>
+	/// Gets or sets the description.
+	/// </summary>
 	public string Description { get; set; }
 
+	/// <summary>
+	/// Gets or sets the type identifier.
+	/// </summary>
 	public string TypeIdentifier { get; set; }
 }

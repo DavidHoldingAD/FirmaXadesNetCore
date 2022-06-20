@@ -32,12 +32,6 @@ namespace FirmaXadesNetCore.Utils;
 
 internal static class XmlUtils
 {
-	/// <summary>
-	/// Aplica una transformación al elemento especificado
-	/// </summary>
-	/// <param name="element"></param>
-	/// <param name="transform"></param>
-	/// <returns></returns>
 	public static byte[] ApplyTransform(XmlElement element, System.Security.Cryptography.Xml.Transform transform)
 	{
 		byte[] buffer = Encoding.UTF8.GetBytes(element.OuterXml);
@@ -48,21 +42,9 @@ internal static class XmlUtils
 		return transformedStream.ToArray();
 	}
 
-	/// <summary>
-	/// Obtiene el valor canonicalizado de los elementos especificados en elementXpaths
-	/// </summary>
-	/// <param name="xadesSignedXml"></param>
-	/// <param name="elementXpaths"></param>
-	/// <returns></returns>
 	public static byte[] ComputeValueOfElementList(XadesSignedXml xadesSignedXml, ArrayList elementXpaths)
 		=> ComputeValueOfElementList(xadesSignedXml, elementXpaths, new XmlDsigC14NTransform());
 
-	/// <summary>
-	/// Obtiene el valor canonicalizado de los elementos especificados en elementXpaths
-	/// </summary>
-	/// <param name="xadesSignedXml"></param>
-	/// <param name="elementXpaths"></param>
-	/// <returns></returns>
 	public static byte[] ComputeValueOfElementList(XadesSignedXml xadesSignedXml, ArrayList elementXpaths,
 		System.Security.Cryptography.Xml.Transform transform)
 	{
@@ -107,18 +89,18 @@ internal static class XmlUtils
 		return msResult.ToArray();
 	}
 
-	/// <summary>
-	/// Carga un documento XML
-	/// </summary>
-	/// <param name="input"></param>
-	/// <returns></returns>
-	public static XmlDocument LoadDocument(Stream input)
+	public static XmlDocument LoadDocument(Stream stream)
 	{
+		if (stream is null)
+		{
+			throw new ArgumentNullException(nameof(stream));
+		}
+
 		var document = new XmlDocument
 		{
 			PreserveWhitespace = true
 		};
-		document.Load(input);
+		document.Load(stream);
 
 		return document;
 	}

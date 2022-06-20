@@ -80,9 +80,9 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 			Id = $"RevocationValues-{Guid.NewGuid()}",
 		};
 
-		AddCertificate(signingCertificate, unsignedProperties, false, parameters.OCSPServers, parameters.CRL, parameters.DigestMethod, parameters.GetOcspUrlFromCertificate);
+		AddCertificate(signingCertificate, unsignedProperties, false, parameters.OcspServers, parameters.Crls, parameters.DigestMethod, parameters.GetOcspUrlFromCertificate);
 
-		AddTSACertificates(unsignedProperties, parameters.OCSPServers, parameters.CRL, parameters.DigestMethod, parameters.GetOcspUrlFromCertificate);
+		AddTSACertificates(unsignedProperties, parameters.OcspServers, parameters.Crls, parameters.DigestMethod, parameters.GetOcspUrlFromCertificate);
 
 		signatureDocument.XadesSignature.UnsignedProperties = unsignedProperties;
 
@@ -152,10 +152,14 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 	/// </summary>
 	/// <param name="cert"></param>
 	/// <param name="unsignedProperties"></param>
-	/// <param name="addCertValue"></param>
+	/// <param name="addCert"></param>
+	/// <param name="ocspServers"></param>
+	/// <param name="crlList"></param>
+	/// <param name="digestMethod"></param>
+	/// <param name="addCertificateOcspUrl"></param>
 	/// <param name="extraCerts"></param>
 	private void AddCertificate(X509Certificate2 cert, UnsignedProperties unsignedProperties, bool addCert, IEnumerable<OcspServer> ocspServers,
-		IEnumerable<X509Crl> crlList, Crypto.DigestMethod digestMethod, bool addCertificateOcspUrl, X509Certificate2[] extraCerts = null)
+		IEnumerable<X509Crl> crlList, DigestMethod digestMethod, bool addCertificateOcspUrl, X509Certificate2[] extraCerts = null)
 	{
 		if (addCert)
 		{
@@ -182,7 +186,7 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 			unsignedProperties.UnsignedSignatureProperties.CertificateValues.EncapsulatedX509CertificateCollection.Add(encapsulatedX509Certificate);
 		}
 
-		X509ChainElementCollection chain = CertificateUtils.GetCertChain(cert, extraCerts).ChainElements;
+		X509ChainElementCollection chain = CertificateUtils.GetCertificateChain(cert, extraCerts).ChainElements;
 
 		if (chain.Count > 1)
 		{
@@ -203,7 +207,7 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 
 					if (!EquivalentDN(startOcspCert.IssuerName, enumerator.Current.Certificate.SubjectName))
 					{
-						X509Chain chainOcsp = CertificateUtils.GetCertChain(startOcspCert, ocspCerts);
+						X509Chain chainOcsp = CertificateUtils.GetCertificateChain(startOcspCert, ocspCerts);
 
 						AddCertificate(chainOcsp.ChainElements[1].Certificate, unsignedProperties, true, ocspServers, crlList, digestMethod, addCertificateOcspUrl, ocspCerts);
 					}
@@ -242,7 +246,7 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 	}
 
 	private bool ValidateCertificateByCRL(UnsignedProperties unsignedProperties, X509Certificate2 certificate, X509Certificate2 issuer,
-		IEnumerable<X509Crl> crlList, Crypto.DigestMethod digestMethod)
+		IEnumerable<X509Crl> crlList, DigestMethod digestMethod)
 	{
 		Org.BouncyCastle.X509.X509Certificate clientCert = certificate.ToBouncyX509Certificate();
 		Org.BouncyCastle.X509.X509Certificate issuerCert = issuer.ToBouncyX509Certificate();
@@ -291,7 +295,7 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 	}
 
 	private X509Certificate2[] ValidateCertificateByOCSP(UnsignedProperties unsignedProperties, X509Certificate2 client, X509Certificate2 issuer,
-		IEnumerable<OcspServer> ocspServers, Crypto.DigestMethod digestMethod, bool addCertificateOcspUrl)
+		IEnumerable<OcspServer> ocspServers, DigestMethod digestMethod, bool addCertificateOcspUrl)
 	{
 		bool byKey = false;
 		var finalOcspServers = new List<OcspServer>();
@@ -318,7 +322,7 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 		foreach (OcspServer ocspServer in finalOcspServers)
 		{
 			byte[] resp = ocsp.QueryBinary(clientCert, issuerCert, ocspServer.Url,
-				ocspServer.RequestorName, ocspServer.SignCertificate);
+				ocspServer.RequestorName, ocspServer.SigningCertificate);
 
 			Clients.CertificateStatus status = ocsp.ProcessOcspResponse(resp);
 
@@ -389,11 +393,11 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 		return currentCert;
 	}
 
-	/// <summary>
-	/// Inserta y valida los certificados del servidor de sellado de tiempo.
-	/// </summary>
-	/// <param name="unsignedProperties"></param>
-	private void AddTSACertificates(UnsignedProperties unsignedProperties, IEnumerable<OcspServer> ocspServers, IEnumerable<X509Crl> crlList, Crypto.DigestMethod digestMethod, bool addCertificateOcspUrl)
+	private void AddTSACertificates(UnsignedProperties unsignedProperties,
+		IEnumerable<OcspServer> ocspServers,
+		IEnumerable<X509Crl> crlList,
+		DigestMethod digestMethod,
+		bool addCertificateOcspUrl)
 	{
 		var token = new TimeStampToken(new CmsSignedData(unsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection[0].EncapsulatedTimeStamp.PkiData));
 		IX509Store store = token.GetCertificates("Collection");

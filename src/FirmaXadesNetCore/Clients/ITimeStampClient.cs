@@ -21,10 +21,11 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-using FirmaXadesNetCore.Crypto;
-
 namespace FirmaXadesNetCore.Clients;
 
+/// <summary>
+/// Provides a mechanism for remotely time-stamping hashes.
+/// </summary>
 public interface ITimeStampClient
 {
 	/// <summary>

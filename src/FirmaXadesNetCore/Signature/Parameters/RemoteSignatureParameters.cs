@@ -25,6 +25,9 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace FirmaXadesNetCore.Signature.Parameters;
 
+/// <summary>
+/// Represents a remote signature parameters.
+/// </summary>
 public sealed class RemoteSignatureParameters : SignatureParametersBase
 {
 	/// <summary>

@@ -29,50 +29,76 @@ using Microsoft.Xades;
 
 namespace FirmaXadesNetCore.Signature;
 
+/// <summary>
+/// Represents a signature document.
+/// </summary>
 public class SignatureDocument
 {
+	/// <summary>
+	/// Gets or sets the XML document.
+	/// </summary>
 	public XmlDocument Document { get; set; }
 
+	/// <summary>
+	/// Gets or sets the XAdES signature.
+	/// </summary>
 	public XadesSignedXml XadesSignature { get; set; }
 
+	/// <summary>
+	/// Gets the serializes XML document bytes.
+	/// </summary>
+	/// <returns>the bytes</returns>
 	public byte[] GetDocumentBytes()
 	{
 		CheckSignatureDocument(this);
 
-		using var ms = new MemoryStream();
-		Save(ms);
+		using var stream = new MemoryStream();
 
-		return ms.ToArray();
+		Save(stream);
+
+		return stream.ToArray();
 	}
 
 	/// <summary>
-	/// Guardar la firma en el fichero especificado.
+	/// Save the signature in the specified file.
 	/// </summary>
 	/// <param name="fileName"></param>
 	public void Save(string fileName)
 	{
+		if (fileName is null)
+		{
+			throw new ArgumentNullException(nameof(fileName));
+		}
+
 		CheckSignatureDocument(this);
 
 		var settings = new XmlWriterSettings
 		{
 			Encoding = new UTF8Encoding()
 		};
+
 		using var writer = XmlWriter.Create(fileName, settings);
+
 		Document.Save(writer);
 	}
 
 	/// <summary>
-	/// Guarda la firma en el destino especificado
+	/// Save the signature to the specified destination.
 	/// </summary>
-	/// <param name="output"></param>
-	public void Save(Stream output)
+	/// <param name="stream"></param>
+	public void Save(Stream stream)
 	{
+		if (stream is null)
+		{
+			throw new ArgumentNullException(nameof(stream));
+		}
+
 		var settings = new XmlWriterSettings
 		{
 			Encoding = new UTF8Encoding(),
 		};
 
-		using var writer = XmlWriter.Create(output, settings);
+		using var writer = XmlWriter.Create(stream, settings);
 
 		Document.Save(writer);
 	}

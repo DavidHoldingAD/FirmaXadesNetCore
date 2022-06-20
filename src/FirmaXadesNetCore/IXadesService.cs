@@ -28,6 +28,9 @@ using Microsoft.Xades;
 
 namespace FirmaXadesNetCore;
 
+/// <summary>
+/// Provides a mechanism for working with XAdES signatures.
+/// </summary>
 public interface IXadesService
 {
 	/// <summary>

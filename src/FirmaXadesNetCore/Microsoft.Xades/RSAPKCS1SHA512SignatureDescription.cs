@@ -24,7 +24,7 @@ using System.Security.Cryptography;
 
 namespace Microsoft.Xades;
 
-public sealed class RSAPKCS1SHA512SignatureDescription : SignatureDescription
+internal sealed class RSAPKCS1SHA512SignatureDescription : SignatureDescription
 {
 	public RSAPKCS1SHA512SignatureDescription()
 	{

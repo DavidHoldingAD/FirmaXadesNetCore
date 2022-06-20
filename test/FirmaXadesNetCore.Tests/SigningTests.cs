@@ -44,12 +44,12 @@ public class SigningTests : SigningTestsBase
 		// Sign
 		SignatureDocument document = service.Sign(stream, new LocalSignatureParameters
 		{
-			SignaturePackaging = SignaturePackaging.ENVELOPED,
-			Signer = new Crypto.Signer(certificate),
+			SignaturePackaging = SignaturePackaging.Enveloped,
+			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
-			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
-			SignatureMethod = Crypto.SignatureMethod.GetByUri(signatureMethod),
+			DigestMethod = DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = SignatureMethod.GetByUri(signatureMethod),
 		});
 
 		AssertValid(document);
@@ -86,23 +86,23 @@ public class SigningTests : SigningTestsBase
 		// Sign
 		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
 		{
-			SignaturePackaging = SignaturePackaging.ENVELOPED,
-			Signer = new Crypto.Signer(certificate),
+			SignaturePackaging = SignaturePackaging.Enveloped,
+			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
-			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
-			SignatureMethod = Crypto.SignatureMethod.GetByUri(signatureMethod),
+			DigestMethod = DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = SignatureMethod.GetByUri(signatureMethod),
 		});
 
 		// Counter sign
 		signatureDocument = service.CounterSign(signatureDocument, new LocalSignatureParameters
 		{
-			SignaturePackaging = SignaturePackaging.ENVELOPED,
-			Signer = new Crypto.Signer(certificate),
+			SignaturePackaging = SignaturePackaging.Enveloped,
+			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
-			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
-			SignatureMethod = Crypto.SignatureMethod.GetByUri(signatureMethod),
+			DigestMethod = DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = SignatureMethod.GetByUri(signatureMethod),
 		});
 
 		AssertValid(signatureDocument);
@@ -139,23 +139,23 @@ public class SigningTests : SigningTestsBase
 		// Sign
 		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
 		{
-			SignaturePackaging = SignaturePackaging.INTERNALLY_DETACHED,
-			Signer = new Crypto.Signer(certificate),
+			SignaturePackaging = SignaturePackaging.InternallyDetached,
+			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
-			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
-			SignatureMethod = Crypto.SignatureMethod.GetByUri(signatureMethod),
+			DigestMethod = DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = SignatureMethod.GetByUri(signatureMethod),
 		});
 
 		// Counter sign
 		signatureDocument = service.CoSign(signatureDocument, new LocalSignatureParameters
 		{
-			SignaturePackaging = SignaturePackaging.INTERNALLY_DETACHED,
-			Signer = new Crypto.Signer(certificate),
+			SignaturePackaging = SignaturePackaging.InternallyDetached,
+			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
-			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
-			SignatureMethod = Crypto.SignatureMethod.GetByUri(signatureMethod),
+			DigestMethod = DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = SignatureMethod.GetByUri(signatureMethod),
 		});
 
 		AssertValid(signatureDocument);
@@ -178,12 +178,12 @@ public class SigningTests : SigningTestsBase
 		// Sign
 		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
 		{
-			SignaturePackaging = SignaturePackaging.ENVELOPED,
-			Signer = new Crypto.Signer(certificate),
+			SignaturePackaging = SignaturePackaging.Enveloped,
+			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
-			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
-			SignatureMethod = Crypto.SignatureMethod.RSAwithSHA256,
+			DigestMethod = DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = SignatureMethod.RSAwithSHA256,
 		});
 
 		// Add timestamp
@@ -191,7 +191,7 @@ public class SigningTests : SigningTestsBase
 		upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesT, new Upgraders.Parameters.UpgradeParameters
 		{
 			TimeStampClient = timestampClient,
-			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
+			DigestMethod = DigestMethod.GetByUri(digestMethod),
 		});
 
 		AssertValid(signatureDocument);
@@ -215,12 +215,12 @@ public class SigningTests : SigningTestsBase
 		// Sign
 		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
 		{
-			SignaturePackaging = SignaturePackaging.ENVELOPED,
-			Signer = new Crypto.Signer(certificate),
+			SignaturePackaging = SignaturePackaging.Enveloped,
+			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
-			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
-			SignatureMethod = Crypto.SignatureMethod.RSAwithSHA256,
+			DigestMethod = DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = SignatureMethod.RSAwithSHA256,
 		});
 
 		// Add timestamp
@@ -228,16 +228,16 @@ public class SigningTests : SigningTestsBase
 		upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesXL, new Upgraders.Parameters.UpgradeParameters
 		{
 			TimeStampClient = timestampClient,
-			DigestMethod = Crypto.DigestMethod.GetByUri(digestMethod),
+			DigestMethod = DigestMethod.GetByUri(digestMethod),
 		});
 
 		AssertValid(signatureDocument);
 	}
 
 	[TestMethod]
-	[DataRow(SignaturePackaging.ENVELOPED)]
-	[DataRow(SignaturePackaging.ENVELOPING)]
-	[DataRow(SignaturePackaging.INTERNALLY_DETACHED)]
+	[DataRow(SignaturePackaging.Enveloped)]
+	[DataRow(SignaturePackaging.Enveloping)]
+	[DataRow(SignaturePackaging.InternallyDetached)]
 	public void Sign_Packaging_Validate(SignaturePackaging packaging)
 	{
 		var service = new XadesService();
@@ -249,9 +249,9 @@ public class SigningTests : SigningTestsBase
 		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
 		{
 			SignaturePackaging = packaging,
-			Signer = new Crypto.Signer(certificate),
+			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
-			ElementIdToSign = packaging == SignaturePackaging.INTERNALLY_DETACHED
+			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
 				? "test"
 				: null,
 		});
@@ -260,9 +260,9 @@ public class SigningTests : SigningTestsBase
 	}
 
 	[TestMethod]
-	[DataRow(SignaturePackaging.ENVELOPED)]
-	[DataRow(SignaturePackaging.ENVELOPING)]
-	[DataRow(SignaturePackaging.INTERNALLY_DETACHED)]
+	[DataRow(SignaturePackaging.Enveloped)]
+	[DataRow(SignaturePackaging.Enveloping)]
+	[DataRow(SignaturePackaging.InternallyDetached)]
 	public void Sign_Remote_Validate(SignaturePackaging packaging)
 	{
 		var service = new XadesService();
@@ -284,7 +284,7 @@ public class SigningTests : SigningTestsBase
 			PublicCertificate = publicCertificate,
 			SignaturePackaging = packaging,
 			DataFormat = new DataFormat { MimeType = "text/xml" },
-			ElementIdToSign = packaging == SignaturePackaging.INTERNALLY_DETACHED
+			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
 				? "test"
 				: null,
 		}, out byte[] digestValue);
@@ -292,7 +292,7 @@ public class SigningTests : SigningTestsBase
 		Assert.IsNotNull(signatureDocument);
 		Assert.IsNotNull(signatureDocument.XadesSignature);
 
-		if (packaging != SignaturePackaging.ENVELOPING)
+		if (packaging != SignaturePackaging.Enveloping)
 		{
 			Assert.IsNotNull(signatureDocument.Document);
 		}

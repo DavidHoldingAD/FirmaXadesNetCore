@@ -32,19 +32,20 @@ namespace Microsoft.Xades;
 /// </summary>
 public class TimeStamp
 {
-	#region Private variables
-	private EncapsulatedPKIData _encapsulatedTimeStamp;
-	private XMLTimeStamp _xmlTimeStamp;
 	private readonly string _prefix;
 	private readonly string _namespaceUri;
-	#endregion
 
-	#region Public properties
+	private EncapsulatedPKIData _encapsulatedTimeStamp;
+	private XMLTimeStamp _xmlTimeStamp;
+
 	/// <summary>
-	/// The name of the element when serializing
+	/// Gets or sets the tag name.
 	/// </summary>
 	public string TagName { get; set; }
 
+	/// <summary>
+	/// Gets or sets the ID.
+	/// </summary>
 	public string Id { get; set; }
 
 	/// <summary>
@@ -86,11 +87,11 @@ public class TimeStamp
 		}
 	}
 
+	/// <summary>
+	/// Gets or sets the canonicalization method.
+	/// </summary>
 	public CanonicalizationMethod CanonicalizationMethod { get; set; }
 
-	#endregion
-
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -125,9 +126,7 @@ public class TimeStamp
 	{
 		TagName = tagName;
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
@@ -320,5 +319,4 @@ public class TimeStamp
 
 		return retVal;
 	}
-	#endregion
 }

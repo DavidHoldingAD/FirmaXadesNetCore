@@ -25,8 +25,11 @@
 using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
 
-namespace FirmaXadesNetCore.Crypto;
+namespace FirmaXadesNetCore;
 
+/// <summary>
+/// Represents a digest method.
+/// </summary>
 public sealed class DigestMethod
 {
 	private const string Sha1OID = "1.3.14.3.2.26";
@@ -34,15 +37,39 @@ public sealed class DigestMethod
 	private const string Sha384OID = "2.16.840.1.101.3.4.2.2";
 	private const string Sha512OID = "2.16.840.1.101.3.4.2.3";
 
+	/// <summary>
+	/// SHA-1
+	/// </summary>
 	public static readonly DigestMethod SHA1 = new("SHA1", SignedXml.XmlDsigSHA1Url, Sha1OID);
+
+	/// <summary>
+	/// SHA-256
+	/// </summary>
 	public static readonly DigestMethod SHA256 = new("SHA256", SignedXml.XmlDsigSHA256Url, Sha256OID);
+
+	/// <summary>
+	/// SHA-384
+	/// </summary>
 	public static readonly DigestMethod SHA384 = new("SHA384", SignedXml.XmlDsigSHA384Url, Sha384OID);
+
+	/// <summary>
+	/// SHA-512
+	/// </summary>
 	public static readonly DigestMethod SHA512 = new("SHA512", SignedXml.XmlDsigSHA512Url, Sha512OID);
 
+	/// <summary>
+	/// Gets the name.
+	/// </summary>
 	public string Name { get; }
 
+	/// <summary>
+	/// Gets the URI.
+	/// </summary>
 	public string Uri { get; }
 
+	/// <summary>
+	/// Gets the OID.
+	/// </summary>
 	public string Oid { get; }
 
 	private DigestMethod(string name, string uri, string oid)
@@ -52,6 +79,10 @@ public sealed class DigestMethod
 		Oid = oid;
 	}
 
+	/// <summary>
+	/// Gets the hash algorithm name.
+	/// </summary>
+	/// <returns>the name</returns>
 	public HashAlgorithmName GetHashAlgorithmName()
 	{
 		return Uri switch
@@ -69,6 +100,10 @@ public sealed class DigestMethod
 		};
 	}
 
+	/// <summary>
+	/// Creates the hash algorithm.
+	/// </summary>
+	/// <returns>the algorithm</returns>
 	public HashAlgorithm Create()
 	{
 		return Name switch
@@ -86,6 +121,11 @@ public sealed class DigestMethod
 		};
 	}
 
+	/// <summary>
+	/// Computes the hash for the specified value.
+	/// </summary>
+	/// <param name="value">the value</param>
+	/// <returns>the hash</returns>
 	public byte[] ComputeHash(byte[] value)
 	{
 		if (value is null)
@@ -108,6 +148,11 @@ public sealed class DigestMethod
 		};
 	}
 
+	/// <summary>
+	/// Gets the digest method by OID.
+	/// </summary>
+	/// <param name="oid">the OID</param>
+	/// <returns>the method</returns>
 	public static DigestMethod GetByOid(string oid)
 	{
 		if (oid is null)
@@ -130,6 +175,11 @@ public sealed class DigestMethod
 		};
 	}
 
+	/// <summary>
+	/// Gets the digest method by URI.
+	/// </summary>
+	/// <param name="uri">the URI</param>
+	/// <returns>the method</returns>
 	public static DigestMethod GetByUri(string uri)
 	{
 		if (uri is null)

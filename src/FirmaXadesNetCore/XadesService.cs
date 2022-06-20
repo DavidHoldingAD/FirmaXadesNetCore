@@ -67,7 +67,7 @@ public class XadesService : IXadesService
 
 		switch (parameters.SignaturePackaging)
 		{
-			case SignaturePackaging.INTERNALLY_DETACHED:
+			case SignaturePackaging.InternallyDetached:
 				if (parameters.DataFormat == null || string.IsNullOrEmpty(parameters.DataFormat.MimeType))
 				{
 					throw new NullReferenceException("You need to specify the MIME type of the element to sign.");
@@ -94,7 +94,7 @@ public class XadesService : IXadesService
 				}
 				break;
 
-			case SignaturePackaging.HASH_INTERNALLY_DETACHED:
+			case SignaturePackaging.InternallyDetachedHash:
 				if (parameters.DataFormat == null || string.IsNullOrEmpty(parameters.DataFormat.MimeType))
 				{
 					_dataFormat.MimeType = "application/octet-stream";
@@ -107,19 +107,19 @@ public class XadesService : IXadesService
 				SetContentInternallyDetachedHashed(signatureDocument, stream);
 				break;
 
-			case SignaturePackaging.ENVELOPED:
+			case SignaturePackaging.Enveloped:
 				_dataFormat.MimeType = "text/xml";
 				_dataFormat.Encoding = "UTF-8";
 				SetContentEnveloped(signatureDocument, XmlUtils.LoadDocument(stream));
 				break;
 
-			case SignaturePackaging.ENVELOPING:
+			case SignaturePackaging.Enveloping:
 				_dataFormat.MimeType = "text/xml";
 				_dataFormat.Encoding = "UTF-8";
 				SetContentEveloping(signatureDocument, XmlUtils.LoadDocument(stream));
 				break;
 
-			case SignaturePackaging.EXTERNALLY_DETACHED:
+			case SignaturePackaging.ExternallyDetached:
 				SetContentExternallyDetached(signatureDocument, parameters.ExternalContentUri);
 				break;
 		}
@@ -305,7 +305,7 @@ public class XadesService : IXadesService
 			signReference.DigestMethod = parameters.DigestMethod.Uri;
 		}
 
-		counterSignature.SignedInfo.SignatureMethod = parameters.SignatureMethod.URI;
+		counterSignature.SignedInfo.SignatureMethod = parameters.SignatureMethod.Uri;
 
 		counterSignature.AddXadesNamespace = true;
 		counterSignature.ComputeSignature();
@@ -355,7 +355,7 @@ public class XadesService : IXadesService
 
 		switch (parameters.SignaturePackaging)
 		{
-			case SignaturePackaging.INTERNALLY_DETACHED:
+			case SignaturePackaging.InternallyDetached:
 				{
 					if (parameters.DataFormat == null || string.IsNullOrEmpty(parameters.DataFormat.MimeType))
 					{
@@ -383,7 +383,7 @@ public class XadesService : IXadesService
 					SetContentInternallyDetached(signatureDocument, xmlDocument, parameters.ElementIdToSign);
 					break;
 				}
-			case SignaturePackaging.ENVELOPED:
+			case SignaturePackaging.Enveloped:
 				{
 					_dataFormat.MimeType = "text/xml";
 					_dataFormat.Encoding = "UTF-8";
@@ -391,7 +391,7 @@ public class XadesService : IXadesService
 					SetContentEnveloped(signatureDocument, xmlDocument);
 					break;
 				}
-			case SignaturePackaging.ENVELOPING:
+			case SignaturePackaging.Enveloping:
 				{
 					_dataFormat.MimeType = "text/xml";
 					_dataFormat.Encoding = "UTF-8";
@@ -399,8 +399,8 @@ public class XadesService : IXadesService
 					SetContentEveloping(signatureDocument, xmlDocument);
 					break;
 				}
-			case SignaturePackaging.HASH_INTERNALLY_DETACHED:
-			case SignaturePackaging.EXTERNALLY_DETACHED:
+			case SignaturePackaging.InternallyDetachedHash:
+			case SignaturePackaging.ExternallyDetached:
 			default:
 				{
 					throw new ArgumentException($"Signature packaging `{parameters.SignaturePackaging}` is not supported in this context.", nameof(parameters));
@@ -807,7 +807,7 @@ public class XadesService : IXadesService
 
 	private void PrepareSignature(SignatureDocument sigDocument, LocalSignatureParameters parameters)
 	{
-		sigDocument.XadesSignature.SignedInfo.SignatureMethod = parameters.SignatureMethod.URI;
+		sigDocument.XadesSignature.SignedInfo.SignatureMethod = parameters.SignatureMethod.Uri;
 
 		AddCertificateInfo(sigDocument, parameters.Signer.Certificate);
 		AddXadesInfo(sigDocument, parameters, parameters.Signer.Certificate);
@@ -833,7 +833,7 @@ public class XadesService : IXadesService
 
 	private void PrepareSignatureForRemoteSigning(SignatureDocument sigDocument, RemoteSignatureParameters parameters)
 	{
-		sigDocument.XadesSignature.SignedInfo.SignatureMethod = parameters.SignatureMethod.URI;
+		sigDocument.XadesSignature.SignedInfo.SignatureMethod = parameters.SignatureMethod.Uri;
 
 		AddCertificateInfo(sigDocument, parameters.PublicCertificate);
 		AddXadesInfo(sigDocument, parameters, parameters.PublicCertificate);
@@ -998,10 +998,10 @@ public class XadesService : IXadesService
 		foreach (SignatureCommitment signatureCommitment in parameters.SignatureCommitments)
 		{
 			var cti = new CommitmentTypeIndication();
-			cti.CommitmentTypeId.Identifier.IdentifierUri = signatureCommitment.CommitmentType.URI;
+			cti.CommitmentTypeId.Identifier.IdentifierUri = signatureCommitment.Type.Uri;
 			cti.AllSignedDataObjects = true;
 
-			foreach (XmlElement signatureCommitmentQualifier in signatureCommitment.CommitmentTypeQualifiers)
+			foreach (XmlElement signatureCommitmentQualifier in signatureCommitment.TypeQualifiers)
 			{
 				var ctq = new CommitmentTypeQualifier
 				{

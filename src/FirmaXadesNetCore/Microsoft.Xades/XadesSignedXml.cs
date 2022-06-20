@@ -81,9 +81,15 @@ public class XadesSignedXml : SignedXml
 
 	#region Public properties
 
-	public static string XmlDSigPrefix { get; set; }
+	/// <summary>
+	/// Gets or sets the XML DSIG prefix.
+	/// </summary>
+	public static string XmlDSigPrefix { get; private set; }
 
-	public static string XmlXadesPrefix { get; set; }
+	/// <summary>
+	/// Gets or sets the XML XAdES prefix.
+	/// </summary>
+	public static string XmlXadesPrefix { get; private set; }
 
 	/// <summary>
 	/// Property indicating the type of signature (XmlDsig or XAdES)
@@ -188,10 +194,19 @@ public class XadesSignedXml : SignedXml
 		}
 	}
 
+	/// <summary>
+	/// Gets or sets the content element.
+	/// </summary>
 	public XmlElement ContentElement { get; set; }
 
+	/// <summary>
+	/// Gets or sets the signature node destination element.
+	/// </summary>
 	public XmlElement SignatureNodeDestination { get; set; }
 
+	/// <summary>
+	/// Gets or sets a flag indicating whether to add XAdES namespace.
+	/// </summary>
 	public bool AddXadesNamespace { get; set; }
 
 	#endregion
@@ -745,7 +760,7 @@ public class XadesSignedXml : SignedXml
 		DigestAlgAndValueType xadesCertificateDigest = xadesSigningCertificateCollection[0].CertDigest;
 
 		X509Certificate2 keyInfoCertificate = GetSigningCertificate();
-		HashAlgorithmName hashAlgorithmName = FirmaXadesNetCore.Crypto.DigestMethod
+		HashAlgorithmName hashAlgorithmName = FirmaXadesNetCore.DigestMethod
 			.GetByUri(xadesCertificateDigest.DigestMethod.Algorithm)
 			.GetHashAlgorithmName();
 		ReadOnlySpan<byte> keyInfoCertificateHash = keyInfoCertificate.GetCertHash(hashAlgorithmName);
@@ -1296,6 +1311,7 @@ public class XadesSignedXml : SignedXml
 		return;
 	}
 
+	/// <inheritdoc/>
 	public new byte[] ComputeSignature()
 	{
 		BuildDigestedReferences();
@@ -1324,9 +1340,9 @@ public class XadesSignedXml : SignedXml
 			}
 		}
 
-		SignatureDescription description = FirmaXadesNetCore.Crypto.SignatureMethod
+		SignatureDescription description = FirmaXadesNetCore.SignatureMethod
 			.GetByUri(SignedInfo.SignatureMethod)
-			.CreateSignatureDescription();
+			.Create();
 		if (description == null)
 		{
 			throw new CryptographicException("Cryptography_Xml_SignatureDescriptionNotCreated");
@@ -1345,6 +1361,10 @@ public class XadesSignedXml : SignedXml
 		return digest;
 	}
 
+	/// <summary>
+	/// Gets the content reference.
+	/// </summary>
+	/// <returns>the reference</returns>
 	public Reference GetContentReference()
 	{
 		XadesObject xadesObject;
@@ -1374,6 +1394,9 @@ public class XadesSignedXml : SignedXml
 		return (Reference)SignedInfo.References[0];
 	}
 
+	/// <summary>
+	/// Finds the content element.
+	/// </summary>
 	public void FindContentElement()
 	{
 		Reference contentRef = GetContentReference();
@@ -1389,6 +1412,10 @@ public class XadesSignedXml : SignedXml
 		}
 	}
 
+	/// <summary>
+	/// Gets the signature XML element.
+	/// </summary>
+	/// <returns>the element</returns>
 	public XmlElement GetSignatureElement()
 	{
 		XmlElement signatureElement = GetIdElement(_signatureDocument, Signature.Id);
@@ -1418,6 +1445,11 @@ public class XadesSignedXml : SignedXml
 		}
 	}
 
+	/// <summary>
+	/// Gets all namespaces from the specified element.
+	/// </summary>
+	/// <param name="fromElement">the from element</param>
+	/// <returns>the namespace attributes</returns>
 	public List<XmlAttribute> GetAllNamespaces(XmlElement fromElement)
 	{
 		var namespaces = new List<XmlAttribute>();
@@ -1668,9 +1700,9 @@ public class XadesSignedXml : SignedXml
 			throw new ArgumentNullException(nameof(key));
 		}
 
-		SignatureDescription signatureDescription = FirmaXadesNetCore.Crypto.SignatureMethod
+		SignatureDescription signatureDescription = FirmaXadesNetCore.SignatureMethod
 			.GetByUri(SignatureMethod)
-			.CreateSignatureDescription();
+			.Create();
 
 		HashAlgorithm hashAlgorithm = signatureDescription.CreateDigest();
 		if (hashAlgorithm == null)

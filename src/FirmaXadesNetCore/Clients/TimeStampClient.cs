@@ -23,17 +23,23 @@
 
 using System.Net.Http.Headers;
 using System.Text;
-using FirmaXadesNetCore.Crypto;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Tsp;
 
 namespace FirmaXadesNetCore.Clients;
 
+/// <summary>
+/// Represents a timestamp client.
+/// </summary>
 public sealed class TimeStampClient : ITimeStampClient, IDisposable
 {
 	private readonly HttpClient _httpClient;
 	private bool _disposed;
 
+	/// <summary>
+	/// Initializes a new instance of <see cref="TimeStampClient"/> class.
+	/// </summary>
+	/// <param name="uri">the URI</param>
 	public TimeStampClient(Uri uri)
 	{
 		if (uri is null)
@@ -47,6 +53,12 @@ public sealed class TimeStampClient : ITimeStampClient, IDisposable
 		};
 	}
 
+	/// <summary>
+	/// Initializes a new instance of <see cref="TimeStampClient"/> class.
+	/// </summary>
+	/// <param name="uri">the URI</param>
+	/// <param name="username">the username</param>
+	/// <param name="password">the password</param>
 	public TimeStampClient(Uri uri, string username, string password)
 		: this(uri)
 	{

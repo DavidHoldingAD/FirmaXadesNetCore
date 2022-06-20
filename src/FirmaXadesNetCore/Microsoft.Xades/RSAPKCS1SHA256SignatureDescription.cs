@@ -81,11 +81,11 @@ namespace Microsoft.Xades;
 ///     <para>
 ///         On Windows 2003, the default OID registrations are not setup for the SHA2 family of hash
 ///         algorithms, and this can cause the .NET Framework v3.5 SP 1 to be unable to create RSA-SHA2
-///         signatures. To fix this problem, the <see cref="Oid2.RegisterSha2OidInformationForRsa" />
+///         signatures. To fix this problem, the `Oid2.RegisterSha2OidInformationForRsa`
 ///         method can be called to create the necessary OID registrations.
 ///     </para>
 /// </summary>
-public sealed class RSAPKCS1SHA256SignatureDescription : SignatureDescription
+internal sealed class RSAPKCS1SHA256SignatureDescription : SignatureDescription
 {
 	/// <summary>
 	///     Construct an RSAPKCS1SHA256SignatureDescription object. The default settings for this object

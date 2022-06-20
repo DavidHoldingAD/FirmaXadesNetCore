@@ -88,7 +88,7 @@ internal sealed class XadesValidator
 			var token = new TimeStampToken(new CmsSignedData(timestamp.EncapsulatedTimeStamp.PkiData));
 
 			byte[] timeStampHash = token.TimeStampInfo.GetMessageImprintDigest();
-			var timeStampHashMethod = Crypto.DigestMethod.GetByOid(token.TimeStampInfo.HashAlgorithm.Algorithm.Id);
+			var timeStampHashMethod = DigestMethod.GetByOid(token.TimeStampInfo.HashAlgorithm.Algorithm.Id);
 
 			System.Security.Cryptography.Xml.Transform transform = timestamp.CanonicalizationMethod?.Algorithm switch
 			{

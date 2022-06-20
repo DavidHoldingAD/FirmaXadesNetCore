@@ -34,7 +34,7 @@ namespace Microsoft.Xades;
 ///         <see cref="RSAPKCS1SHA1SignatureDescription" />.
 ///     </para>
 /// </summary>
-public sealed class RSAPKCS1SHA1SignatureDescription : SignatureDescription
+internal sealed class RSAPKCS1SHA1SignatureDescription : SignatureDescription
 {
 	/// <summary>
 	///     Construct an RSAPKCS1SHA1SignatureDescription object. The default settings for this object
