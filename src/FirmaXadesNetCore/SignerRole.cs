@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// SignatureParameters.cs
+// SignerRole.cs
 //
 // FirmaXadesNet - Librería para la generación de firmas XADES
 // Copyright (C) 2016 Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
@@ -21,15 +21,22 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace FirmaXadesNetCore.Signature.Parameters;
+using System.Security.Cryptography.X509Certificates;
+
+namespace FirmaXadesNetCore;
 
 /// <summary>
-/// Represents a local signature parameters.
+/// Represents a signer role.
 /// </summary>
-public sealed class LocalSignatureParameters : SignatureParametersBase
+public class SignerRole
 {
 	/// <summary>
-	/// Gets or sets the signer.
+	/// Gets the certified roles.
 	/// </summary>
-	public Signer Signer { get; set; }
+	public List<X509Certificate> CertifiedRoles { get; } = new();
+
+	/// <summary>
+	/// Gets the claimed roles.
+	/// </summary>
+	public List<string> ClaimedRoles { get; } = new();
 }

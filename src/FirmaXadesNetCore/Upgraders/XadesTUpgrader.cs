@@ -23,7 +23,6 @@
 
 using System.Collections;
 using System.Security.Cryptography.Xml;
-using FirmaXadesNetCore.Signature;
 using FirmaXadesNetCore.Upgraders.Parameters;
 using FirmaXadesNetCore.Utils;
 using Microsoft.Xades;

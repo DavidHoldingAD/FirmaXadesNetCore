@@ -1,7 +1,7 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// SignatureParameters.cs
+// DataFormat.cs
 //
-// FirmaXadesNet - Librería para la generación de firmas XADES
+// FirmaXadesNet - Librería la para generación de firmas XADES
 // Copyright (C) 2016 Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
 //
 // This program is free software: you can redistribute it and/or modify
@@ -21,17 +21,25 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Security.Cryptography.X509Certificates;
-
-namespace FirmaXadesNetCore.Signature.Parameters;
+namespace FirmaXadesNetCore;
 
 /// <summary>
-/// Represents a remote signature parameters.
+/// Represents a data format.
 /// </summary>
-public sealed class RemoteSignatureParameters : SignatureParametersBase
+public class DataFormat
 {
 	/// <summary>
-	/// Gets or sets the public certificate.
+	/// Gets or sets the mime type.
 	/// </summary>
-	public X509Certificate2 PublicCertificate { get; set; }
+	public string MimeType { get; set; }
+
+	/// <summary>
+	/// Gets or sets the description.
+	/// </summary>
+	public string Description { get; set; }
+
+	/// <summary>
+	/// Gets or sets the type identifier.
+	/// </summary>
+	public string TypeIdentifier { get; set; }
 }

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// Signer.cs
+// SignatureParameters.cs
 //
 // FirmaXadesNet - Librería para la generación de firmas XADES
 // Copyright (C) 2016 Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
@@ -21,36 +21,35 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Security.Cryptography.X509Certificates;
-
-namespace FirmaXadesNetCore.Signature.Parameters;
+namespace FirmaXadesNetCore;
 
 /// <summary>
-/// Represents a signer.
+/// Represents an enumeration of signature packagings.
 /// </summary>
-public class Signer
+public enum SignaturePackaging
 {
 	/// <summary>
-	/// Gets the certificate.
+	/// Internally detached
 	/// </summary>
-	public X509Certificate2 Certificate { get; }
+	InternallyDetached,
 
 	/// <summary>
-	/// Initializes a new instance of <see cref="Signer"/> class.
+	/// Internally detached hash
 	/// </summary>
-	/// <param name="certificate">the certificate</param>
-	public Signer(X509Certificate2 certificate)
-	{
-		if (certificate is null)
-		{
-			throw new ArgumentNullException(nameof(certificate));
-		}
+	InternallyDetachedHash,
 
-		if (!certificate.HasPrivateKey)
-		{
-			throw new Exception("The certificate does not contain any private key.");
-		}
+	/// <summary>
+	/// Externally detached
+	/// </summary>
+	ExternallyDetached,
 
-		Certificate = certificate;
-	}
+	/// <summary>
+	/// Enveloped
+	/// </summary>
+	Enveloped,
+
+	/// <summary>
+	/// Enveloping
+	/// </summary>
+	Enveloping,
 }

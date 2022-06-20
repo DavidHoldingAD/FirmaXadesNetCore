@@ -21,7 +21,7 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace FirmaXadesNetCore.Signature.Parameters;
+namespace FirmaXadesNetCore;
 
 /// <summary>
 /// Represents a XAdES signature commitment type.

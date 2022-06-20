@@ -22,8 +22,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Xml;
-using FirmaXadesNetCore.Signature;
-using FirmaXadesNetCore.Signature.Parameters;
 using Microsoft.Xades;
 
 namespace FirmaXadesNetCore;

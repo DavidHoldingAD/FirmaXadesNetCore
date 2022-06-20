@@ -3,8 +3,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
 using FirmaXadesNetCore.Clients;
-using FirmaXadesNetCore.Signature;
-using FirmaXadesNetCore.Signature.Parameters;
 
 namespace FirmaXadesNetCore.Tests;
 

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// SignatureDestination.cs
+// Signer.cs
 //
 // FirmaXadesNet - Librería para la generación de firmas XADES
 // Copyright (C) 2016 Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
@@ -21,20 +21,36 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace FirmaXadesNetCore.Signature.Parameters;
+using System.Security.Cryptography.X509Certificates;
+
+namespace FirmaXadesNetCore;
 
 /// <summary>
-/// Represents a signature XPath expression.
+/// Represents a signer.
 /// </summary>
-public class SignatureXPathExpression
+public class Signer
 {
 	/// <summary>
-	/// Gets or sets the XPath expression.
+	/// Gets the certificate.
 	/// </summary>
-	public string XPathExpression { get; set; }
+	public X509Certificate2 Certificate { get; }
 
 	/// <summary>
-	/// Gets or sets the namespaces.
+	/// Initializes a new instance of <see cref="Signer"/> class.
 	/// </summary>
-	public Dictionary<string, string> Namespaces { get; } = new();
+	/// <param name="certificate">the certificate</param>
+	public Signer(X509Certificate2 certificate)
+	{
+		if (certificate is null)
+		{
+			throw new ArgumentNullException(nameof(certificate));
+		}
+
+		if (!certificate.HasPrivateKey)
+		{
+			throw new Exception("The certificate does not contain any private key.");
+		}
+
+		Certificate = certificate;
+	}
 }

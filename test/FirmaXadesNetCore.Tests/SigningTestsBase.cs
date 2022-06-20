@@ -1,7 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
-using FirmaXadesNetCore.Signature;
 using Microsoft.Xades;
 
 namespace FirmaXadesNetCore.Tests;

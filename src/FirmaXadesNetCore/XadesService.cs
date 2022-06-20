@@ -25,8 +25,6 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
-using FirmaXadesNetCore.Signature;
-using FirmaXadesNetCore.Signature.Parameters;
 using FirmaXadesNetCore.Utils;
 using FirmaXadesNetCore.Validation;
 using Microsoft.Xades;

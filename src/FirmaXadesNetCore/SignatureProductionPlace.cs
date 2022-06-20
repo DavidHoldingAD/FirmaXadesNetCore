@@ -1,7 +1,7 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// DataFormat.cs
+// SignatureProductionPlace.cs
 //
-// FirmaXadesNet - Librería la para generación de firmas XADES
+// FirmaXadesNet - Librería para la generación de firmas XADES
 // Copyright (C) 2016 Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,31 +15,36 @@
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with this program.  If not, see http://www.gnu.org/licenses/. 
+// along with this program.  If not, see https://www.gnu.org/licenses/lgpl-3.0.txt. 
 //
 // E-Mail: informatica@gemuc.es
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace FirmaXadesNetCore.Signature.Parameters;
+namespace FirmaXadesNetCore;
 
 /// <summary>
-/// Represents a data format.
+/// Represents a signature production place.
 /// </summary>
-public class DataFormat
+public class SignatureProductionPlace
 {
 	/// <summary>
-	/// Gets or sets the mime type.
+	/// Gets or sets the city.
 	/// </summary>
-	public string MimeType { get; set; }
+	public string City { get; set; }
 
 	/// <summary>
-	/// Gets or sets the description.
+	/// Gets or sets the state or province.
 	/// </summary>
-	public string Description { get; set; }
+	public string StateOrProvince { get; set; }
 
 	/// <summary>
-	/// Gets or sets the type identifier.
+	/// Gets or sets the postal code.
 	/// </summary>
-	public string TypeIdentifier { get; set; }
+	public string PostalCode { get; set; }
+
+	/// <summary>
+	/// Gets or sets the country name.
+	/// </summary>
+	public string CountryName { get; set; }
 }

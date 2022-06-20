@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// SignatureCommitment.cs
+// SignaturePolicyInfo.cs
 //
 // FirmaXadesNet - Librería para la generación de firmas XADES
 // Copyright (C) 2016 Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
@@ -15,55 +15,36 @@
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with this program.  If not, see https://www.gnu.org/licenses/lgpl-3.0.txt. 
+// along with this program.  If not, see http://www.gnu.org/licenses/. 
 //
 // E-Mail: informatica@gemuc.es
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Xml;
-
-namespace FirmaXadesNetCore.Signature.Parameters;
+namespace FirmaXadesNetCore;
 
 /// <summary>
-/// Represents a XAdES signature commitment.
+/// Represents a signature policy information.
 /// </summary>
-public class SignatureCommitment
+public class SignaturePolicyInfo
 {
 	/// <summary>
-	/// Gets or sets the type.
+	/// Gets or sets the policy identifier.
 	/// </summary>
-	public SignatureCommitmentType Type { get; set; }
+	public string PolicyIdentifier { get; set; }
 
 	/// <summary>
-	/// Gets or sets the type qualifiers.
+	/// Gets or sets the policy hash.
 	/// </summary>
-	public List<XmlElement> TypeQualifiers { get; }
+	public string PolicyHash { get; set; }
 
 	/// <summary>
-	/// Initializes a new instance of <see cref="SignatureCommitment"/> class.
+	/// Gets or sets the policy digest algorithm.
 	/// </summary>
-	/// <param name="type">the type</param>
-	public SignatureCommitment(SignatureCommitmentType type)
-	{
-		Type = type ?? throw new ArgumentNullException(nameof(type));
-		TypeQualifiers = new List<XmlElement>();
-	}
+	public DigestMethod PolicyDigestAlgorithm { get; set; } = DigestMethod.SHA1;
 
 	/// <summary>
-	/// Adds a type qualifier from the specified XML.
+	/// Gets or sets the policy URI.
 	/// </summary>
-	/// <param name="xml">the XML</param>
-	public void AddQualifierFromXml(string xml)
-	{
-		if (xml is null)
-		{
-			throw new ArgumentNullException(nameof(xml));
-		}
-
-		var document = new XmlDocument();
-		document.LoadXml(xml);
-
-		TypeQualifiers.Add(document.DocumentElement);
-	}
+	public string PolicyUri { get; set; }
 }

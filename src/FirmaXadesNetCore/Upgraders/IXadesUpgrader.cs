@@ -21,7 +21,6 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-using FirmaXadesNetCore.Signature;
 using FirmaXadesNetCore.Upgraders.Parameters;
 
 namespace FirmaXadesNetCore.Upgraders;

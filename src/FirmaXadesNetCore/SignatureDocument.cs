@@ -27,7 +27,7 @@ using System.Xml;
 using FirmaXadesNetCore.Utils;
 using Microsoft.Xades;
 
-namespace FirmaXadesNetCore.Signature;
+namespace FirmaXadesNetCore;
 
 /// <summary>
 /// Represents a signature document.

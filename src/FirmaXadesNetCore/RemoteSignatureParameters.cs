@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// SignatureProductionPlace.cs
+// SignatureParameters.cs
 //
 // FirmaXadesNet - Librería para la generación de firmas XADES
 // Copyright (C) 2016 Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
@@ -15,36 +15,23 @@
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with this program.  If not, see https://www.gnu.org/licenses/lgpl-3.0.txt. 
+// along with this program.  If not, see http://www.gnu.org/licenses/. 
 //
 // E-Mail: informatica@gemuc.es
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace FirmaXadesNetCore.Signature.Parameters;
+using System.Security.Cryptography.X509Certificates;
+
+namespace FirmaXadesNetCore;
 
 /// <summary>
-/// Represents a signature production place.
+/// Represents a remote signature parameters.
 /// </summary>
-public class SignatureProductionPlace
+public sealed class RemoteSignatureParameters : SignatureParametersBase
 {
 	/// <summary>
-	/// Gets or sets the city.
+	/// Gets or sets the public certificate.
 	/// </summary>
-	public string City { get; set; }
-
-	/// <summary>
-	/// Gets or sets the state or province.
-	/// </summary>
-	public string StateOrProvince { get; set; }
-
-	/// <summary>
-	/// Gets or sets the postal code.
-	/// </summary>
-	public string PostalCode { get; set; }
-
-	/// <summary>
-	/// Gets or sets the country name.
-	/// </summary>
-	public string CountryName { get; set; }
+	public X509Certificate2 PublicCertificate { get; set; }
 }

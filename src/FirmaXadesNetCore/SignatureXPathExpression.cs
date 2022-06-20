@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// SignatureParameters.cs
+// SignatureDestination.cs
 //
 // FirmaXadesNet - Librería para la generación de firmas XADES
 // Copyright (C) 2016 Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
@@ -21,35 +21,20 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace FirmaXadesNetCore.Signature.Parameters;
+namespace FirmaXadesNetCore;
 
 /// <summary>
-/// Represents an enumeration of signature packagings.
+/// Represents a signature XPath expression.
 /// </summary>
-public enum SignaturePackaging
+public class SignatureXPathExpression
 {
 	/// <summary>
-	/// Internally detached
+	/// Gets or sets the XPath expression.
 	/// </summary>
-	InternallyDetached,
+	public string XPathExpression { get; set; }
 
 	/// <summary>
-	/// Internally detached hash
+	/// Gets or sets the namespaces.
 	/// </summary>
-	InternallyDetachedHash,
-
-	/// <summary>
-	/// Externally detached
-	/// </summary>
-	ExternallyDetached,
-
-	/// <summary>
-	/// Enveloped
-	/// </summary>
-	Enveloped,
-
-	/// <summary>
-	/// Enveloping
-	/// </summary>
-	Enveloping,
+	public Dictionary<string, string> Namespaces { get; } = new();
 }
