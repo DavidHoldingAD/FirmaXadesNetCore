@@ -22,7 +22,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Xml;
-using Microsoft.Xades;
 
 namespace FirmaXadesNetCore;
 
@@ -89,13 +88,6 @@ public interface IXadesService
 	/// <param name="xmlDocument">the XML document</param>
 	/// <returns>the signature documents</returns>
 	SignatureDocument[] Load(XmlDocument xmlDocument);
-
-	/// <summary>
-	/// Validates the signature document.
-	/// </summary>
-	/// <param name="signatureDocument">the signature document</param>
-	/// <returns>the validation result</returns>
-	ValidationResult Validate(SignatureDocument signatureDocument);
 
 	/// <summary>
 	/// Validates the signature document with the specified options.

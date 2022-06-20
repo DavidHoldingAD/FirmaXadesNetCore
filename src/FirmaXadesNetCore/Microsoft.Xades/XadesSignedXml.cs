@@ -27,6 +27,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
 using System.Xml.Schema;
+using FirmaXadesNetCore;
 
 namespace Microsoft.Xades;
 

@@ -21,13 +21,16 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Collections;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
 using FirmaXadesNetCore.Utils;
-using FirmaXadesNetCore.Validation;
 using Microsoft.Xades;
+using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.Tsp;
+using Org.BouncyCastle.Utilities;
 
 namespace FirmaXadesNetCore;
 
@@ -504,7 +507,9 @@ public class XadesService : IXadesService
 	}
 
 	/// <inheritdoc/>
-	public ValidationResult Validate(SignatureDocument signatureDocument)
+	public ValidationResult Validate(SignatureDocument signatureDocument,
+		XadesValidationFlags validationFlags,
+		bool validateTimestamps)
 	{
 		if (signatureDocument is null)
 		{
@@ -513,20 +518,29 @@ public class XadesService : IXadesService
 
 		SignatureDocument.CheckSignatureDocument(signatureDocument);
 
-		return XadesValidator.Validate(signatureDocument);
-	}
-
-	/// <inheritdoc/>
-	public ValidationResult Validate(SignatureDocument signatureDocument, XadesValidationFlags validationFlags, bool validateTimestamps)
-	{
-		if (signatureDocument is null)
+		try
 		{
-			throw new ArgumentNullException(nameof(signatureDocument));
+			// Check the fingerprints of the references and the signature
+			if (!signatureDocument.XadesSignature.CheckSignature(validationFlags))
+			{
+				return ValidationResult.Invalid("Could not validate signature.");
+			}
+
+			if (validateTimestamps
+				&& signatureDocument.XadesSignature.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count > 0)
+			{
+				if (!ValidateTimestamps(signatureDocument.XadesSignature))
+				{
+					return ValidationResult.Invalid("The timestamp footprint does not correspond to the calculated one.");
+				}
+			}
+
+			return ValidationResult.Valid("Successful signature verification.");
 		}
-
-		SignatureDocument.CheckSignatureDocument(signatureDocument);
-
-		return XadesValidator.Validate(signatureDocument, validationFlags, validateTimestamps);
+		catch (Exception ex)
+		{
+			return ValidationResult.Invalid($"An error has occurred while validating signature.", ex);
+		}
 	}
 
 	#endregion
@@ -1019,5 +1033,57 @@ public class XadesService : IXadesService
 			signedSignatureProperties.SignatureProductionPlace.PostalCode = parameters.SignatureProductionPlace.PostalCode;
 			signedSignatureProperties.SignatureProductionPlace.CountryName = parameters.SignatureProductionPlace.CountryName;
 		}
+	}
+
+	private static bool ValidateTimestamps(XadesSignedXml xadesSignature)
+	{
+		TimeStamp[] timestamps = xadesSignature
+			.UnsignedProperties
+			.UnsignedSignatureProperties
+			.SignatureTimeStampCollection
+			.OfType<TimeStamp>()
+			.ToArray();
+
+		if (timestamps.Length <= 0)
+		{
+			throw new ArgumentException("No timestamp present in unsigned signature properties.", nameof(xadesSignature));
+		}
+
+		foreach (TimeStamp timestamp in timestamps)
+		{
+			var token = new TimeStampToken(new CmsSignedData(timestamp.EncapsulatedTimeStamp.PkiData));
+
+			byte[] timeStampHash = token.TimeStampInfo.GetMessageImprintDigest();
+			var timeStampHashMethod = DigestMethod.GetByOid(token.TimeStampInfo.HashAlgorithm.Algorithm.Id);
+
+			System.Security.Cryptography.Xml.Transform transform = timestamp.CanonicalizationMethod?.Algorithm switch
+			{
+				SignedXml.XmlDsigC14NTransformUrl
+					=> new XmlDsigC14NTransform(),
+				SignedXml.XmlDsigC14NWithCommentsTransformUrl
+					=> new XmlDsigC14NWithCommentsTransform(),
+				SignedXml.XmlDsigExcC14NTransformUrl
+					=> new XmlDsigExcC14NTransform(),
+				SignedXml.XmlDsigExcC14NWithCommentsTransformUrl
+					=> new XmlDsigExcC14NWithCommentsTransform(),
+				_
+					=> new XmlDsigC14NTransform(),
+			};
+
+			var signatureValueElementXpaths = new ArrayList
+			{
+				"ds:SignatureValue",
+			};
+
+			byte[] signatureHash = XmlUtils.ComputeValueOfElementList(xadesSignature, signatureValueElementXpaths, transform);
+			byte[] signatureValueHash = timeStampHashMethod.ComputeHash(signatureHash);
+
+			if (!Arrays.AreEqual(timeStampHash, signatureValueHash))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
