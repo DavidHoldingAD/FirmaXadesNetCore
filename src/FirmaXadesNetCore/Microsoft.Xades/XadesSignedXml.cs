@@ -596,6 +596,17 @@ public class XadesSignedXml : SignedXml
 	/// <returns>the singing certificate</returns>
 	public X509Certificate2 GetSigningCertificate()
 	{
+		byte[] bytes = GetSigningCertificateBytes();
+
+		return new X509Certificate2(bytes);
+	}
+
+	/// <summary>
+	/// Gets the signing certificate bytes from the key information tag.
+	/// </summary>
+	/// <returns>the singing certificate bytes</returns>
+	public byte[] GetSigningCertificateBytes()
+	{
 		XmlNodeList certificateElements = KeyInfo
 			.GetXml()
 			.GetElementsByTagName("X509Certificate", XmlDsigNamespaceUrl);
@@ -607,7 +618,7 @@ public class XadesSignedXml : SignedXml
 			throw new Exception("Failed to get signing certificate.");
 		}
 
-		return new X509Certificate2(Convert.FromBase64String(certificateElement.InnerText));
+		return Convert.FromBase64String(certificateElement.InnerText);
 	}
 
 	#region XadesCheckSignature routines
