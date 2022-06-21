@@ -7,7 +7,7 @@ using FirmaXadesNetCore.Clients;
 namespace FirmaXadesNetCore.Tests;
 
 [TestClass]
-public class SigningTests : SigningTestsBase
+public class SigningTests : TestsBase
 {
 	private const string FreeTSAUrl = "https://freetsa.org/tsr";
 

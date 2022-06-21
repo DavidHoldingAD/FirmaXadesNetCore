@@ -4,7 +4,7 @@ using System.Xml;
 
 namespace FirmaXadesNetCore.Tests;
 
-public abstract class SigningTestsBase
+public abstract class TestsBase
 {
 	public static Stream CreateExampleDocumentStream(string elementID = null)
 	{
@@ -34,6 +34,43 @@ public abstract class SigningTestsBase
 		stream.Seek(0, SeekOrigin.Begin);
 
 		return stream;
+	}
+
+	public static Stream CreateExampleDocumentSignedStream(string elementID)
+	{
+		if (elementID is null)
+		{
+			throw new ArgumentNullException(nameof(elementID));
+		}
+
+		using Stream stream = CreateExampleDocumentStream(elementID);
+
+		using X509Certificate2 certificate = CreateSelfSignedCertificate();
+
+		// Sign
+		var service = new XadesService();
+		var parameters = new LocalSignatureParameters
+		{
+			SignaturePackaging = SignaturePackaging.Enveloped,
+			Signer = new Signer(certificate),
+			DataFormat = new DataFormat { MimeType = "text/xml" },
+			ElementIdToSign = elementID,
+			DigestMethod = DigestMethod.SHA512,
+			SignatureMethod = SignatureMethod.RSAwithSHA512,
+		};
+		parameters.SignatureCommitments.Add(new SignatureCommitment(SignatureCommitmentType.ProofOfCreation));
+
+		SignatureDocument document = service.Sign(stream, parameters);
+
+		AssertValid(document);
+
+		var result = new MemoryStream();
+
+		document.Save(result);
+
+		result.Seek(0, SeekOrigin.Begin);
+
+		return result;
 	}
 
 	protected static void AssertValid(SignatureDocument signatureDocument,
