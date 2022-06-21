@@ -31,8 +31,9 @@ public enum KnownSignatureStandard
 	/// XML Digital Signature (XMLDSIG)
 	/// </summary>
 	XmlDsig,
+
 	/// <summary>
 	/// XML Advanced Electronic Signature (XAdES) 
 	/// </summary>
-	Xades
+	Xades,
 }

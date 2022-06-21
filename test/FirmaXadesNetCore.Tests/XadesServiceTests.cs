@@ -40,10 +40,9 @@ public class XadesServiceTests : TestsBase
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
 		// Sign
-		SignatureDocument document = service.Sign(stream, new LocalSignatureParameters
+		SignatureDocument document = service.Sign(stream, new LocalSignatureParameters(certificate)
 		{
 			SignaturePackaging = SignaturePackaging.Enveloped,
-			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
 			DigestMethod = DigestMethod.GetByUri(digestMethod),
@@ -82,10 +81,9 @@ public class XadesServiceTests : TestsBase
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
 		// Sign
-		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
+		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters(certificate)
 		{
 			SignaturePackaging = SignaturePackaging.Enveloped,
-			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
 			DigestMethod = DigestMethod.GetByUri(digestMethod),
@@ -93,10 +91,9 @@ public class XadesServiceTests : TestsBase
 		});
 
 		// Counter sign
-		signatureDocument = service.CounterSign(signatureDocument, new LocalSignatureParameters
+		signatureDocument = service.CounterSign(signatureDocument, new LocalSignatureParameters(certificate)
 		{
 			SignaturePackaging = SignaturePackaging.Enveloped,
-			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
 			DigestMethod = DigestMethod.GetByUri(digestMethod),
@@ -135,10 +132,9 @@ public class XadesServiceTests : TestsBase
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
 		// Sign
-		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
+		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters(certificate)
 		{
 			SignaturePackaging = SignaturePackaging.InternallyDetached,
-			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
 			DigestMethod = DigestMethod.GetByUri(digestMethod),
@@ -146,10 +142,9 @@ public class XadesServiceTests : TestsBase
 		});
 
 		// Counter sign
-		signatureDocument = service.CoSign(signatureDocument, new LocalSignatureParameters
+		signatureDocument = service.CoSign(signatureDocument, new LocalSignatureParameters(certificate)
 		{
 			SignaturePackaging = SignaturePackaging.InternallyDetached,
-			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
 			DigestMethod = DigestMethod.GetByUri(digestMethod),
@@ -174,10 +169,9 @@ public class XadesServiceTests : TestsBase
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
 		// Sign
-		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
+		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters(certificate)
 		{
 			SignaturePackaging = SignaturePackaging.Enveloped,
-			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
 			DigestMethod = DigestMethod.GetByUri(digestMethod),
@@ -186,9 +180,8 @@ public class XadesServiceTests : TestsBase
 
 		// Add timestamp
 		using var timestampClient = new TimeStampClient(new Uri(FreeTSAUrl));
-		upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesT, new Upgraders.Parameters.UpgradeParameters
+		upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesT, new Upgraders.Parameters.UpgradeParameters(timestampClient)
 		{
-			TimeStampClient = timestampClient,
 			DigestMethod = DigestMethod.GetByUri(digestMethod),
 		});
 
@@ -211,10 +204,9 @@ public class XadesServiceTests : TestsBase
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
 		// Sign
-		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
+		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters(certificate)
 		{
 			SignaturePackaging = SignaturePackaging.Enveloped,
-			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = "test",
 			DigestMethod = DigestMethod.GetByUri(digestMethod),
@@ -223,9 +215,8 @@ public class XadesServiceTests : TestsBase
 
 		// Add timestamp
 		using var timestampClient = new TimeStampClient(new Uri(FreeTSAUrl));
-		upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesXL, new Upgraders.Parameters.UpgradeParameters
+		upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesXL, new Upgraders.Parameters.UpgradeParameters(timestampClient)
 		{
-			TimeStampClient = timestampClient,
 			DigestMethod = DigestMethod.GetByUri(digestMethod),
 		});
 
@@ -244,10 +235,9 @@ public class XadesServiceTests : TestsBase
 		using X509Certificate2 certificate = CreateSelfSignedCertificate();
 
 		// Sign
-		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters
+		SignatureDocument signatureDocument = service.Sign(stream, new LocalSignatureParameters(certificate)
 		{
 			SignaturePackaging = packaging,
-			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
 				? "test"
@@ -277,9 +267,8 @@ public class XadesServiceTests : TestsBase
 		using var publicCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
 
 		// Get digest
-		SignatureDocument signatureDocument = service.GetRemotingSigningDigest(xmlDocument, new RemoteSignatureParameters
+		SignatureDocument signatureDocument = service.GetRemotingSigningDigest(xmlDocument, new RemoteSignatureParameters(publicCertificate)
 		{
-			PublicCertificate = publicCertificate,
 			SignaturePackaging = packaging,
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
@@ -330,9 +319,8 @@ public class XadesServiceTests : TestsBase
 		using var publicCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
 
 		// Get digest
-		SignatureDocument signatureDocument = service.GetCounterRemotingSigningDigest(originalSignatureDocument, new RemoteSignatureParameters
+		SignatureDocument signatureDocument = service.GetCounterRemotingSigningDigest(originalSignatureDocument, new RemoteSignatureParameters(publicCertificate)
 		{
-			PublicCertificate = publicCertificate,
 			SignaturePackaging = packaging,
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
@@ -391,9 +379,8 @@ public class XadesServiceTests : TestsBase
 		using var publicCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
 
 		// Get digest
-		SignatureDocument signatureDocument = service.GetCoRemotingSigningDigest(originalSignatureDocument, new RemoteSignatureParameters
+		SignatureDocument signatureDocument = service.GetCoRemotingSigningDigest(originalSignatureDocument, new RemoteSignatureParameters(publicCertificate)
 		{
-			PublicCertificate = publicCertificate,
 			SignaturePackaging = packaging,
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached

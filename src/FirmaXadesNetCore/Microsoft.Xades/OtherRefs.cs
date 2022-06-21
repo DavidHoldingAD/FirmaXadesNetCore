@@ -30,17 +30,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class OtherRefs
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Collection of other refs
 	/// </summary>
 	public OtherRefCollection OtherRefCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -48,9 +42,7 @@ public class OtherRefs
 	{
 		OtherRefCollection = new OtherRefCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
@@ -71,36 +63,36 @@ public class OtherRefs
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		OtherRef newOtherRef;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
 		OtherRefCollection.Clear();
-		xmlNodeList = xmlElement.SelectNodes("xsd:OtherRef", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:OtherRef", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required OtherRef element.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newOtherRef = new OtherRef();
-					newOtherRef.LoadXml(iterationXmlElement);
-					OtherRefCollection.Add(newOtherRef);
+					continue;
 				}
+
+				var newOtherRef = new OtherRef();
+				newOtherRef.LoadXml(iterationXmlElement);
+				OtherRefCollection.Add(newOtherRef);
 			}
 		}
 		finally
@@ -118,24 +110,25 @@ public class OtherRefs
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("OtherRefs", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement("OtherRefs", XadesSignedXml.XadesNamespaceUri);
 
-		if (OtherRefCollection.Count > 0)
+		if (OtherRefCollection.Count <= 0)
 		{
-			foreach (OtherRef otherRef in OtherRefCollection)
-			{
-				if (otherRef.HasChanged())
-				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(otherRef.GetXml(), true));
-				}
-			}
+			return result;
 		}
 
-		return retVal;
+		foreach (OtherRef otherRef in OtherRefCollection)
+		{
+			if (!otherRef.HasChanged())
+			{
+				continue;
+			}
+
+			result.AppendChild(creationXmlDocument.ImportNode(otherRef.GetXml(), true));
+		}
+
+		return result;
 	}
-	#endregion
 }

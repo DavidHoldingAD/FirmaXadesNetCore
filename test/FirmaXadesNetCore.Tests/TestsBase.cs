@@ -52,10 +52,9 @@ public abstract class TestsBase
 
 		// Sign
 		var service = new XadesService();
-		var parameters = new LocalSignatureParameters
+		var parameters = new LocalSignatureParameters(certificate)
 		{
 			SignaturePackaging = signaturePackaging,
-			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = signaturePackaging == SignaturePackaging.InternallyDetached
 				? elementID

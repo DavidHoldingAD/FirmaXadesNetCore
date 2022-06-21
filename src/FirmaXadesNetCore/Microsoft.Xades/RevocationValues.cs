@@ -34,14 +34,10 @@ namespace Microsoft.Xades;
 /// </summary>
 public class RevocationValues
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Optional Id for the XML element
 	/// </summary>
-	public string Id { get; set; }
+	public string? Id { get; set; }
 
 	/// <summary>
 	/// Certificate Revocation Lists
@@ -58,9 +54,7 @@ public class RevocationValues
 	/// use
 	/// </summary>
 	public OtherValues OtherValues { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -70,79 +64,78 @@ public class RevocationValues
 		OCSPValues = new OCSPValues();
 		OtherValues = new OtherValues();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (!string.IsNullOrEmpty(Id))
 		{
-			retVal = true;
-		}
-		if (CRLValues != null && CRLValues.HasChanged())
-		{
-			retVal = true;
-		}
-		if (OCSPValues != null && OCSPValues.HasChanged())
-		{
-			retVal = true;
-		}
-		if (OtherValues != null && OtherValues.HasChanged())
-		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		if (CRLValues != null && CRLValues.HasChanged())
+		{
+			result = true;
+		}
+
+		if (OCSPValues != null && OCSPValues.HasChanged())
+		{
+			result = true;
+		}
+
+		if (OtherValues != null && OtherValues.HasChanged())
+		{
+			result = true;
+		}
+
+		return result;
 	}
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
-		if (xmlElement.HasAttribute("Id"))
-		{
-			Id = xmlElement.GetAttribute("Id");
-		}
-		else
-		{
-			Id = "";
-		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		Id = xmlElement.HasAttribute("Id")
+			? xmlElement.GetAttribute("Id")
+			: "";
+
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xades:CRLValues", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xades:CRLValues", xmlNamespaceManager);
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			CRLValues = new CRLValues();
-			CRLValues.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CRLValues.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
+
 		xmlNodeList = xmlElement.SelectNodes("xades:OCSPValues", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			OCSPValues = new OCSPValues();
-			OCSPValues.LoadXml((XmlElement)xmlNodeList.Item(0));
+			OCSPValues.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
+
 		xmlNodeList = xmlElement.SelectNodes("xades:OtherValues", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			OtherValues = new OtherValues();
-			OtherValues.LoadXml((XmlElement)xmlNodeList.Item(0));
+			OtherValues.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 	}
 
@@ -152,29 +145,30 @@ public class RevocationValues
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "RevocationValues", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "RevocationValues", XadesSignedXml.XadesNamespaceUri);
+
 		if (Id != null && Id != "")
 		{
-			retVal.SetAttribute("Id", Id);
-		}
-		if (CRLValues != null && CRLValues.HasChanged())
-		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(CRLValues.GetXml(), true));
-		}
-		if (OCSPValues != null && OCSPValues.HasChanged())
-		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(OCSPValues.GetXml(), true));
-		}
-		if (OtherValues != null && OtherValues.HasChanged())
-		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(OtherValues.GetXml(), true));
+			result.SetAttribute("Id", Id);
 		}
 
-		return retVal;
+		if (CRLValues != null && CRLValues.HasChanged())
+		{
+			result.AppendChild(creationXmlDocument.ImportNode(CRLValues.GetXml(), true));
+		}
+
+		if (OCSPValues != null && OCSPValues.HasChanged())
+		{
+			result.AppendChild(creationXmlDocument.ImportNode(OCSPValues.GetXml(), true));
+		}
+
+		if (OtherValues != null && OtherValues.HasChanged())
+		{
+			result.AppendChild(creationXmlDocument.ImportNode(OtherValues.GetXml(), true));
+		}
+
+		return result;
 	}
-	#endregion
 }

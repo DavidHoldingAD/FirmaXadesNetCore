@@ -48,7 +48,7 @@ internal sealed class XadesTUpgrader : IXadesUpgrader
 
 		try
 		{
-			UnsignedProperties unsignedProperties = signatureDocument.XadesSignature.UnsignedProperties;
+			UnsignedProperties unsignedProperties = signatureDocument.XadesSignature!.UnsignedProperties;
 			if (unsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count > 0)
 			{
 				throw new Exception("The signature already contains a timestamp.");
@@ -63,13 +63,13 @@ internal sealed class XadesTUpgrader : IXadesUpgrader
 			byte[] signatureValueHash = parameters.DigestMethod
 				.ComputeHash(XmlUtils.ComputeValueOfElementList(signatureDocument.XadesSignature, signatureValueElementXpaths, excTransform));
 
-			byte[] timestampData = parameters.TimeStampClient
+			byte[] timestampData = parameters.TimestampClient
 				.GetTimeStampAsync(signatureValueHash, parameters.DigestMethod, true, CancellationToken.None)
 				.ConfigureAwait(continueOnCapturedContext: false)
 				.GetAwaiter()
 				.GetResult();
 
-			var signatureTimeStamp = new TimeStamp("SignatureTimeStamp")
+			var signatureTimeStamp = new Timestamp("SignatureTimeStamp")
 			{
 				Id = $"SignatureTimeStamp-{signatureDocument.XadesSignature.Signature.Id}",
 				CanonicalizationMethod = new CanonicalizationMethod
@@ -77,13 +77,16 @@ internal sealed class XadesTUpgrader : IXadesUpgrader
 					Algorithm = excTransform.Algorithm
 				}
 			};
-			signatureTimeStamp.EncapsulatedTimeStamp.PkiData = timestampData;
-			signatureTimeStamp.EncapsulatedTimeStamp.Id = $"SignatureTimeStamp-{Guid.NewGuid()}";
+
+			if (signatureTimeStamp.EncapsulatedTimeStamp is not null)
+			{
+				signatureTimeStamp.EncapsulatedTimeStamp.PkiData = timestampData;
+				signatureTimeStamp.EncapsulatedTimeStamp.Id = $"SignatureTimeStamp-{Guid.NewGuid()}";
+			}
 
 			unsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Add(signatureTimeStamp);
 
 			signatureDocument.XadesSignature.UnsignedProperties = unsignedProperties;
-
 			signatureDocument.UpdateDocument();
 		}
 		catch (Exception ex)

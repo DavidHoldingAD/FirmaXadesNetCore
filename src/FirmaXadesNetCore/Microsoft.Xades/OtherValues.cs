@@ -30,17 +30,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class OtherValues
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Collection of other values
 	/// </summary>
 	public OtherValueCollection OtherValueCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -48,59 +42,48 @@ public class OtherValues
 	{
 		OtherValueCollection = new OtherValueCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
-	{
-		bool retVal = false;
-
-		if (OtherValueCollection.Count > 0)
-		{
-			retVal = true;
-		}
-
-		return retVal;
-	}
+		=> OtherValueCollection.Count > 0;
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		OtherValue newOtherValue;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
 		OtherValueCollection.Clear();
-		xmlNodeList = xmlElement.SelectNodes("xsd:OtherValue", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:OtherValue", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required OtherValue element.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newOtherValue = new OtherValue();
-					newOtherValue.LoadXml(iterationXmlElement);
-					OtherValueCollection.Add(newOtherValue);
+					continue;
 				}
+
+				var newOtherValue = new OtherValue();
+				newOtherValue.LoadXml(iterationXmlElement);
+				OtherValueCollection.Add(newOtherValue);
 			}
 		}
 		finally
@@ -118,11 +101,9 @@ public class OtherValues
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("OtherValues", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement("OtherValues", XadesSignedXml.XadesNamespaceUri);
 
 		if (OtherValueCollection.Count > 0)
 		{
@@ -130,12 +111,11 @@ public class OtherValues
 			{
 				if (otherValue.HasChanged())
 				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(otherValue.GetXml(), true));
+					result.AppendChild(creationXmlDocument.ImportNode(otherValue.GetXml(), true));
 				}
 			}
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

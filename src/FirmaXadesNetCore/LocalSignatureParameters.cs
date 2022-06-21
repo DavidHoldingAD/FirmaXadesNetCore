@@ -21,6 +21,8 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Security.Cryptography.X509Certificates;
+
 namespace FirmaXadesNetCore;
 
 /// <summary>
@@ -29,7 +31,26 @@ namespace FirmaXadesNetCore;
 public sealed class LocalSignatureParameters : SignatureParametersBase
 {
 	/// <summary>
-	/// Gets or sets the signer.
+	/// Gets the certificate.
 	/// </summary>
-	public Signer Signer { get; set; }
+	public X509Certificate2 Certificate { get; }
+
+	/// <summary>
+	/// Initializes a new instance of <see cref="LocalSignatureParameters"/> class.
+	/// </summary>
+	/// <param name="certificate">the certificate</param>
+	public LocalSignatureParameters(X509Certificate2 certificate)
+	{
+		if (certificate is null)
+		{
+			throw new ArgumentNullException(nameof(certificate));
+		}
+
+		if (!certificate.HasPrivateKey)
+		{
+			throw new Exception("The certificate does not contain any private key.");
+		}
+
+		Certificate = certificate;
+	}
 }

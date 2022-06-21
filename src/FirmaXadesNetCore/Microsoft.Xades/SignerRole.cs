@@ -39,15 +39,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class SignerRole
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// The ClaimedRoles element contains a sequence of roles claimed by
 	/// the signer but not certified. Additional contents types may be
 	/// defined on a domain application basis and be part of this element.
-	/// The namespaces given to the corresponding XML schemas will allow
+	/// The namespaces given to the corresponding XML schema will allow
 	/// their unambiguous identification in the case these roles use XML.
 	/// </summary>
 	public ClaimedRoles ClaimedRoles { get; set; }
@@ -57,9 +53,7 @@ public class SignerRole
 	/// certificates for the signer
 	/// </summary>
 	public CertifiedRoles CertifiedRoles { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -68,28 +62,26 @@ public class SignerRole
 		ClaimedRoles = new ClaimedRoles();
 		CertifiedRoles = new CertifiedRoles();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (ClaimedRoles != null && ClaimedRoles.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (CertifiedRoles != null && CertifiedRoles.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
@@ -98,29 +90,28 @@ public class SignerRole
 	/// <param name="xmlElement">XML element containing new state</param>
 	public void LoadXml(XmlElement xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xsd:ClaimedRoles", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:ClaimedRoles", xmlNamespaceManager);
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			ClaimedRoles = new ClaimedRoles();
-			ClaimedRoles.LoadXml((XmlElement)xmlNodeList.Item(0));
+			ClaimedRoles.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:CertifiedRoles", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			CertifiedRoles = new CertifiedRoles();
-			CertifiedRoles.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CertifiedRoles.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 	}
 
@@ -130,23 +121,20 @@ public class SignerRole
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignerRole", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignerRole", XadesSignedXml.XadesNamespaceUri);
 
 		if (ClaimedRoles != null && ClaimedRoles.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(ClaimedRoles.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(ClaimedRoles.GetXml(), true));
 		}
 
 		if (CertifiedRoles != null && CertifiedRoles.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(CertifiedRoles.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(CertifiedRoles.GetXml(), true));
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

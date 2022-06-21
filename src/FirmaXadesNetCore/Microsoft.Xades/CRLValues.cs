@@ -30,17 +30,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class CRLValues
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Collection of CRLValues
 	/// </summary>
 	public CRLValueCollection CRLValueCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -48,59 +42,48 @@ public class CRLValues
 	{
 		CRLValueCollection = new CRLValueCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
-	{
-		bool retVal = false;
-
-		if (CRLValueCollection.Count > 0)
-		{
-			retVal = true;
-		}
-
-		return retVal;
-	}
+		=> CRLValueCollection.Count > 0;
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		CRLValue newCRLValue;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
 		CRLValueCollection.Clear();
-		xmlNodeList = xmlElement.SelectNodes("xsd:EncapsulatedCRLValue", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:EncapsulatedCRLValue", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required EncapsulatedCRLValue element.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newCRLValue = new CRLValue();
-					newCRLValue.LoadXml(iterationXmlElement);
-					CRLValueCollection.Add(newCRLValue);
+					continue;
 				}
+
+				var newCRLValue = new CRLValue();
+				newCRLValue.LoadXml(iterationXmlElement);
+				CRLValueCollection.Add(newCRLValue);
 			}
 		}
 		finally
@@ -118,11 +101,9 @@ public class CRLValues
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CRLValues", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CRLValues", XadesSignedXml.XadesNamespaceUri);
 
 		if (CRLValueCollection.Count > 0)
 		{
@@ -130,12 +111,11 @@ public class CRLValues
 			{
 				if (crlValue.HasChanged())
 				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(crlValue.GetXml(), true));
+					result.AppendChild(creationXmlDocument.ImportNode(crlValue.GetXml(), true));
 				}
 			}
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

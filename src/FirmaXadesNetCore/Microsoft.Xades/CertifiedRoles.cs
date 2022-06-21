@@ -31,17 +31,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class CertifiedRoles
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Collection of certified roles
 	/// </summary>
 	public CertifiedRoleCollection CertifiedRoleCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -49,59 +43,48 @@ public class CertifiedRoles
 	{
 		CertifiedRoleCollection = new CertifiedRoleCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
-	{
-		bool retVal = false;
-
-		if (CertifiedRoleCollection.Count > 0)
-		{
-			retVal = true;
-		}
-
-		return retVal;
-	}
+		=> CertifiedRoleCollection.Count > 0;
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		EncapsulatedPKIData newCertifiedRole;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
 		CertifiedRoleCollection.Clear();
-		xmlNodeList = xmlElement.SelectNodes("xsd:CertifiedRole", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:CertifiedRole", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required CertifiedRole element.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newCertifiedRole = new EncapsulatedPKIData("CertifiedRole");
-					newCertifiedRole.LoadXml(iterationXmlElement);
-					CertifiedRoleCollection.Add(newCertifiedRole);
+					continue;
 				}
+
+				var newCertifiedRole = new EncapsulatedPKIData("CertifiedRole");
+				newCertifiedRole.LoadXml(iterationXmlElement);
+				CertifiedRoleCollection.Add(newCertifiedRole);
 			}
 		}
 		finally
@@ -119,11 +102,9 @@ public class CertifiedRoles
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CertifiedRoles", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CertifiedRoles", XadesSignedXml.XadesNamespaceUri);
 
 		if (CertifiedRoleCollection.Count > 0)
 		{
@@ -131,12 +112,11 @@ public class CertifiedRoles
 			{
 				if (certifiedRole.HasChanged())
 				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(certifiedRole.GetXml(), true));
+					result.AppendChild(creationXmlDocument.ImportNode(certifiedRole.GetXml(), true));
 				}
 			}
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

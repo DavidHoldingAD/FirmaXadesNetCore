@@ -46,7 +46,7 @@ public abstract class SignatureParametersBase
 	/// <summary>
 	/// Gets or sets the signer role.
 	/// </summary>
-	public SignerRole SignerRole { get; set; }
+	public SignerRole? SignerRole { get; set; }
 
 	/// <summary>
 	/// Gets or sets the signature commitments.
@@ -56,7 +56,7 @@ public abstract class SignatureParametersBase
 	/// <summary>
 	/// Gets or sets the signature production place.
 	/// </summary>
-	public SignatureProductionPlace SignatureProductionPlace { get; set; }
+	public SignatureProductionPlace? SignatureProductionPlace { get; set; }
 
 	/// <summary>
 	/// Gets or sets the XPath transformations.
@@ -66,12 +66,12 @@ public abstract class SignatureParametersBase
 	/// <summary>
 	/// Gets or sets the signature policy information.
 	/// </summary>
-	public SignaturePolicyInfo SignaturePolicyInfo { get; set; }
+	public SignaturePolicyInfo? SignaturePolicyInfo { get; set; }
 
 	/// <summary>
 	/// Gets or sets the signature destination.
 	/// </summary>
-	public SignatureXPathExpression SignatureDestination { get; set; }
+	public SignatureXPathExpression? SignatureDestination { get; set; }
 
 	/// <summary>
 	/// Gets or sets the signature packaging.
@@ -81,15 +81,15 @@ public abstract class SignatureParametersBase
 	/// <summary>
 	/// Gets or sets the data format.
 	/// </summary>
-	public DataFormat DataFormat { get; set; }
+	public DataFormat? DataFormat { get; set; }
 
 	/// <summary>
 	/// Gets or sets the element ID to sign.
 	/// </summary>
-	public string ElementIdToSign { get; set; }
+	public string? ElementIdToSign { get; set; }
 
 	/// <summary>
 	/// Gets or sets the external content URI.
 	/// </summary>
-	public string ExternalContentUri { get; set; }
+	public string? ExternalContentUri { get; set; }
 }

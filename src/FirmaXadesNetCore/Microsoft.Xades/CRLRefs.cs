@@ -30,17 +30,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class CRLRefs
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Collection of 
 	/// </summary>
 	public CRLRefCollection CRLRefCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -48,59 +42,48 @@ public class CRLRefs
 	{
 		CRLRefCollection = new CRLRefCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
-	{
-		bool retVal = false;
-
-		if (CRLRefCollection.Count > 0)
-		{
-			retVal = true;
-		}
-
-		return retVal;
-	}
+		=> CRLRefCollection.Count > 0;
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		CRLRef newCRLRef;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 
 		CRLRefCollection.Clear();
-		xmlNodeList = xmlElement.SelectNodes("xades:CRLRef", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xades:CRLRef", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required CRLRef element.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newCRLRef = new CRLRef();
-					newCRLRef.LoadXml(iterationXmlElement);
-					CRLRefCollection.Add(newCRLRef);
+					continue;
 				}
+
+				var newCRLRef = new CRLRef();
+				newCRLRef.LoadXml(iterationXmlElement);
+				CRLRefCollection.Add(newCRLRef);
 			}
 		}
 		finally
@@ -118,24 +101,25 @@ public class CRLRefs
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("CRLRefs", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement("CRLRefs", XadesSignedXml.XadesNamespaceUri);
 
-		if (CRLRefCollection.Count > 0)
+		if (CRLRefCollection.Count <= 0)
 		{
-			foreach (CRLRef crlRef in CRLRefCollection)
-			{
-				if (crlRef.HasChanged())
-				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(crlRef.GetXml(), true));
-				}
-			}
+			return result;
 		}
 
-		return retVal;
+		foreach (CRLRef crlRef in CRLRefCollection)
+		{
+			if (!crlRef.HasChanged())
+			{
+				continue;
+			}
+
+			result.AppendChild(creationXmlDocument.ImportNode(crlRef.GetXml(), true));
+		}
+
+		return result;
 	}
-	#endregion
 }

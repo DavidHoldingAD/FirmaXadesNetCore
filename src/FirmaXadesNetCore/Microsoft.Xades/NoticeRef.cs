@@ -32,23 +32,17 @@ namespace Microsoft.Xades;
 /// </summary>
 public class NoticeRef
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Organization issuing the signature policy
 	/// </summary>
-	public string Organization { get; set; }
+	public string? Organization { get; set; }
 
 	/// <summary>
 	/// Numerical identification of textual statements prepared by the organization,
 	/// so that the application can get the explicit notices from a notices file.
 	/// </summary>
 	public NoticeNumbers NoticeNumbers { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -56,28 +50,26 @@ public class NoticeRef
 	{
 		NoticeNumbers = new NoticeNumbers();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (!string.IsNullOrEmpty(Organization))
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (NoticeNumbers != null && NoticeNumbers.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
@@ -86,31 +78,32 @@ public class NoticeRef
 	/// <param name="xmlElement">XML element containing new state</param>
 	public void LoadXml(XmlElement xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xsd:Organization", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:Organization", xmlNamespaceManager);
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			throw new CryptographicException("Organization missing");
 		}
-		Organization = xmlNodeList.Item(0).InnerText;
+
+		Organization = xmlNodeList.Item(0)!.InnerText;
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:NoticeNumbers", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		if (xmlNodeList is null
+			|| xmlNodeList.Count < 0)
 		{
 			throw new CryptographicException("NoticeNumbers missing");
 		}
+
 		NoticeNumbers = new NoticeNumbers();
-		NoticeNumbers.LoadXml((XmlElement)xmlNodeList.Item(0));
+		NoticeNumbers.LoadXml((XmlElement)xmlNodeList.Item(0)!);
 	}
 
 	/// <summary>
@@ -119,28 +112,26 @@ public class NoticeRef
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement bufferXmlElement;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("NoticeRef", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement("NoticeRef", XadesSignedXml.XadesNamespaceUri);
 
 		if (Organization == null)
 		{
 			throw new CryptographicException("Organization can't be null");
 		}
-		bufferXmlElement = creationXmlDocument.CreateElement("Organization", XadesSignedXml.XadesNamespaceUri);
+
+		XmlElement bufferXmlElement = creationXmlDocument.CreateElement("Organization", XadesSignedXml.XadesNamespaceUri);
 		bufferXmlElement.InnerText = Organization;
-		retVal.AppendChild(bufferXmlElement);
+		result.AppendChild(bufferXmlElement);
 
 		if (NoticeNumbers == null)
 		{
 			throw new CryptographicException("NoticeNumbers can't be null");
 		}
-		retVal.AppendChild(creationXmlDocument.ImportNode(NoticeNumbers.GetXml(), true));
 
-		return retVal;
+		result.AppendChild(creationXmlDocument.ImportNode(NoticeNumbers.GetXml(), true));
+
+		return result;
 	}
-	#endregion
 }

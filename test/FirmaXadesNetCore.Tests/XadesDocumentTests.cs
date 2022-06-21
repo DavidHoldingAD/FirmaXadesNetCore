@@ -62,9 +62,8 @@ public class XadesDocumentTests : TestsBase
 		using var publicCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
 
 		// Get digest
-		byte[] digestValue = document.GetDigest(new RemoteSignatureParameters
+		byte[] digestValue = document.GetDigest(new RemoteSignatureParameters(publicCertificate)
 		{
-			PublicCertificate = publicCertificate,
 			SignaturePackaging = packaging,
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
@@ -86,7 +85,7 @@ public class XadesDocumentTests : TestsBase
 		byte[] signatureValue = asymmetricSignatureFormatter.CreateSignature(digestValue);
 
 		// Attach signature
-		signatureDocument = document.AttachSignature(signatureDocument, signatureValue, new TimeStampParameters
+		signatureDocument = document.AttachSignature(signatureDocument, signatureValue, new TimestampParameters
 		{
 			Uri = new Uri(FreeTSAUrl),
 		});
@@ -103,7 +102,7 @@ public class XadesDocumentTests : TestsBase
 		AssertValid(signatureDocument);
 
 		// Decode timestamp
-		Microsoft.Xades.TimeStamp timeStamp = signatureDocument.XadesSignature.XadesObject.QualifyingProperties
+		Microsoft.Xades.Timestamp timeStamp = signatureDocument.XadesSignature.XadesObject.QualifyingProperties
 			.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection[0];
 
 		Assert.IsNotNull(timeStamp);
@@ -140,9 +139,8 @@ public class XadesDocumentTests : TestsBase
 		using var publicCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
 
 		// Get digest
-		byte[] digestValue = document.GetCoSigningDigest(originalSignatureDocument, new RemoteSignatureParameters
+		byte[] digestValue = document.GetCoSigningDigest(originalSignatureDocument, new RemoteSignatureParameters(publicCertificate)
 		{
-			PublicCertificate = publicCertificate,
 			SignaturePackaging = packaging,
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
@@ -166,7 +164,7 @@ public class XadesDocumentTests : TestsBase
 		byte[] signatureValue = asymmetricSignatureFormatter.CreateSignature(digestValue);
 
 		// Attach signature
-		signatureDocument = document.AttachSignature(signatureDocument, signatureValue, new TimeStampParameters
+		signatureDocument = document.AttachSignature(signatureDocument, signatureValue, new TimestampParameters
 		{
 			Uri = new Uri(FreeTSAUrl),
 		});
@@ -183,7 +181,7 @@ public class XadesDocumentTests : TestsBase
 		AssertValid(signatureDocument);
 
 		// Decode timestamp
-		Microsoft.Xades.TimeStamp timeStamp = signatureDocument.XadesSignature.XadesObject.QualifyingProperties
+		Microsoft.Xades.Timestamp timeStamp = signatureDocument.XadesSignature.XadesObject.QualifyingProperties
 			.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection[0];
 
 		Assert.IsNotNull(timeStamp);
@@ -213,9 +211,8 @@ public class XadesDocumentTests : TestsBase
 		using var publicCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
 
 		// Get digest
-		byte[] digestValue = document.GetCounterSigningDigest(originalSignatureDocument, new RemoteSignatureParameters
+		byte[] digestValue = document.GetCounterSigningDigest(originalSignatureDocument, new RemoteSignatureParameters(publicCertificate)
 		{
-			PublicCertificate = publicCertificate,
 			SignaturePackaging = packaging,
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
@@ -237,7 +234,7 @@ public class XadesDocumentTests : TestsBase
 		byte[] signatureValue = asymmetricSignatureFormatter.CreateSignature(digestValue);
 
 		// Attach signature
-		signatureDocument = document.AttachCounterSignature(signatureDocument, signatureValue, new TimeStampParameters
+		signatureDocument = document.AttachCounterSignature(signatureDocument, signatureValue, new TimestampParameters
 		{
 			Uri = new Uri(FreeTSAUrl),
 		});
@@ -254,7 +251,7 @@ public class XadesDocumentTests : TestsBase
 		AssertValid(signatureDocument);
 
 		// Decode timestamp
-		Microsoft.Xades.TimeStamp timeStamp = signatureDocument.XadesSignature.XadesObject.QualifyingProperties
+		Microsoft.Xades.Timestamp timeStamp = signatureDocument.XadesSignature.XadesObject.QualifyingProperties
 			.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection[0];
 
 		Assert.IsNotNull(timeStamp);

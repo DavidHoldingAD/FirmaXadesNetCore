@@ -1,10 +1,10 @@
-// IndividualDataObjectsTimeStampCollection.cs
+ï»¿// IndividualDataObjectsTimeStampCollection.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -35,9 +35,9 @@ public class IndividualDataObjectsTimeStampCollection : ArrayList
 	/// New typed indexer for the collection
 	/// </summary>
 	/// <param name="index">Index of the object to retrieve from collection</param>
-	public new TimeStamp this[int index]
+	public new Timestamp this[int index]
 	{
-		get => (TimeStamp)base[index];
+		get => (Timestamp)base[index]!;
 		set => base[index] = value;
 	}
 
@@ -46,7 +46,7 @@ public class IndividualDataObjectsTimeStampCollection : ArrayList
 	/// </summary>
 	/// <param name="objectToAdd">Typed object to be added to collection</param>
 	/// <returns>The object that has been added to collection</returns>
-	public TimeStamp Add(TimeStamp objectToAdd)
+	public Timestamp Add(Timestamp objectToAdd)
 	{
 		base.Add(objectToAdd);
 
@@ -58,5 +58,5 @@ public class IndividualDataObjectsTimeStampCollection : ArrayList
 	/// </summary>
 	/// <param name="tagName">Name of the tag when serializing into XML using GetXml()</param>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public TimeStamp Add(string tagName) => Add(new TimeStamp(tagName));
+	public Timestamp Add(string tagName) => Add(new Timestamp(tagName));
 }

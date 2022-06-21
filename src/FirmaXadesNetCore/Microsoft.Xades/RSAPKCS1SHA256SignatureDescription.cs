@@ -129,4 +129,3 @@ internal sealed class RSAPKCS1SHA256SignatureDescription : SignatureDescription
 		return formatter;
 	}
 }
-

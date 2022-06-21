@@ -40,15 +40,10 @@ namespace Microsoft.Xades;
 /// </summary>
 public class CertificateValues
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
-
 	/// <summary>
 	/// Optional Id of the certificate values element
 	/// </summary>
-	public string Id { get; set; }
+	public string? Id { get; set; }
 
 	/// <summary>
 	/// A collection of encapsulated X509 certificates
@@ -59,9 +54,7 @@ public class CertificateValues
 	/// Collection of other certificates
 	/// </summary>
 	public OtherCertificateCollection OtherCertificateCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -70,78 +63,73 @@ public class CertificateValues
 		EncapsulatedX509CertificateCollection = new EncapsulatedX509CertificateCollection();
 		OtherCertificateCollection = new OtherCertificateCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (Id != null && Id != "")
 		{
-			retVal = true;
-		}
-		if (EncapsulatedX509CertificateCollection.Count > 0)
-		{
-			retVal = true;
-		}
-		if (OtherCertificateCollection.Count > 0)
-		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		if (EncapsulatedX509CertificateCollection.Count > 0)
+		{
+			result = true;
+		}
+
+		if (OtherCertificateCollection.Count > 0)
+		{
+			result = true;
+		}
+
+		return result;
 	}
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-		EncapsulatedX509Certificate newEncapsulatedX509Certificate;
-		OtherCertificate newOtherCertificate;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
-		if (xmlElement.HasAttribute("Id"))
-		{
-			Id = xmlElement.GetAttribute("Id");
-		}
-		else
-		{
-			Id = "";
-		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		Id = xmlElement.HasAttribute("Id")
+			? xmlElement.GetAttribute("Id")
+			: "";
+
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 
 		EncapsulatedX509CertificateCollection.Clear();
 		OtherCertificateCollection.Clear();
 
-		xmlNodeList = xmlElement.SelectNodes("xades:EncapsulatedX509Certificate", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xades:EncapsulatedX509Certificate", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required EncapsulatedX509Certificate element.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newEncapsulatedX509Certificate = new EncapsulatedX509Certificate();
-					newEncapsulatedX509Certificate.LoadXml(iterationXmlElement);
-					EncapsulatedX509CertificateCollection.Add(newEncapsulatedX509Certificate);
+					continue;
 				}
+
+				var newEncapsulatedX509Certificate = new EncapsulatedX509Certificate();
+				newEncapsulatedX509Certificate.LoadXml(iterationXmlElement);
+				EncapsulatedX509CertificateCollection.Add(newEncapsulatedX509Certificate);
 			}
 		}
 		finally
@@ -153,18 +141,24 @@ public class CertificateValues
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xades:OtherCertificate", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required OtherCertificate element.");
+		}
+
 		enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newOtherCertificate = new OtherCertificate();
-					newOtherCertificate.LoadXml(iterationXmlElement);
-					OtherCertificateCollection.Add(newOtherCertificate);
+					continue;
 				}
+
+				var newOtherCertificate = new OtherCertificate();
+				newOtherCertificate.LoadXml(iterationXmlElement);
+				OtherCertificateCollection.Add(newOtherCertificate);
 			}
 		}
 		finally
@@ -182,16 +176,15 @@ public class CertificateValues
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CertificateValues", XadesSignedXml.XadesNamespaceUri);
-		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CertificateValues", XadesSignedXml.XadesNamespaceUri);
+
+		result.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
 
 		if (Id != null && Id != "")
 		{
-			retVal.SetAttribute("Id", Id);
+			result.SetAttribute("Id", Id);
 		}
 
 		if (EncapsulatedX509CertificateCollection.Count > 0)
@@ -200,22 +193,22 @@ public class CertificateValues
 			{
 				if (encapsulatedX509Certificate.HasChanged())
 				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(encapsulatedX509Certificate.GetXml(), true));
+					result.AppendChild(creationXmlDocument.ImportNode(encapsulatedX509Certificate.GetXml(), true));
 				}
 			}
 		}
+
 		if (OtherCertificateCollection.Count > 0)
 		{
 			foreach (OtherCertificate otherCertificate in OtherCertificateCollection)
 			{
 				if (otherCertificate.HasChanged())
 				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(otherCertificate.GetXml(), true));
+					result.AppendChild(creationXmlDocument.ImportNode(otherCertificate.GetXml(), true));
 				}
 			}
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

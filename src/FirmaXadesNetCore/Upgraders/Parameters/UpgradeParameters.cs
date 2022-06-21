@@ -53,12 +53,21 @@ public class UpgradeParameters
 	/// <summary>
 	/// Gets or sets the timestamp client.
 	/// </summary>
-	public ITimeStampClient TimeStampClient { get; set; }
+	public ITimestampClient TimestampClient { get; }
 
 	/// <summary>
 	/// Gets or sets a flag indicating whether to get the OCSP URL from certificate or not.
 	/// </summary>
 	public bool GetOcspUrlFromCertificate { get; set; } = true;
+
+	/// <summary>
+	/// Initializes a new instance of <see cref="UpgradeParameters"/> class.
+	/// </summary>
+	/// <param name="timestampClient">the timestamp client</param>
+	public UpgradeParameters(ITimestampClient timestampClient)
+	{
+		TimestampClient = timestampClient ?? throw new ArgumentNullException(nameof(timestampClient));
+	}
 
 	/// <summary>
 	/// Adds a CRL.

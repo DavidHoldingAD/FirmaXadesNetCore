@@ -1,10 +1,10 @@
-// DataObjectFormatCollection.cs
+ï»¿// DataObjectFormatCollection.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -37,7 +37,7 @@ public class DataObjectFormatCollection : ArrayList
 	/// <param name="index">Index of the object to retrieve from collection</param>
 	public new DataObjectFormat this[int index]
 	{
-		get => (DataObjectFormat)base[index];
+		get => (DataObjectFormat)base[index]!;
 		set => base[index] = value;
 	}
 

@@ -30,52 +30,30 @@ namespace Microsoft.Xades;
 /// </summary>
 public class SigPolicyQualifier
 {
-	#region Private variables
-	private XmlElement _anyXmlElement;
-	#endregion
+	private XmlElement? _anyXmlElement;
 
-	#region Public properties
 	/// <summary>
 	/// The generic XML element that represents a sig policy qualifier
 	/// </summary>
-	public virtual XmlElement AnyXmlElement
+	public virtual XmlElement? AnyXmlElement
 	{
 		get => _anyXmlElement;
 		set => _anyXmlElement = value;
 	}
-	#endregion
 
-	#region Constructors
-	/// <summary>
-	/// Default constructor
-	/// </summary>
-	public SigPolicyQualifier()
-	{
-	}
-	#endregion
-
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public virtual bool HasChanged()
-	{
-		bool retVal = false;
-
-		if (_anyXmlElement != null)
-		{
-			retVal = true;
-		}
-
-		return retVal;
-	}
+		=> _anyXmlElement != null;
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public virtual void LoadXml(XmlElement xmlElement) => _anyXmlElement = xmlElement;
+	public virtual void LoadXml(XmlElement? xmlElement)
+		=> _anyXmlElement = xmlElement;
 
 	/// <summary>
 	/// Returns the XML representation of the this object
@@ -83,18 +61,15 @@ public class SigPolicyQualifier
 	/// <returns>XML element containing the state of this object</returns>
 	public virtual XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SigPolicyQualifier", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SigPolicyQualifier", XadesSignedXml.XadesNamespaceUri);
 
 		if (_anyXmlElement != null)
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(_anyXmlElement, true));
+			result.AppendChild(creationXmlDocument.ImportNode(_anyXmlElement, true));
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

@@ -31,10 +31,6 @@ namespace Microsoft.Xades;
 /// </summary>
 public class SignedDataObjectProperties
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Collection of signed data object formats
 	/// </summary>
@@ -54,9 +50,7 @@ public class SignedDataObjectProperties
 	/// Collection of individual data object timestamps
 	/// </summary>
 	public IndividualDataObjectsTimeStampCollection IndividualDataObjectsTimeStampCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -67,38 +61,36 @@ public class SignedDataObjectProperties
 		AllDataObjectsTimeStampCollection = new AllDataObjectsTimeStampCollection();
 		IndividualDataObjectsTimeStampCollection = new IndividualDataObjectsTimeStampCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (DataObjectFormatCollection.Count > 0)
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (CommitmentTypeIndicationCollection.Count > 0)
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (AllDataObjectsTimeStampCollection.Count > 0)
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (IndividualDataObjectsTimeStampCollection.Count > 0)
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
@@ -107,36 +99,34 @@ public class SignedDataObjectProperties
 	/// <param name="xmlElement">XML element containing new state</param>
 	public void LoadXml(XmlElement xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-		DataObjectFormat newDataObjectFormat;
-		CommitmentTypeIndication newCommitmentTypeIndication;
-		TimeStamp newTimeStamp;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
 		DataObjectFormatCollection.Clear();
-		xmlNodeList = xmlElement.SelectNodes("xsd:DataObjectFormat", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:DataObjectFormat", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required DataObjectFormat element.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newDataObjectFormat = new DataObjectFormat();
-					newDataObjectFormat.LoadXml(iterationXmlElement);
-					DataObjectFormatCollection.Add(newDataObjectFormat);
+					continue;
 				}
+
+				var newDataObjectFormat = new DataObjectFormat();
+				newDataObjectFormat.LoadXml(iterationXmlElement);
+				DataObjectFormatCollection.Add(newDataObjectFormat);
 			}
 		}
 		finally
@@ -149,18 +139,24 @@ public class SignedDataObjectProperties
 
 		//this.dataObjectFormatCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xsd:CommitmentTypeIndication", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required CommitmentTypeIndication element.");
+		}
+
 		enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newCommitmentTypeIndication = new CommitmentTypeIndication();
-					newCommitmentTypeIndication.LoadXml(iterationXmlElement);
-					CommitmentTypeIndicationCollection.Add(newCommitmentTypeIndication);
+					continue;
 				}
+
+				var newCommitmentTypeIndication = new CommitmentTypeIndication();
+				newCommitmentTypeIndication.LoadXml(iterationXmlElement);
+				CommitmentTypeIndicationCollection.Add(newCommitmentTypeIndication);
 			}
 		}
 		finally
@@ -173,18 +169,25 @@ public class SignedDataObjectProperties
 
 		//this.dataObjectFormatCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xsd:AllDataObjectsTimeStamp", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required AllDataObjectsTimeStamp element.");
+		}
+
 		enumerator = xmlNodeList.GetEnumerator();
+		Timestamp newTimeStamp;
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newTimeStamp = new TimeStamp("AllDataObjectsTimeStamp");
-					newTimeStamp.LoadXml(iterationXmlElement);
-					AllDataObjectsTimeStampCollection.Add(newTimeStamp);
+					continue;
 				}
+
+				newTimeStamp = new Timestamp("AllDataObjectsTimeStamp");
+				newTimeStamp.LoadXml(iterationXmlElement);
+				AllDataObjectsTimeStampCollection.Add(newTimeStamp);
 			}
 		}
 		finally
@@ -197,18 +200,24 @@ public class SignedDataObjectProperties
 
 		//this.dataObjectFormatCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xsd:IndividualDataObjectsTimeStamp", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required IndividualDataObjectsTimeStamp element.");
+		}
+
 		enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newTimeStamp = new TimeStamp("IndividualDataObjectsTimeStamp");
-					newTimeStamp.LoadXml(iterationXmlElement);
-					IndividualDataObjectsTimeStampCollection.Add(newTimeStamp);
+					continue;
 				}
+
+				newTimeStamp = new Timestamp("IndividualDataObjectsTimeStamp");
+				newTimeStamp.LoadXml(iterationXmlElement);
+				IndividualDataObjectsTimeStampCollection.Add(newTimeStamp);
 			}
 		}
 		finally
@@ -226,11 +235,9 @@ public class SignedDataObjectProperties
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignedDataObjectProperties", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignedDataObjectProperties", XadesSignedXml.XadesNamespaceUri);
 
 		if (DataObjectFormatCollection.Count > 0)
 		{
@@ -238,7 +245,7 @@ public class SignedDataObjectProperties
 			{
 				if (dataObjectFormat.HasChanged())
 				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(dataObjectFormat.GetXml(), true));
+					result.AppendChild(creationXmlDocument.ImportNode(dataObjectFormat.GetXml(), true));
 				}
 			}
 		}
@@ -249,34 +256,33 @@ public class SignedDataObjectProperties
 			{
 				if (commitmentTypeIndication.HasChanged())
 				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(commitmentTypeIndication.GetXml(), true));
+					result.AppendChild(creationXmlDocument.ImportNode(commitmentTypeIndication.GetXml(), true));
 				}
 			}
 		}
 
 		if (AllDataObjectsTimeStampCollection.Count > 0)
 		{
-			foreach (TimeStamp timeStamp in AllDataObjectsTimeStampCollection)
+			foreach (Timestamp timeStamp in AllDataObjectsTimeStampCollection)
 			{
 				if (timeStamp.HasChanged())
 				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(timeStamp.GetXml(), true));
+					result.AppendChild(creationXmlDocument.ImportNode(timeStamp.GetXml(), true));
 				}
 			}
 		}
 
 		if (IndividualDataObjectsTimeStampCollection.Count > 0)
 		{
-			foreach (TimeStamp timeStamp in IndividualDataObjectsTimeStampCollection)
+			foreach (Timestamp timeStamp in IndividualDataObjectsTimeStampCollection)
 			{
 				if (timeStamp.HasChanged())
 				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(timeStamp.GetXml(), true));
+					result.AppendChild(creationXmlDocument.ImportNode(timeStamp.GetXml(), true));
 				}
 			}
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

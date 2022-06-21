@@ -31,7 +31,7 @@ public class SignatureXPathExpression
 	/// <summary>
 	/// Gets or sets the XPath expression.
 	/// </summary>
-	public string XPathExpression { get; set; }
+	public string? XPathExpression { get; set; }
 
 	/// <summary>
 	/// Gets or sets the namespaces.

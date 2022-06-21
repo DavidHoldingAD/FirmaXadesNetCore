@@ -30,12 +30,9 @@ namespace Microsoft.Xades;
 /// </summary>
 public class SignaturePolicyIdentifier
 {
-	#region Private variables
-	private SignaturePolicyId _signaturePolicyId;
+	private SignaturePolicyId? _signaturePolicyId;
 	private bool _signaturePolicyImplied;
-	#endregion
 
-	#region Public properties
 	/// <summary>
 	/// The SignaturePolicyId element is an explicit and unambiguous identifier
 	/// of a Signature Policy together with a hash value of the signature
@@ -45,7 +42,7 @@ public class SignaturePolicyIdentifier
 	/// electronic signature by the signer as part of the signature
 	/// calculation.
 	/// </summary>
-	public SignaturePolicyId SignaturePolicyId
+	public SignaturePolicyId? SignaturePolicyId
 	{
 		get => _signaturePolicyId;
 		set
@@ -72,9 +69,7 @@ public class SignaturePolicyIdentifier
 			}
 		}
 	}
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -83,28 +78,26 @@ public class SignaturePolicyIdentifier
 		_signaturePolicyId = new SignaturePolicyId();
 		_signaturePolicyImplied = false;
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (_signaturePolicyId != null && _signaturePolicyId.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (_signaturePolicyImplied)
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
@@ -113,28 +106,27 @@ public class SignaturePolicyIdentifier
 	/// <param name="xmlElement">XML element containing new state</param>
 	public void LoadXml(XmlElement xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xsd:SignaturePolicyId", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:SignaturePolicyId", xmlNamespaceManager);
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			_signaturePolicyId = new SignaturePolicyId();
-			_signaturePolicyId.LoadXml((XmlElement)xmlNodeList.Item(0));
+			_signaturePolicyId.LoadXml((XmlElement?)xmlNodeList.Item(0));
 			_signaturePolicyImplied = false;
 		}
 		else
 		{
 			xmlNodeList = xmlElement.SelectNodes("xsd:SignaturePolicyImplied", xmlNamespaceManager);
-			if (xmlNodeList.Count != 0)
+			if (xmlNodeList is not null
+				&& xmlNodeList.Count != 0)
 			{
 				_signaturePolicyImplied = true;
 				_signaturePolicyId = null;
@@ -152,31 +144,27 @@ public class SignaturePolicyIdentifier
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
-		XmlElement bufferXmlElement;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignaturePolicyIdentifier", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignaturePolicyIdentifier", XadesSignedXml.XadesNamespaceUri);
 
 		if (_signaturePolicyImplied)
-		{ //Append empty element as required
-			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignaturePolicyImplied", XadesSignedXml.XadesNamespaceUri);
-			retVal.AppendChild(bufferXmlElement);
+		{
+			//Append empty element as required
+			XmlElement bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignaturePolicyImplied", XadesSignedXml.XadesNamespaceUri);
+
+			result.AppendChild(bufferXmlElement);
 		}
 		else
 		{
-			if (_signaturePolicyId != null && _signaturePolicyId.HasChanged())
-			{
-				retVal.AppendChild(creationXmlDocument.ImportNode(_signaturePolicyId.GetXml(), true));
-			}
-			else
+			if (_signaturePolicyId == null || !_signaturePolicyId.HasChanged())
 			{
 				throw new CryptographicException("SignaturePolicyId or SignaturePolicyImplied missing in SignaturePolicyIdentifier");
 			}
+
+			result.AppendChild(creationXmlDocument.ImportNode(_signaturePolicyId.GetXml(), true));
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

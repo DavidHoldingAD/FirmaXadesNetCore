@@ -42,4 +42,4 @@ public enum CertificateStatus
 	/// Unknown
 	/// </summary>
 	Unknown = 2,
-};
+}

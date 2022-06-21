@@ -53,7 +53,7 @@ public sealed class XadesUpgraderService : IXadesUpgraderService
 			SignatureFormat.XadesT
 				=> new XadesTUpgrader(),
 			_
-				=> signatureDocument.XadesSignature.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count <= 0
+				=> signatureDocument.XadesSignature!.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count <= 0
 					? new XadesTUpgrader()
 					: new XadesXLUpgrader(),
 		};

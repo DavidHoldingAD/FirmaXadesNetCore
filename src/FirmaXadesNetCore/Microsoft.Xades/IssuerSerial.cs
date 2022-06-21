@@ -32,50 +32,35 @@ namespace Microsoft.Xades;
 /// </summary>
 public class IssuerSerial
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Name of the X509 certificate issuer
 	/// </summary>
-	public string X509IssuerName { get; set; }
+	public string? X509IssuerName { get; set; }
 
 	/// <summary>
 	/// Serial number of the X509 certificate
 	/// </summary>
-	public string X509SerialNumber { get; set; }
-	#endregion
+	public string? X509SerialNumber { get; set; }
 
-	#region Constructors
-	/// <summary>
-	/// Default constructor
-	/// </summary>
-	public IssuerSerial()
-	{
-	}
-	#endregion
-
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (!string.IsNullOrEmpty(X509IssuerName))
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (!string.IsNullOrEmpty(X509SerialNumber))
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
@@ -84,30 +69,31 @@ public class IssuerSerial
 	/// <param name="xmlElement">XML element containing new state</param>
 	public void LoadXml(XmlElement xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
 
-		xmlNodeList = xmlElement.SelectNodes("ds:X509IssuerName", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("ds:X509IssuerName", xmlNamespaceManager);
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			throw new CryptographicException("X509IssuerName missing");
 		}
-		X509IssuerName = xmlNodeList.Item(0).InnerText;
+
+		X509IssuerName = xmlNodeList.Item(0)!.InnerText;
 
 		xmlNodeList = xmlElement.SelectNodes("ds:X509SerialNumber", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			throw new CryptographicException("X509SerialNumber missing");
 		}
-		X509SerialNumber = xmlNodeList.Item(0).InnerText;
+
+		X509SerialNumber = xmlNodeList.Item(0)!.InnerText;
 	}
 
 	/// <summary>
@@ -116,26 +102,32 @@ public class IssuerSerial
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
-		XmlElement bufferXmlElement;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "IssuerSerial", XadesSignedXml.XadesNamespaceUri);
-		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "IssuerSerial", XadesSignedXml.XadesNamespaceUri);
 
-		bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlDSigPrefix, "X509IssuerName", SignedXml.XmlDsigNamespaceUrl);
+		result.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
+
+		XmlElement bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlDSigPrefix, "X509IssuerName", SignedXml.XmlDsigNamespaceUrl);
 		bufferXmlElement.SetAttribute("xmlns:xades", XadesSignedXml.XadesNamespaceUri);
-		bufferXmlElement.InnerText = X509IssuerName;
-		retVal.AppendChild(bufferXmlElement);
+
+		if (!string.IsNullOrWhiteSpace(X509IssuerName))
+		{
+			bufferXmlElement.InnerText = X509IssuerName;
+		}
+
+		result.AppendChild(bufferXmlElement);
 
 		bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlDSigPrefix, "X509SerialNumber", SignedXml.XmlDsigNamespaceUrl);
 		bufferXmlElement.SetAttribute("xmlns:xades", XadesSignedXml.XadesNamespaceUri);
-		bufferXmlElement.InnerText = X509SerialNumber;
 
-		retVal.AppendChild(bufferXmlElement);
+		if (!string.IsNullOrWhiteSpace(X509SerialNumber))
+		{
+			bufferXmlElement.InnerText = X509SerialNumber;
+		}
 
-		return retVal;
+		result.AppendChild(bufferXmlElement);
+
+		return result;
 	}
-	#endregion
 }

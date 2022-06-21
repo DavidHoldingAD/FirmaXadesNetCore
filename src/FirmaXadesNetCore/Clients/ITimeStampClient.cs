@@ -26,7 +26,7 @@ namespace FirmaXadesNetCore.Clients;
 /// <summary>
 /// Provides a mechanism for remotely time-stamping hashes.
 /// </summary>
-public interface ITimeStampClient
+public interface ITimestampClient
 {
 	/// <summary>
 	/// Makes the sealing request of the hash that is passed as a parameter and returns the response from the server.

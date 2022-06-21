@@ -29,6 +29,11 @@ static class X509Certificate2Extensions
 {
 	public static string GetSerialNumberAsDecimalString(this X509Certificate2 certificate)
 	{
+		if (certificate is null)
+		{
+			throw new ArgumentNullException(nameof(certificate));
+		}
+
 		var dec = new List<int> { 0 };
 
 		foreach (char c in certificate.SerialNumber)
@@ -55,5 +60,13 @@ static class X509Certificate2Extensions
 	}
 
 	public static Org.BouncyCastle.X509.X509Certificate ToBouncyX509Certificate(this X509Certificate2 certificate)
-		=> new Org.BouncyCastle.X509.X509CertificateParser().ReadCertificate(certificate.GetRawCertData());
+	{
+		if (certificate is null)
+		{
+			throw new ArgumentNullException(nameof(certificate));
+		}
+
+		return new Org.BouncyCastle.X509.X509CertificateParser()
+			.ReadCertificate(certificate.GetRawCertData());
+	}
 }

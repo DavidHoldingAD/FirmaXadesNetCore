@@ -34,41 +34,17 @@ namespace Microsoft.Xades;
 /// </summary>
 public class ObjectReference
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Uri of the object reference
 	/// </summary>
-	public string ObjectReferenceUri { get; set; }
-	#endregion
+	public string? ObjectReferenceUri { get; set; }
 
-	#region Constructors
-	/// <summary>
-	/// Default constructor
-	/// </summary>
-	public ObjectReference()
-	{
-	}
-	#endregion
-
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
-	{
-		bool retVal = false;
-
-		if (ObjectReferenceUri != null && ObjectReferenceUri != "")
-		{
-			retVal = true;
-		}
-
-		return retVal;
-	}
+		=> ObjectReferenceUri != null && ObjectReferenceUri != "";
 
 	/// <summary>
 	/// Load state from an XML element
@@ -76,7 +52,7 @@ public class ObjectReference
 	/// <param name="xmlElement">XML element containing new state</param>
 	public void LoadXml(XmlElement xmlElement)
 	{
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
@@ -90,14 +66,15 @@ public class ObjectReference
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("ObjectReference", XadesSignedXml.XadesNamespaceUri);
-		retVal.InnerText = ObjectReferenceUri;
+		XmlElement result = creationXmlDocument.CreateElement("ObjectReference", XadesSignedXml.XadesNamespaceUri);
 
-		return retVal;
+		if (!string.IsNullOrWhiteSpace(ObjectReferenceUri))
+		{
+			result.InnerText = ObjectReferenceUri;
+		}
+
+		return result;
 	}
-	#endregion
 }

@@ -1,10 +1,10 @@
-// CRLValue.cs
+ï»¿// CRLValue.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
 //
 // Originally published under the CECILL-B Free Software license agreement,
-// modified by Dpto. de Nuevas Tecnologías de la Dirección General de Urbanismo del Ayto. de Cartagena
+// modified by Dpto. de Nuevas TecnologÐ½as de la DirecciÑƒn General de Urbanismo del Ayto. de Cartagena
 // and published under the GNU Lesser General Public License version 3.
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -29,13 +29,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class CRLValue : EncapsulatedPKIData
 {
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
 	public CRLValue()
+		: base("EncapsulatedCRLValue")
 	{
-		TagName = "EncapsulatedCRLValue";
 	}
-	#endregion
 }

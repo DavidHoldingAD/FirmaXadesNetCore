@@ -35,7 +35,7 @@ public interface IXadesService
 	/// </summary>
 	/// <param name="stream"></param>
 	/// <param name="parameters"></param>
-	SignatureDocument Sign(Stream stream, LocalSignatureParameters parameters);
+	SignatureDocument Sign(Stream? stream, LocalSignatureParameters parameters);
 
 	/// <summary>
 	/// Add a signature to the document

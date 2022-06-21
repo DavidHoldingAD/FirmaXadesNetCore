@@ -32,14 +32,10 @@ namespace Microsoft.Xades;
 /// </summary>
 public class XadesObject
 {
-	#region Private variable
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Id attribute of the XAdES object
 	/// </summary>
-	public string Id { get; set; }
+	public string? Id { get; set; }
 
 	/// <summary>
 	/// The QualifyingProperties element acts as a container element for
@@ -47,9 +43,7 @@ public class XadesObject
 	/// signature.
 	/// </summary>
 	public QualifyingProperties QualifyingProperties { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -57,9 +51,7 @@ public class XadesObject
 	{
 		QualifyingProperties = new QualifyingProperties();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
@@ -86,37 +78,32 @@ public class XadesObject
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
 	/// <param name="counterSignedXmlElement">Element containing parent signature (needed if there are counter signatures)</param>
-	public void LoadXml(XmlElement xmlElement, XmlElement counterSignedXmlElement)
+	public void LoadXml(XmlElement? xmlElement, XmlElement? counterSignedXmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
-		if (xmlElement.HasAttribute("Id"))
-		{
-			Id = xmlElement.GetAttribute("Id");
-		}
-		else
-		{
-			Id = "";
-		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		Id = xmlElement.HasAttribute("Id")
+			? xmlElement.GetAttribute("Id")
+			: "";
+
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xades:QualifyingProperties", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xades:QualifyingProperties", xmlNamespaceManager);
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			throw new CryptographicException("QualifyingProperties missing");
 		}
 		QualifyingProperties = new QualifyingProperties();
-		QualifyingProperties.LoadXml((XmlElement)xmlNodeList.Item(0), counterSignedXmlElement);
+		QualifyingProperties.LoadXml((XmlElement)xmlNodeList.Item(0)!, counterSignedXmlElement);
 
 		xmlNodeList = xmlElement.SelectNodes("xades:QualifyingPropertiesReference", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			throw new CryptographicException("Current implementation can't handle QualifyingPropertiesReference element");
 		}
@@ -128,22 +115,20 @@ public class XadesObject
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("ds", "Object", SignedXml.XmlDsigNamespaceUrl);
+		XmlElement result = creationXmlDocument.CreateElement("ds", "Object", SignedXml.XmlDsigNamespaceUrl);
+
 		if (Id != null && Id != "")
 		{
-			retVal.SetAttribute("Id", Id);
+			result.SetAttribute("Id", Id);
 		}
 
 		if (QualifyingProperties != null && QualifyingProperties.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(QualifyingProperties.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(QualifyingProperties.GetXml(), true));
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

@@ -30,50 +30,35 @@ namespace Microsoft.Xades;
 /// </summary>
 public class Transform
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Algorithm of the transformation
 	/// </summary>
-	public string Algorithm { get; set; }
+	public string? Algorithm { get; set; }
 
 	/// <summary>
 	/// XPath of the transformation
 	/// </summary>
-	public string XPath { get; set; }
-	#endregion
+	public string? XPath { get; set; }
 
-	#region Constructors
-	/// <summary>
-	/// Default constructor
-	/// </summary>
-	public Transform()
-	{
-	}
-	#endregion
-
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (!string.IsNullOrEmpty(Algorithm))
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (!string.IsNullOrEmpty(XPath))
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
@@ -82,25 +67,20 @@ public class Transform
 	/// <param name="xmlElement">XML element containing new state</param>
 	public void LoadXml(XmlElement xmlElement)
 	{
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
-		if (xmlElement.HasAttribute("Algorithm"))
-		{
-			Algorithm = xmlElement.GetAttribute("Algorithm");
-		}
-		else
-		{
-			Algorithm = "";
-		}
 
-		xmlNodeList = xmlElement.SelectNodes("XPath");
-		if (xmlNodeList.Count != 0)
+		Algorithm = xmlElement.HasAttribute("Algorithm")
+			? xmlElement.GetAttribute("Algorithm")
+			: "";
+
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("XPath");
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
-			XPath = xmlNodeList.Item(0).InnerText;
+			XPath = xmlNodeList.Item(0)!.InnerText;
 		}
 		else
 		{
@@ -114,30 +94,26 @@ public class Transform
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
-		XmlElement bufferXmlElement;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("ds", "Transform", SignedXml.XmlDsigNamespaceUrl);
+		XmlElement result = creationXmlDocument.CreateElement("ds", "Transform", SignedXml.XmlDsigNamespaceUrl);
 
 		if (Algorithm != null)
 		{
-			retVal.SetAttribute("Algorithm", Algorithm);
+			result.SetAttribute("Algorithm", Algorithm);
 		}
 		else
 		{
-			retVal.SetAttribute("Algorithm", "");
+			result.SetAttribute("Algorithm", "");
 		}
 
 		if (XPath != null && XPath != "")
 		{
-			bufferXmlElement = creationXmlDocument.CreateElement("ds", "XPath", SignedXml.XmlDsigNamespaceUrl);
+			XmlElement bufferXmlElement = creationXmlDocument.CreateElement("ds", "XPath", SignedXml.XmlDsigNamespaceUrl);
 			bufferXmlElement.InnerText = XPath;
-			retVal.AppendChild(bufferXmlElement);
+			result.AppendChild(bufferXmlElement);
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

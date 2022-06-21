@@ -31,17 +31,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class CertRefs
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Collection of Certs
 	/// </summary>
 	public CertCollection CertCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -49,59 +43,48 @@ public class CertRefs
 	{
 		CertCollection = new CertCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
-	{
-		bool retVal = false;
-
-		if (CertCollection.Count > 0)
-		{
-			retVal = true;
-		}
-
-		return retVal;
-	}
+		=> CertCollection.Count > 0;
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		Cert newCert;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
 		CertCollection.Clear();
-		xmlNodeList = xmlElement.SelectNodes("xsd:Cert", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:Cert", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required cert element.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newCert = new Cert();
-					newCert.LoadXml(iterationXmlElement);
-					CertCollection.Add(newCert);
+					continue;
 				}
+
+				var newCert = new Cert();
+				newCert.LoadXml(iterationXmlElement);
+				CertCollection.Add(newCert);
 			}
 		}
 		finally
@@ -119,25 +102,25 @@ public class CertRefs
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CertRefs", XadesSignedXml.XadesNamespaceUri);
-		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CertRefs", XadesSignedXml.XadesNamespaceUri);
+
+		result.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
 
 		if (CertCollection.Count > 0)
 		{
 			foreach (Cert cert in CertCollection)
 			{
-				if (cert.HasChanged())
+				if (!cert.HasChanged())
 				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(cert.GetXml(), true));
+					continue;
 				}
+
+				result.AppendChild(creationXmlDocument.ImportNode(cert.GetXml(), true));
 			}
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

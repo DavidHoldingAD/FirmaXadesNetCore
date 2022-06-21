@@ -33,17 +33,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class SigningCertificate
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// A collection of certs
 	/// </summary>
 	public CertCollection CertCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -51,14 +45,13 @@ public class SigningCertificate
 	{
 		CertCollection = new CertCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
-	public bool HasChanged() => true; //Should always be considered dirty
+	public bool HasChanged()
+		=> true; //Should always be considered dirty
 
 	/// <summary>
 	/// Load state from an XML element
@@ -66,34 +59,34 @@ public class SigningCertificate
 	/// <param name="xmlElement">XML element containing new state</param>
 	public void LoadXml(XmlElement xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-		Cert newCert;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
 		CertCollection.Clear();
-		xmlNodeList = xmlElement.SelectNodes("xsd:Cert", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:Cert", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required Cert element.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newCert = new Cert();
-					newCert.LoadXml(iterationXmlElement);
-					CertCollection.Add(newCert);
+					continue;
 				}
+
+				var newCert = new Cert();
+				newCert.LoadXml(iterationXmlElement);
+				CertCollection.Add(newCert);
 			}
 		}
 		finally
@@ -111,28 +104,25 @@ public class SigningCertificate
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SigningCertificate", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SigningCertificate", XadesSignedXml.XadesNamespaceUri);
 
-		if (CertCollection.Count > 0)
-		{
-			foreach (Cert cert in CertCollection)
-			{
-				if (cert.HasChanged())
-				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(cert.GetXml(), true));
-				}
-			}
-		}
-		else
+		if (CertCollection.Count <= 0)
 		{
 			throw new CryptographicException("SigningCertificate.Certcollection should have count > 0");
 		}
 
-		return retVal;
+		foreach (Cert cert in CertCollection)
+		{
+			if (!cert.HasChanged())
+			{
+				continue;
+			}
+
+			result.AppendChild(creationXmlDocument.ImportNode(cert.GetXml(), true));
+		}
+
+		return result;
 	}
-	#endregion
 }

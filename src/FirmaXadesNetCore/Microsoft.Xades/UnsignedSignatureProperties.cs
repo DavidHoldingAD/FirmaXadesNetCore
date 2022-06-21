@@ -32,11 +32,8 @@ namespace Microsoft.Xades;
 /// </summary>
 public class UnsignedSignatureProperties
 {
-	#region Private variables
 	private SignatureTimeStampCollection _archiveTimeStampCollection;
-	#endregion
 
-	#region Public properties
 	/// <summary>
 	/// A collection of counter signatures
 	/// </summary>
@@ -56,7 +53,7 @@ public class UnsignedSignatureProperties
 	/// An XML electronic signature aligned with the present document MAY
 	/// contain at most one CompleteCertificateRefs element.
 	/// </summary>
-	public CompleteCertificateRefs CompleteCertificateRefs { get; set; }
+	public CompleteCertificateRefs? CompleteCertificateRefs { get; set; }
 
 	/// <summary>
 	/// This clause defines the XML element containing a full set of
@@ -66,7 +63,7 @@ public class UnsignedSignatureProperties
 	/// The XML electronic signature aligned with the present document
 	/// MAY contain at most one CompleteRevocationRefs element.
 	/// </summary>
-	public CompleteRevocationRefs CompleteRevocationRefs { get; set; }
+	public CompleteRevocationRefs? CompleteRevocationRefs { get; set; }
 
 	/// <summary>
 	/// Flag indicating if the RefsOnlyTimeStamp element (or several) is
@@ -88,12 +85,12 @@ public class UnsignedSignatureProperties
 	/// <summary>
 	/// Certificate values
 	/// </summary>
-	public CertificateValues CertificateValues { get; set; }
+	public CertificateValues? CertificateValues { get; set; }
 
 	/// <summary>
 	/// Revocation values
 	/// </summary>
-	public RevocationValues RevocationValues { get; set; }
+	public RevocationValues? RevocationValues { get; set; }
 
 	/// <summary>
 	/// A collection of signature timestamp
@@ -103,9 +100,7 @@ public class UnsignedSignatureProperties
 		get => _archiveTimeStampCollection;
 		set => _archiveTimeStampCollection = value;
 	}
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -122,9 +117,7 @@ public class UnsignedSignatureProperties
 		RevocationValues = new RevocationValues();
 		_archiveTimeStampCollection = new SignatureTimeStampCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
@@ -186,62 +179,56 @@ public class UnsignedSignatureProperties
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
 	/// <param name="counterSignedXmlElement">Element containing parent signature (needed if there are counter signatures)</param>
-	public void LoadXml(XmlElement xmlElement, XmlElement counterSignedXmlElement)
+	public void LoadXml(XmlElement? xmlElement, XmlElement? counterSignedXmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-		XadesSignedXml newXadesSignedXml;
-		TimeStamp newTimeStamp;
-		XmlElement counterSignatureElement;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 		xmlNamespaceManager.AddNamespace("xadesv141", XadesSignedXml.XadesNamespace141Uri);
 
 		CounterSignatureCollection.Clear();
-		xmlNodeList = xmlElement.SelectNodes("xades:CounterSignature", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xades:CounterSignature", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required counter signature.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					if (counterSignedXmlElement != null)
+					continue;
+				}
+
+				XadesSignedXml newXadesSignedXml = counterSignedXmlElement != null
+					? new XadesSignedXml(counterSignedXmlElement)
+					: new XadesSignedXml();
+
+				XmlElement? counterSignatureElement = null;
+				for (int childNodeCounter = 0;
+					(childNodeCounter < iterationXmlElement.ChildNodes.Count) && (counterSignatureElement == null);
+					childNodeCounter++)
+				{
+					if (iterationXmlElement.ChildNodes[childNodeCounter] is XmlElement element)
 					{
-						newXadesSignedXml = new XadesSignedXml(counterSignedXmlElement);
-					}
-					else
-					{
-						newXadesSignedXml = new XadesSignedXml();
-					}
-					//Skip any whitespace at start
-					counterSignatureElement = null;
-					for (int childNodeCounter = 0; (childNodeCounter < iterationXmlElement.ChildNodes.Count) && (counterSignatureElement == null); childNodeCounter++)
-					{
-						if (iterationXmlElement.ChildNodes[childNodeCounter] is XmlElement element)
-						{
-							counterSignatureElement = element;
-						}
-					}
-					if (counterSignatureElement != null)
-					{
-						newXadesSignedXml.LoadXml(counterSignatureElement);
-						CounterSignatureCollection.Add(newXadesSignedXml);
-					}
-					else
-					{
-						throw new CryptographicException("CounterSignature element does not contain signature");
+						counterSignatureElement = element;
 					}
 				}
+
+				if (counterSignatureElement == null)
+				{
+					throw new CryptographicException("CounterSignature element does not contain signature");
+				}
+
+				newXadesSignedXml.LoadXml(counterSignatureElement);
+				CounterSignatureCollection.Add(newXadesSignedXml);
 			}
 		}
 		finally
@@ -254,18 +241,25 @@ public class UnsignedSignatureProperties
 
 		SignatureTimeStampCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xades:SignatureTimeStamp", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required signature timestamp.");
+		}
+
 		enumerator = xmlNodeList.GetEnumerator();
+		Timestamp newTimeStamp;
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newTimeStamp = new TimeStamp("SignatureTimeStamp");
-					newTimeStamp.LoadXml(iterationXmlElement);
-					SignatureTimeStampCollection.Add(newTimeStamp);
+					continue;
 				}
+
+				newTimeStamp = new Timestamp("SignatureTimeStamp");
+				newTimeStamp.LoadXml(iterationXmlElement);
+				SignatureTimeStampCollection.Add(newTimeStamp);
 			}
 		}
 		finally
@@ -277,10 +271,11 @@ public class UnsignedSignatureProperties
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xades:CompleteCertificateRefs", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			CompleteCertificateRefs = new CompleteCertificateRefs();
-			CompleteCertificateRefs.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CompleteCertificateRefs.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 		else
 		{
@@ -288,10 +283,11 @@ public class UnsignedSignatureProperties
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xades:CompleteRevocationRefs", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			CompleteRevocationRefs = new CompleteRevocationRefs();
-			CompleteRevocationRefs.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CompleteRevocationRefs.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 		else
 		{
@@ -302,7 +298,8 @@ public class UnsignedSignatureProperties
 		RefsOnlyTimeStampCollection.Clear();
 
 		xmlNodeList = xmlElement.SelectNodes("xades:SigAndRefsTimeStamp", xmlNamespaceManager);
-		if (xmlNodeList.Count > 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count > 0)
 		{
 			RefsOnlyTimeStampFlag = false;
 			enumerator = xmlNodeList.GetEnumerator();
@@ -310,13 +307,14 @@ public class UnsignedSignatureProperties
 			{
 				while (enumerator.MoveNext())
 				{
-					iterationXmlElement = enumerator.Current as XmlElement;
-					if (iterationXmlElement != null)
+					if (enumerator.Current is not XmlElement iterationXmlElement)
 					{
-						newTimeStamp = new TimeStamp("SigAndRefsTimeStamp");
-						newTimeStamp.LoadXml(iterationXmlElement);
-						SigAndRefsTimeStampCollection.Add(newTimeStamp);
+						continue;
 					}
+
+					newTimeStamp = new Timestamp("SigAndRefsTimeStamp");
+					newTimeStamp.LoadXml(iterationXmlElement);
+					SigAndRefsTimeStampCollection.Add(newTimeStamp);
 				}
 			}
 			finally
@@ -330,7 +328,8 @@ public class UnsignedSignatureProperties
 		else
 		{
 			xmlNodeList = xmlElement.SelectNodes("xades:RefsOnlyTimeStamp", xmlNamespaceManager);
-			if (xmlNodeList.Count > 0)
+			if (xmlNodeList is not null
+				&& xmlNodeList.Count > 0)
 			{
 				RefsOnlyTimeStampFlag = true;
 				enumerator = xmlNodeList.GetEnumerator();
@@ -338,13 +337,14 @@ public class UnsignedSignatureProperties
 				{
 					while (enumerator.MoveNext())
 					{
-						iterationXmlElement = enumerator.Current as XmlElement;
-						if (iterationXmlElement != null)
+						if (enumerator.Current is not XmlElement iterationXmlElement)
 						{
-							newTimeStamp = new TimeStamp("RefsOnlyTimeStamp");
-							newTimeStamp.LoadXml(iterationXmlElement);
-							RefsOnlyTimeStampCollection.Add(newTimeStamp);
+							continue;
 						}
+
+						newTimeStamp = new Timestamp("RefsOnlyTimeStamp");
+						newTimeStamp.LoadXml(iterationXmlElement);
+						RefsOnlyTimeStampCollection.Add(newTimeStamp);
 					}
 				}
 				finally
@@ -362,10 +362,11 @@ public class UnsignedSignatureProperties
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xades:CertificateValues", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			CertificateValues = new CertificateValues();
-			CertificateValues.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CertificateValues.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 		else
 		{
@@ -373,10 +374,11 @@ public class UnsignedSignatureProperties
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xades:RevocationValues", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			RevocationValues = new RevocationValues();
-			RevocationValues.LoadXml((XmlElement)xmlNodeList.Item(0));
+			RevocationValues.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 		else
 		{
@@ -385,19 +387,24 @@ public class UnsignedSignatureProperties
 
 		_archiveTimeStampCollection.Clear();
 		xmlNodeList = xmlElement.SelectNodes("xades:ArchiveTimeStamp", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required ArchiveTimeStamp element.");
+		}
 
 		enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newTimeStamp = new TimeStamp("ArchiveTimeStamp");
-					newTimeStamp.LoadXml(iterationXmlElement);
-					_archiveTimeStampCollection.Add(newTimeStamp);
+					continue;
 				}
+
+				newTimeStamp = new Timestamp("ArchiveTimeStamp");
+				newTimeStamp.LoadXml(iterationXmlElement);
+				_archiveTimeStampCollection.Add(newTimeStamp);
 			}
 		}
 		finally
@@ -409,19 +416,24 @@ public class UnsignedSignatureProperties
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xadesv141:ArchiveTimeStamp", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required ArchiveTimeStamp element.");
+		}
 
 		enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newTimeStamp = new TimeStamp("ArchiveTimeStamp", "xadesv141", XadesSignedXml.XadesNamespace141Uri);
-					newTimeStamp.LoadXml(iterationXmlElement);
-					_archiveTimeStampCollection.Add(newTimeStamp);
+					continue;
 				}
+
+				newTimeStamp = new Timestamp("ArchiveTimeStamp", "xadesv141", XadesSignedXml.XadesNamespace141Uri);
+				newTimeStamp.LoadXml(iterationXmlElement);
+				_archiveTimeStampCollection.Add(newTimeStamp);
 			}
 		}
 		finally
@@ -431,7 +443,6 @@ public class UnsignedSignatureProperties
 				disposable.Dispose();
 			}
 		}
-
 	}
 
 	/// <summary>
@@ -459,7 +470,7 @@ public class UnsignedSignatureProperties
 
 		if (SignatureTimeStampCollection.Count > 0)
 		{
-			foreach (TimeStamp timeStamp in SignatureTimeStampCollection)
+			foreach (Timestamp timeStamp in SignatureTimeStampCollection)
 			{
 				if (timeStamp.HasChanged())
 				{
@@ -480,7 +491,7 @@ public class UnsignedSignatureProperties
 
 		if (!RefsOnlyTimeStampFlag)
 		{
-			foreach (TimeStamp timeStamp in SigAndRefsTimeStampCollection)
+			foreach (Timestamp timeStamp in SigAndRefsTimeStampCollection)
 			{
 				if (timeStamp.HasChanged())
 				{
@@ -490,7 +501,7 @@ public class UnsignedSignatureProperties
 		}
 		else
 		{
-			foreach (TimeStamp timeStamp in RefsOnlyTimeStampCollection)
+			foreach (Timestamp timeStamp in RefsOnlyTimeStampCollection)
 			{
 				if (timeStamp.HasChanged())
 				{
@@ -511,7 +522,7 @@ public class UnsignedSignatureProperties
 
 		if (_archiveTimeStampCollection.Count > 0)
 		{
-			foreach (TimeStamp timeStamp in _archiveTimeStampCollection)
+			foreach (Timestamp timeStamp in _archiveTimeStampCollection)
 			{
 				if (timeStamp.HasChanged())
 				{
@@ -522,5 +533,4 @@ public class UnsignedSignatureProperties
 
 		return retVal;
 	}
-	#endregion
 }

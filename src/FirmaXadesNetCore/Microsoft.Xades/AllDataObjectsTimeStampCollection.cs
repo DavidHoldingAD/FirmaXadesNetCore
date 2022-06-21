@@ -35,9 +35,9 @@ public class AllDataObjectsTimeStampCollection : ArrayList
 	/// New typed indexer for the collection
 	/// </summary>
 	/// <param name="index">Index of the object to retrieve from collection</param>
-	public new TimeStamp this[int index]
+	public new Timestamp this[int index]
 	{
-		get => (TimeStamp)base[index];
+		get => (Timestamp)base[index]!;
 		set => base[index] = value;
 	}
 
@@ -46,7 +46,7 @@ public class AllDataObjectsTimeStampCollection : ArrayList
 	/// </summary>
 	/// <param name="objectToAdd">Typed object to be added to collection</param>
 	/// <returns>The object that has been added to collection</returns>
-	public TimeStamp Add(TimeStamp objectToAdd)
+	public Timestamp Add(Timestamp objectToAdd)
 	{
 		base.Add(objectToAdd);
 
@@ -57,5 +57,5 @@ public class AllDataObjectsTimeStampCollection : ArrayList
 	/// Add new typed object to the collection
 	/// </summary>
 	/// <returns>The newly created object that has been added to collection</returns>
-	public TimeStamp Add() => Add(new TimeStamp("AllDataObjectsTimeStamp"));
+	public Timestamp Add() => Add(new Timestamp("AllDataObjectsTimeStamp"));
 }

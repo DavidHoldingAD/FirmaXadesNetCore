@@ -51,7 +51,7 @@ public interface IXadesDocument
 	/// <returns>the attached signature document</returns>
 	SignatureDocument AttachSignature(SignatureDocument signatureDocument,
 		byte[] signatureValue,
-		TimeStampParameters timeStampParameters = null);
+		TimestampParameters? timeStampParameters = null);
 
 	/// <summary>
 	/// Attaches the signature value to the counter signature document.
@@ -62,7 +62,7 @@ public interface IXadesDocument
 	/// <returns>the updated counter signature document</returns>
 	SignatureDocument AttachCounterSignature(SignatureDocument document,
 		byte[] signatureValue,
-		TimeStampParameters timeStampParameters = null);
+		TimestampParameters? timeStampParameters = null);
 
 	/// <summary>
 	/// Verifies the document signatures.

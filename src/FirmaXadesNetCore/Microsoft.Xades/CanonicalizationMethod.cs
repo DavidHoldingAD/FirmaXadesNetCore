@@ -33,14 +33,7 @@ public class CanonicalizationMethod
 	/// <summary>
 	/// Algorithm of the transformation
 	/// </summary>
-	public string Algorithm { get; set; }
-
-	/// <summary>
-	/// Default constructor
-	/// </summary>
-	public CanonicalizationMethod()
-	{
-	}
+	public string? Algorithm { get; set; }
 
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized

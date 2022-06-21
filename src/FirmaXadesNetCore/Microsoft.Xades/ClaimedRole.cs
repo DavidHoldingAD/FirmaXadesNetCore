@@ -33,12 +33,12 @@ public class ClaimedRole
 	/// <summary>
 	/// The generic XML element that represents a claimed role
 	/// </summary>
-	public XmlElement AnyXmlElement { get; set; }
+	public XmlElement? AnyXmlElement { get; set; }
 
 	/// <summary>
 	/// Gets or sets the inner text.
 	/// </summary>
-	public string InnerText { get; set; }
+	public string? InnerText { get; set; }
 
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
@@ -46,19 +46,19 @@ public class ClaimedRole
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (AnyXmlElement != null)
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (!string.IsNullOrEmpty(InnerText))
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
@@ -67,7 +67,7 @@ public class ClaimedRole
 	/// <param name="xmlElement">XML element containing new state</param>
 	public void LoadXml(XmlElement xmlElement)
 	{
-		AnyXmlElement = xmlElement;
+		AnyXmlElement = xmlElement ?? throw new ArgumentNullException(nameof(xmlElement));
 		InnerText = xmlElement.InnerText;
 	}
 
@@ -77,22 +77,20 @@ public class ClaimedRole
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "ClaimedRole", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "ClaimedRole", XadesSignedXml.XadesNamespaceUri);
 
 		if (!string.IsNullOrEmpty(InnerText))
 		{
-			retVal.InnerText = InnerText;
+			result.InnerText = InnerText;
 		}
 
 		if (AnyXmlElement != null)
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(AnyXmlElement, true));
+			result.AppendChild(creationXmlDocument.ImportNode(AnyXmlElement, true));
 		}
 
-		return retVal;
+		return result;
 	}
 }

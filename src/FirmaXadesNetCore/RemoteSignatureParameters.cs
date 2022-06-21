@@ -33,5 +33,14 @@ public sealed class RemoteSignatureParameters : SignatureParametersBase
 	/// <summary>
 	/// Gets or sets the public certificate.
 	/// </summary>
-	public X509Certificate2 PublicCertificate { get; set; }
+	public X509Certificate2 PublicCertificate { get; }
+
+	/// <summary>
+	/// Initializes a new instance of <see cref="RemoteSignatureParameters"/> class.
+	/// </summary>
+	/// <param name="certificate">the public certificate</param>
+	public RemoteSignatureParameters(X509Certificate2 certificate)
+	{
+		PublicCertificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
+	}
 }

@@ -31,7 +31,7 @@ namespace FirmaXadesNetCore.Clients;
 /// <summary>
 /// Represents a timestamp client.
 /// </summary>
-public sealed class TimeStampClient : ITimeStampClient, IDisposable
+public sealed class TimeStampClient : ITimestampClient, IDisposable
 {
 	private readonly HttpClient _httpClient;
 	private bool _disposed;

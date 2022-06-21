@@ -64,6 +64,6 @@ public class SignatureCommitment
 		var document = new XmlDocument();
 		document.LoadXml(xml);
 
-		TypeQualifiers.Add(document.DocumentElement);
+		TypeQualifiers.Add(document.DocumentElement!);
 	}
 }

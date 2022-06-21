@@ -31,10 +31,6 @@ namespace Microsoft.Xades;
 /// </summary>
 public class Cert
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// The element CertDigest contains the digest of one of the
 	/// certificates referenced in the sequence
@@ -53,11 +49,8 @@ public class Cert
 	/// <summary>
 	/// Element's URI
 	/// </summary>
-	public string URI { get; set; }
+	public string? URI { get; set; }
 
-	#endregion
-
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -66,9 +59,7 @@ public class Cert
 		CertDigest = new DigestAlgAndValueType("CertDigest");
 		IssuerSerial = new IssuerSerial();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
@@ -97,7 +88,7 @@ public class Cert
 	public void LoadXml(XmlElement xmlElement)
 	{
 		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
+		XmlNodeList? xmlNodeList;
 
 		if (xmlElement == null)
 		{
@@ -114,20 +105,22 @@ public class Cert
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:CertDigest", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			throw new CryptographicException("CertDigest missing");
 		}
 		CertDigest = new DigestAlgAndValueType("CertDigest");
-		CertDigest.LoadXml((XmlElement)xmlNodeList.Item(0));
+		CertDigest.LoadXml((XmlElement)xmlNodeList.Item(0)!);
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:IssuerSerial", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			throw new CryptographicException("IssuerSerial missing");
 		}
 		IssuerSerial = new IssuerSerial();
-		IssuerSerial.LoadXml((XmlElement)xmlNodeList.Item(0));
+		IssuerSerial.LoadXml((XmlElement)xmlNodeList.Item(0)!);
 	}
 
 	/// <summary>
@@ -160,5 +153,4 @@ public class Cert
 
 		return retVal;
 	}
-	#endregion
 }

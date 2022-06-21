@@ -78,4 +78,3 @@ internal sealed class RSAPKCS1SHA384SignatureDescription : SignatureDescription
 		return formatter;
 	}
 }
-

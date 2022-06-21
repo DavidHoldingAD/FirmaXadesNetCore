@@ -34,27 +34,37 @@ using Org.BouncyCastle.Ocsp;
 namespace FirmaXadesNetCore.Utils;
 
 /// <summary>
-/// Se extiende la clase OcspReqGenerator 
+/// The OcspReqGenerator class is extended.
 /// </summary>
 static class OcspReqGeneratorExtensions
 {
-	public static OcspReq Generate(this OcspReqGenerator ocspRegGenerator, RSA rsa, X509Chain chain)
+	public static OcspReq Generate(this OcspReqGenerator ocspRegGenerator, RSA rsa, X509Chain? chain)
 	{
+		if (ocspRegGenerator is null)
+		{
+			throw new ArgumentNullException(nameof(ocspRegGenerator));
+		}
+
+		if (rsa is null)
+		{
+			throw new ArgumentNullException(nameof(rsa));
+		}
+
 		var requests = new Asn1EncodableVector();
 		DerObjectIdentifier signingAlgorithm = PkcsObjectIdentifiers.Sha1WithRsaEncryption;
 
 		Type OcspReqGeneratorInfo_Type = typeof(OcspReqGenerator);
 
-		FieldInfo ListInfo_m_parameters = OcspReqGeneratorInfo_Type.GetField("list", BindingFlags.NonPublic | BindingFlags.Instance);
-		var list = (IList)ListInfo_m_parameters.GetValue(ocspRegGenerator);
-		Type RequestObjectType = OcspReqGeneratorInfo_Type.GetNestedType("RequestObject", BindingFlags.NonPublic | BindingFlags.Instance);
-		MethodInfo toRequestMethod = RequestObjectType.GetMethod("ToRequest");
+		FieldInfo ListInfo_m_parameters = OcspReqGeneratorInfo_Type.GetField("list", BindingFlags.NonPublic | BindingFlags.Instance)!;
+		var list = (IList)ListInfo_m_parameters.GetValue(ocspRegGenerator)!;
+		Type RequestObjectType = OcspReqGeneratorInfo_Type.GetNestedType("RequestObject", BindingFlags.NonPublic | BindingFlags.Instance)!;
+		MethodInfo toRequestMethod = RequestObjectType.GetMethod("ToRequest")!;
 
 		foreach (object reqObj in list)
 		{
 			try
 			{
-				requests.Add((Request)toRequestMethod.Invoke(reqObj, null));
+				requests.Add((Request)toRequestMethod.Invoke(reqObj, null)!);
 			}
 			catch (Exception e)
 			{
@@ -64,60 +74,61 @@ static class OcspReqGeneratorExtensions
 
 		GeneralName requestorName;
 
-		FieldInfo GeneralNameInfo_m_parameters = OcspReqGeneratorInfo_Type.GetField("requestorName", BindingFlags.NonPublic | BindingFlags.Instance);
-		requestorName = (GeneralName)GeneralNameInfo_m_parameters.GetValue(ocspRegGenerator);
+		FieldInfo GeneralNameInfo_m_parameters = OcspReqGeneratorInfo_Type.GetField("requestorName", BindingFlags.NonPublic | BindingFlags.Instance)!;
+		requestorName = (GeneralName)GeneralNameInfo_m_parameters.GetValue(ocspRegGenerator)!;
 
-		FieldInfo requestExtensions_parameters = OcspReqGeneratorInfo_Type.GetField("requestExtensions", BindingFlags.NonPublic | BindingFlags.Instance);
-		var requestExtensions = (X509Extensions)requestExtensions_parameters.GetValue(ocspRegGenerator);
+		FieldInfo requestExtensions_parameters = OcspReqGeneratorInfo_Type.GetField("requestExtensions", BindingFlags.NonPublic | BindingFlags.Instance)!;
+		var requestExtensions = (X509Extensions)requestExtensions_parameters.GetValue(ocspRegGenerator)!;
 		var tbsReq = new TbsRequest(requestorName, new DerSequence(requests), requestExtensions);
 
-		Org.BouncyCastle.Asn1.Ocsp.Signature signature = null;
-
-		if (signingAlgorithm != null)
+		if (signingAlgorithm == null)
 		{
-			if (requestorName == null)
-			{
-				throw new OcspException("requestorName must be specified if request is signed.");
-			}
+			return new OcspReq(new OcspRequest(tbsReq, null));
+		}
 
-			DerBitString bitSig;
+		if (requestorName == null)
+		{
+			throw new OcspException("requestorName must be specified if request is signed.");
+		}
+
+		DerBitString bitSig;
+		try
+		{
+			byte[] encoded = tbsReq.GetEncoded();
+			byte[] signedData = rsa.SignData(encoded, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1);
+
+			bitSig = new DerBitString(signedData);
+		}
+		catch (Exception e)
+		{
+			throw new OcspException($"An error has occurred while processing timestamp request.", e);
+		}
+
+		var sigAlgId = new AlgorithmIdentifier(signingAlgorithm, DerNull.Instance);
+
+		Signature? signature;
+		if (chain != null && chain.ChainElements.Count > 0)
+		{
+			var v = new Asn1EncodableVector();
 			try
 			{
-				byte[] encoded = tbsReq.GetEncoded();
-				byte[] signedData = rsa.SignData(encoded, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1);
-
-				bitSig = new DerBitString(signedData);
+				for (int i = 0; i != chain.ChainElements.Count; i++)
+				{
+					v.Add(
+						X509CertificateStructure.GetInstance(
+							Asn1Object.FromByteArray(chain.ChainElements[i].Certificate.RawData)));
+				}
 			}
 			catch (Exception e)
 			{
-				throw new OcspException($"An error has occurred while processing timestamp request.", e);
+				throw new OcspException("error processing certs", e);
 			}
 
-			var sigAlgId = new AlgorithmIdentifier(signingAlgorithm, DerNull.Instance);
-
-			if (chain != null && chain.ChainElements.Count > 0)
-			{
-				var v = new Asn1EncodableVector();
-				try
-				{
-					for (int i = 0; i != chain.ChainElements.Count; i++)
-					{
-						v.Add(
-							X509CertificateStructure.GetInstance(
-								Asn1Object.FromByteArray(chain.ChainElements[i].Certificate.RawData)));
-					}
-				}
-				catch (Exception e)
-				{
-					throw new OcspException("error processing certs", e);
-				}
-
-				signature = new Org.BouncyCastle.Asn1.Ocsp.Signature(sigAlgId, bitSig, new DerSequence(v));
-			}
-			else
-			{
-				signature = new Org.BouncyCastle.Asn1.Ocsp.Signature(sigAlgId, bitSig);
-			}
+			signature = new Signature(sigAlgId, bitSig, new DerSequence(v));
+		}
+		else
+		{
+			signature = new Signature(sigAlgId, bitSig);
 		}
 
 		return new OcspReq(new OcspRequest(tbsReq, signature));

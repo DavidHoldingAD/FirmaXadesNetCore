@@ -31,20 +31,20 @@ public class SignatureProductionPlace
 	/// <summary>
 	/// Gets or sets the city.
 	/// </summary>
-	public string City { get; set; }
+	public string? City { get; set; }
 
 	/// <summary>
 	/// Gets or sets the state or province.
 	/// </summary>
-	public string StateOrProvince { get; set; }
+	public string? StateOrProvince { get; set; }
 
 	/// <summary>
 	/// Gets or sets the postal code.
 	/// </summary>
-	public string PostalCode { get; set; }
+	public string? PostalCode { get; set; }
 
 	/// <summary>
 	/// Gets or sets the country name.
 	/// </summary>
-	public string CountryName { get; set; }
+	public string? CountryName { get; set; }
 }

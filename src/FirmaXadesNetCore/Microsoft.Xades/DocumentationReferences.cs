@@ -30,17 +30,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class DocumentationReferences
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Collection of documentation references
 	/// </summary>
 	public DocumentationReferenceCollection DocumentationReferenceCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -48,59 +42,48 @@ public class DocumentationReferences
 	{
 		DocumentationReferenceCollection = new DocumentationReferenceCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
-	{
-		bool retVal = false;
-
-		if (DocumentationReferenceCollection.Count > 0)
-		{
-			retVal = true;
-		}
-
-		return retVal;
-	}
+		=> DocumentationReferenceCollection.Count > 0;
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		DocumentationReference newDocumentationReference;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
 		DocumentationReferenceCollection.Clear();
-		xmlNodeList = xmlElement.SelectNodes("xsd:DocumentationReference", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:DocumentationReference", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required DocumentationReference element.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newDocumentationReference = new DocumentationReference();
-					newDocumentationReference.LoadXml(iterationXmlElement);
-					DocumentationReferenceCollection.Add(newDocumentationReference);
+					continue;
 				}
+
+				var newDocumentationReference = new DocumentationReference();
+				newDocumentationReference.LoadXml(iterationXmlElement);
+				DocumentationReferenceCollection.Add(newDocumentationReference);
 			}
 		}
 		finally
@@ -118,11 +101,9 @@ public class DocumentationReferences
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("DocumentationReferences", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement("DocumentationReferences", XadesSignedXml.XadesNamespaceUri);
 
 		if (DocumentationReferenceCollection.Count > 0)
 		{
@@ -130,12 +111,11 @@ public class DocumentationReferences
 			{
 				if (documentationReference.HasChanged())
 				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(documentationReference.GetXml(), true));
+					result.AppendChild(creationXmlDocument.ImportNode(documentationReference.GetXml(), true));
 				}
 			}
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

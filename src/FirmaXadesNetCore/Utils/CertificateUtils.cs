@@ -37,7 +37,7 @@ public static class CertificateUtils
 	/// <param name="certificates">the chain certificates</param>
 	/// <returns>the certificate chain</returns>
 	public static X509Chain GetCertificateChain(X509Certificate2 certificate,
-		X509Certificate2[] certificates = null)
+		X509Certificate2[]? certificates = null)
 	{
 		if (certificate is null)
 		{

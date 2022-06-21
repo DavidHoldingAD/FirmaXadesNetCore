@@ -34,6 +34,16 @@ internal static class XmlUtils
 {
 	public static byte[] ApplyTransform(XmlElement element, System.Security.Cryptography.Xml.Transform transform)
 	{
+		if (element is null)
+		{
+			throw new ArgumentNullException(nameof(element));
+		}
+
+		if (transform is null)
+		{
+			throw new ArgumentNullException(nameof(transform));
+		}
+
 		byte[] buffer = Encoding.UTF8.GetBytes(element.OuterXml);
 
 		using var ms = new MemoryStream(buffer);
@@ -43,29 +53,53 @@ internal static class XmlUtils
 	}
 
 	public static byte[] ComputeValueOfElementList(XadesSignedXml xadesSignedXml, ArrayList elementXpaths)
-		=> ComputeValueOfElementList(xadesSignedXml, elementXpaths, new XmlDsigC14NTransform());
+	{
+		if (xadesSignedXml is null)
+		{
+			throw new ArgumentNullException(nameof(xadesSignedXml));
+		}
 
-	public static byte[] ComputeValueOfElementList(XadesSignedXml xadesSignedXml, ArrayList elementXpaths,
+		if (elementXpaths is null)
+		{
+			throw new ArgumentNullException(nameof(elementXpaths));
+		}
+
+		return ComputeValueOfElementList(xadesSignedXml, elementXpaths, new XmlDsigC14NTransform());
+	}
+
+	public static byte[] ComputeValueOfElementList(XadesSignedXml xadesSignedXml,
+		ArrayList elementXpaths,
 		System.Security.Cryptography.Xml.Transform transform)
 	{
-		XmlDocument xmlDocument;
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList searchXmlNodeList;
+		if (xadesSignedXml is null)
+		{
+			throw new ArgumentNullException(nameof(xadesSignedXml));
+		}
 
-		XmlElement signatureXmlElement = xadesSignedXml.GetSignatureElement();
+		if (elementXpaths is null)
+		{
+			throw new ArgumentNullException(nameof(elementXpaths));
+		}
+
+		if (transform is null)
+		{
+			throw new ArgumentNullException(nameof(transform));
+		}
+
+		XmlElement signatureXmlElement = xadesSignedXml.GetSignatureElement()!;
 		List<XmlAttribute> namespaces = xadesSignedXml.GetAllNamespaces(signatureXmlElement);
+		XmlDocument xmlDocument = signatureXmlElement!.OwnerDocument;
 
-		xmlDocument = signatureXmlElement.OwnerDocument;
-		xmlNamespaceManager = new XmlNamespaceManager(xmlDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
 		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 
 		using var msResult = new MemoryStream();
 		foreach (string elementXpath in elementXpaths)
 		{
-			searchXmlNodeList = signatureXmlElement.SelectNodes(elementXpath, xmlNamespaceManager);
-
-			if (searchXmlNodeList.Count == 0)
+			XmlNodeList? searchXmlNodeList = signatureXmlElement.SelectNodes(elementXpath, xmlNamespaceManager);
+			if (searchXmlNodeList is null
+				|| searchXmlNodeList.Count <= 0)
 			{
 				throw new CryptographicException($"Element `{elementXpath}` not found while calculating hash.");
 			}

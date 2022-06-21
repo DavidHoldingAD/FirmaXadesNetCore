@@ -41,16 +41,16 @@ public class ValidationResult
 	/// <summary>
 	/// Gets the exception.
 	/// </summary>
-	public Exception Exception { get; }
+	public Exception? Exception { get; }
 
-	private ValidationResult(bool isValid, string message, Exception exception)
+	private ValidationResult(bool isValid, string message, Exception? exception)
 	{
 		IsValid = isValid;
 		Message = message;
 		Exception = exception;
 	}
 
-	internal static ValidationResult Invalid(string message, Exception exception = null)
+	internal static ValidationResult Invalid(string message, Exception? exception = null)
 	{
 		if (message is null)
 		{

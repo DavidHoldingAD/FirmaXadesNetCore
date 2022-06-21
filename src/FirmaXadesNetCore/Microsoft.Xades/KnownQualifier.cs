@@ -1,4 +1,4 @@
-﻿// SignatureTimeStampCollection.cs
+﻿// Identifier.cs
 //
 // XAdES Starter Kit for Microsoft .NET 3.5 (and above)
 // 2010 Microsoft France
@@ -20,43 +20,25 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/. 
 
-using System.Collections;
-
 namespace Microsoft.Xades;
 
 /// <summary>
-/// Collection class that derives from ArrayList.  It provides the minimally
-/// required functionality to add instances of typed classes and obtain typed
-/// elements through a custom indexer.
+/// Possible values for Qualifier
 /// </summary>
-public class SignatureTimeStampCollection : ArrayList
+public enum KnownQualifier
 {
 	/// <summary>
-	/// New typed indexer for the collection
+	/// Value has not been set
 	/// </summary>
-	/// <param name="index">Index of the object to retrieve from collection</param>
-	public new Timestamp this[int index]
-	{
-		get => (Timestamp)base[index]!;
-		set => base[index] = value;
-	}
+	Uninitalized,
 
 	/// <summary>
-	/// Add typed object to the collection
+	/// OID encoded as Uniform Resource Identifier (URI).
 	/// </summary>
-	/// <param name="objectToAdd">Typed object to be added to collection</param>
-	/// <returns>The object that has been added to collection</returns>
-	public Timestamp Add(Timestamp objectToAdd)
-	{
-		base.Add(objectToAdd);
-
-		return objectToAdd;
-	}
+	OIDAsURI,
 
 	/// <summary>
-	/// Add new typed object to the collection
+	/// OID encoded as Uniform Resource Name (URN)
 	/// </summary>
-	/// <param name="tagName">Name of the tag when serializing into XML using GetXml()</param>
-	/// <returns>The newly created object that has been added to collection</returns>
-	public Timestamp Add(string tagName) => Add(new Timestamp(tagName));
+	OIDAsURN,
 }

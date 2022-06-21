@@ -84,12 +84,12 @@ public class OcspServer
 	/// <summary>
 	/// Gets the requester name.
 	/// </summary>
-	public GeneralName RequestorName { get; private set; }
+	public GeneralName? RequestorName { get; private set; }
 
 	/// <summary>
 	/// Gets or sets the signing certificate.
 	/// </summary>
-	public X509Certificate2 SigningCertificate { get; set; }
+	public X509Certificate2? SigningCertificate { get; set; }
 
 	/// <summary>
 	/// Initializes a new instance of <see cref="OcspServer"/> class.

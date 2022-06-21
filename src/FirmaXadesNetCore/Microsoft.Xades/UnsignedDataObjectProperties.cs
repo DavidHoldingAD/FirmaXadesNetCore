@@ -31,17 +31,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class UnsignedDataObjectProperties
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// A collection of unsigned data object properties
 	/// </summary>
 	public UnsignedDataObjectPropertyCollection UnsignedDataObjectPropertyCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -49,56 +43,44 @@ public class UnsignedDataObjectProperties
 	{
 		UnsignedDataObjectPropertyCollection = new UnsignedDataObjectPropertyCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
-	{
-		bool retVal = false;
-
-		if (UnsignedDataObjectPropertyCollection.Count > 0)
-		{
-			retVal = true;
-		}
-
-		return retVal;
-	}
+		=> UnsignedDataObjectPropertyCollection.Count > 0;
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		UnsignedDataObjectProperty newUnsignedDataObjectProperty;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
 		UnsignedDataObjectPropertyCollection.Clear();
-		xmlNodeList = xmlElement.SelectNodes("xsd:UnsignedDataObjectProperty", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:UnsignedDataObjectProperty", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required unsigned data object property.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is XmlElement iterationXmlElement)
 				{
-					newUnsignedDataObjectProperty = new UnsignedDataObjectProperty();
+					var newUnsignedDataObjectProperty = new UnsignedDataObjectProperty();
 					newUnsignedDataObjectProperty.LoadXml(iterationXmlElement);
 					UnsignedDataObjectPropertyCollection.Add(newUnsignedDataObjectProperty);
 				}
@@ -119,11 +101,9 @@ public class UnsignedDataObjectProperties
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("UnsignedDataObjectProperties", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement("UnsignedDataObjectProperties", XadesSignedXml.XadesNamespaceUri);
 
 		if (UnsignedDataObjectPropertyCollection.Count > 0)
 		{
@@ -131,12 +111,11 @@ public class UnsignedDataObjectProperties
 			{
 				if (unsignedDataObjectProperty.HasChanged())
 				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(unsignedDataObjectProperty.GetXml(), true));
+					result.AppendChild(creationXmlDocument.ImportNode(unsignedDataObjectProperty.GetXml(), true));
 				}
 			}
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

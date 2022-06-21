@@ -32,14 +32,10 @@ namespace Microsoft.Xades;
 /// </summary>
 public class DigestAlgAndValueType
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// The name of the element when serializing
 	/// </summary>
-	public string TagName { get; set; }
+	public string TagName { get; }
 
 	/// <summary>
 	/// Indicates the digest algorithm
@@ -49,83 +45,71 @@ public class DigestAlgAndValueType
 	/// <summary>
 	/// Contains the value of the digest
 	/// </summary>
-	public byte[] DigestValue { get; set; }
-	#endregion
-
-	#region Constructors
-	/// <summary>
-	/// Default constructor
-	/// </summary>
-	public DigestAlgAndValueType()
-	{
-		DigestMethod = new DigestMethod();
-		DigestValue = null;
-	}
+	public byte[]? DigestValue { get; set; }
 
 	/// <summary>
 	/// Constructor with TagName
 	/// </summary>
 	/// <param name="tagName">Name of the tag when serializing with GetXml</param>
-	public DigestAlgAndValueType(string tagName) : this()
+	public DigestAlgAndValueType(string tagName)
 	{
-		TagName = tagName;
+		TagName = tagName ?? throw new ArgumentNullException(nameof(tagName));
+		DigestMethod = new DigestMethod();
+		DigestValue = null;
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (DigestMethod != null && DigestMethod.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (DigestValue != null && DigestValue.Length > 0)
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
 
-
-		xmlNodeList = xmlElement.SelectNodes("ds:DigestMethod", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("ds:DigestMethod", xmlNamespaceManager);
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			throw new CryptographicException("DigestMethod missing");
 		}
+
 		DigestMethod = new DigestMethod();
-		DigestMethod.LoadXml((XmlElement)xmlNodeList.Item(0));
+		DigestMethod.LoadXml((XmlElement)xmlNodeList.Item(0)!);
 
 		xmlNodeList = xmlElement.SelectNodes("ds:DigestValue", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			throw new CryptographicException("DigestValue missing");
 		}
-		DigestValue = Convert.FromBase64String(xmlNodeList.Item(0).InnerText);
+		DigestValue = Convert.FromBase64String(xmlNodeList.Item(0)!.InnerText);
 	}
 
 	/// <summary>
@@ -134,38 +118,30 @@ public class DigestAlgAndValueType
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
-		XmlElement bufferXmlElement;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, TagName, XadesSignedXml.XadesNamespaceUri);
-		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, TagName, XadesSignedXml.XadesNamespaceUri);
 
-		if (DigestMethod != null && DigestMethod.HasChanged())
-		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(DigestMethod.GetXml(), true));
-		}
-		else
+		result.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
+
+		if (DigestMethod == null || !DigestMethod.HasChanged())
 		{
 			throw new CryptographicException("DigestMethod element missing in DigestAlgAndValueType");
 		}
 
-		if (DigestValue != null && DigestValue.Length > 0)
-		{
-			//bufferXmlElement = creationXmlDocument.CreateElement("DigestValue", XadesSignedXml.XadesNamespaceUri);
-			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlDSigPrefix, "DigestValue", SignedXml.XmlDsigNamespaceUrl);
-			bufferXmlElement.SetAttribute("xmlns:xades", XadesSignedXml.XadesNamespaceUri);
+		result.AppendChild(creationXmlDocument.ImportNode(DigestMethod.GetXml(), true));
 
-			bufferXmlElement.InnerText = Convert.ToBase64String(DigestValue);
-			retVal.AppendChild(bufferXmlElement);
-		}
-		else
+		if (DigestValue == null || DigestValue.Length == 0)
 		{
 			throw new CryptographicException("DigestValue element missing in DigestAlgAndValueType");
 		}
 
-		return retVal;
+		XmlElement bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlDSigPrefix, "DigestValue", SignedXml.XmlDsigNamespaceUrl);
+		bufferXmlElement.SetAttribute("xmlns:xades", XadesSignedXml.XadesNamespaceUri);
+
+		bufferXmlElement.InnerText = Convert.ToBase64String(DigestValue);
+		result.AppendChild(bufferXmlElement);
+
+		return result;
 	}
-	#endregion
 }

@@ -31,17 +31,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class OCSPRefs
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Collection of OCSP refs
 	/// </summary>
 	public OCSPRefCollection OCSPRefCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -49,9 +43,7 @@ public class OCSPRefs
 	{
 		OCSPRefCollection = new OCSPRefCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
@@ -72,36 +64,36 @@ public class OCSPRefs
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		OCSPRef newOCSPRef;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
 		OCSPRefCollection.Clear();
-		xmlNodeList = xmlElement.SelectNodes("xsd:OCSPRef", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:OCSPRef", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required OCSPRef element.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newOCSPRef = new OCSPRef();
-					newOCSPRef.LoadXml(iterationXmlElement);
-					OCSPRefCollection.Add(newOCSPRef);
+					continue;
 				}
+
+				var newOCSPRef = new OCSPRef();
+				newOCSPRef.LoadXml(iterationXmlElement);
+				OCSPRefCollection.Add(newOCSPRef);
 			}
 		}
 		finally
@@ -119,25 +111,27 @@ public class OCSPRefs
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "OCSPRefs", XadesSignedXml.XadesNamespaceUri);
-		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "OCSPRefs", XadesSignedXml.XadesNamespaceUri);
 
-		if (OCSPRefCollection.Count > 0)
+		result.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
+
+		if (OCSPRefCollection.Count <= 0)
 		{
-			foreach (OCSPRef ocspRef in OCSPRefCollection)
-			{
-				if (ocspRef.HasChanged())
-				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(ocspRef.GetXml(), true));
-				}
-			}
+			return result;
 		}
 
-		return retVal;
+		foreach (OCSPRef ocspRef in OCSPRefCollection)
+		{
+			if (!ocspRef.HasChanged())
+			{
+				continue;
+			}
+
+			result.AppendChild(creationXmlDocument.ImportNode(ocspRef.GetXml(), true));
+		}
+
+		return result;
 	}
-	#endregion
 }

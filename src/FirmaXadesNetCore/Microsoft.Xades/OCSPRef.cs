@@ -31,10 +31,6 @@ namespace Microsoft.Xades;
 /// </summary>
 public class OCSPRef
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Identification of one OCSP response
 	/// </summary>
@@ -45,10 +41,8 @@ public class OCSPRef
 	/// needed to differentiate between two OCSP responses by the same server
 	/// with their "ProducedAt" fields within the same second.
 	/// </summary>
-	public DigestAlgAndValueType CertDigest { get; set; }
-	#endregion
+	public DigestAlgAndValueType? CertDigest { get; set; }
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -57,9 +51,7 @@ public class OCSPRef
 		OCSPIdentifier = new OCSPIdentifier();
 		CertDigest = new DigestAlgAndValueType("DigestAlgAndValue");
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
@@ -85,36 +77,36 @@ public class OCSPRef
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xsd:OCSPIdentifier", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:OCSPIdentifier", xmlNamespaceManager);
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			throw new CryptographicException("OCSPIdentifier missing");
 		}
+
 		OCSPIdentifier = new OCSPIdentifier();
-		OCSPIdentifier.LoadXml((XmlElement)xmlNodeList.Item(0));
+		OCSPIdentifier.LoadXml((XmlElement?)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:DigestAlgAndValue", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			CertDigest = null;
 		}
 		else
 		{
 			CertDigest = new DigestAlgAndValueType("DigestAlgAndValue");
-			CertDigest.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CertDigest.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 	}
 
@@ -124,28 +116,24 @@ public class OCSPRef
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "OCSPRef", XadesSignedXml.XadesNamespaceUri);
-		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "OCSPRef", XadesSignedXml.XadesNamespaceUri);
 
-		if (OCSPIdentifier != null && OCSPIdentifier.HasChanged())
-		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(OCSPIdentifier.GetXml(), true));
-		}
-		else
+		result.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
+
+		if (OCSPIdentifier is null || !OCSPIdentifier.HasChanged())
 		{
 			throw new CryptographicException("OCSPIdentifier element missing in OCSPRef");
 		}
 
+		result.AppendChild(creationXmlDocument.ImportNode(OCSPIdentifier.GetXml(), true));
+
 		if (CertDigest != null && CertDigest.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(CertDigest.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(CertDigest.GetXml(), true));
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

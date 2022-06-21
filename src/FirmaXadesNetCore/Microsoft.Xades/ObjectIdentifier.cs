@@ -32,14 +32,10 @@ namespace Microsoft.Xades;
 /// </summary>
 public class ObjectIdentifier
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// The name of the element when serializing
 	/// </summary>
-	public string TagName { get; set; }
+	public string TagName { get; }
 
 	/// <summary>
 	/// Specification of an unique and permanent identifier
@@ -49,21 +45,20 @@ public class ObjectIdentifier
 	/// <summary>
 	/// Textual description of the nature of the data object
 	/// </summary>
-	public string Description { get; set; }
+	public string? Description { get; set; }
 
 	/// <summary>
 	/// References to documents where additional information about the
 	/// nature of the data object can be found
 	/// </summary>
 	public DocumentationReferences DocumentationReferences { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
 	public ObjectIdentifier()
 	{
+		TagName = "ObjectIdentifier";
 		Identifier = new Identifier();
 		DocumentationReferences = new DocumentationReferences();
 	}
@@ -72,75 +67,75 @@ public class ObjectIdentifier
 	/// Constructor with TagName
 	/// </summary>
 	/// <param name="tagName">Name of the tag when serializing with GetXml</param>
-	public ObjectIdentifier(string tagName) : this()
+	public ObjectIdentifier(string tagName)
+		: this()
 	{
 		TagName = tagName;
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (Identifier != null && Identifier.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (!string.IsNullOrEmpty(Description))
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (DocumentationReferences != null && DocumentationReferences.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xsd:Identifier", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:Identifier", xmlNamespaceManager);
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			throw new CryptographicException("Identifier missing");
 		}
+
 		Identifier = new Identifier();
-		Identifier.LoadXml((XmlElement)xmlNodeList.Item(0));
+		Identifier.LoadXml((XmlElement?)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:Description", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
-			Description = xmlNodeList.Item(0).InnerText;
+			Description = xmlNodeList.Item(0)!.InnerText;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:DocumentationReferences", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			DocumentationReferences = new DocumentationReferences();
-			DocumentationReferences.LoadXml((XmlElement)xmlNodeList.Item(0));
+			DocumentationReferences.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 	}
 
@@ -150,32 +145,33 @@ public class ObjectIdentifier
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
-		XmlElement bufferXmlElement;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, TagName, XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, TagName, XadesSignedXml.XadesNamespaceUri);
 
 		if (Identifier != null && Identifier.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(Identifier.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(Identifier.GetXml(), true));
 		}
 		else
 		{
 			throw new CryptographicException("Identifier element missing in OjectIdentifier");
 		}
 
-		bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "Description", XadesSignedXml.XadesNamespaceUri);
-		bufferXmlElement.InnerText = Description;
-		retVal.AppendChild(bufferXmlElement);
+		XmlElement bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "Description", XadesSignedXml.XadesNamespaceUri);
+
+		if (!string.IsNullOrWhiteSpace(Description))
+		{
+			bufferXmlElement.InnerText = Description;
+		}
+
+		result.AppendChild(bufferXmlElement);
 
 		if (DocumentationReferences != null && DocumentationReferences.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(DocumentationReferences.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(DocumentationReferences.GetXml(), true));
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

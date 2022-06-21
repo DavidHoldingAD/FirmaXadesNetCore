@@ -32,17 +32,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class NoticeNumbers
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Collection of notice numbers
 	/// </summary>
 	public NoticeNumberCollection NoticeNumberCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -50,24 +44,13 @@ public class NoticeNumbers
 	{
 		NoticeNumberCollection = new NoticeNumberCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
-	{
-		bool retVal = false;
-
-		if (NoticeNumberCollection.Count > 0)
-		{
-			retVal = true;
-		}
-
-		return retVal;
-	}
+		=> NoticeNumberCollection.Count > 0;
 
 	/// <summary>
 	/// Load state from an XML element
@@ -75,33 +58,33 @@ public class NoticeNumbers
 	/// <param name="xmlElement">XML element containing new state</param>
 	public void LoadXml(XmlElement xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		int newNoticeNumber;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
 		NoticeNumberCollection.Clear();
-		xmlNodeList = xmlElement.SelectNodes("xsd:int", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:int", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required int element.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newNoticeNumber = int.Parse(iterationXmlElement.InnerText);
-					NoticeNumberCollection.Add(newNoticeNumber);
+					continue;
 				}
+
+				int newNoticeNumber = int.Parse(iterationXmlElement.InnerText);
+				NoticeNumberCollection.Add(newNoticeNumber);
 			}
 		}
 		finally
@@ -119,24 +102,20 @@ public class NoticeNumbers
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement bufferXmlElement;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("NoticeNumbers", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement("NoticeNumbers", XadesSignedXml.XadesNamespaceUri);
 
 		if (NoticeNumberCollection.Count > 0)
 		{
 			foreach (int noticeNumber in NoticeNumberCollection)
 			{
-				bufferXmlElement = creationXmlDocument.CreateElement("int", XadesSignedXml.XadesNamespaceUri);
+				XmlElement bufferXmlElement = creationXmlDocument.CreateElement("int", XadesSignedXml.XadesNamespaceUri);
 				bufferXmlElement.InnerText = noticeNumber.ToString();
-				retVal.AppendChild(bufferXmlElement);
+				result.AppendChild(bufferXmlElement);
 			}
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

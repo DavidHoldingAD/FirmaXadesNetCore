@@ -30,10 +30,6 @@ namespace Microsoft.Xades;
 /// </summary>
 public class CRLRef
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// The digest of the entire DER encoded
 	/// </summary>
@@ -45,10 +41,8 @@ public class CRLRef
 	/// The Identifier element can be dropped if the CRL could be inferred
 	/// from other information.
 	/// </summary>
-	public CRLIdentifier CRLIdentifier { get; set; }
-	#endregion
+	public CRLIdentifier? CRLIdentifier { get; set; }
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -57,64 +51,62 @@ public class CRLRef
 		CertDigest = new DigestAlgAndValueType("DigestAlgAndValue");
 		CRLIdentifier = new CRLIdentifier();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (CertDigest != null && CertDigest.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (CRLIdentifier != null && CRLIdentifier.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xsd:DigestAlgAndValue", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:DigestAlgAndValue", xmlNamespaceManager);
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			throw new CryptographicException("DigestAlgAndValue missing");
 		}
+
 		CertDigest = new DigestAlgAndValueType("DigestAlgAndValue");
-		CertDigest.LoadXml((XmlElement)xmlNodeList.Item(0));
+		CertDigest.LoadXml((XmlElement?)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:CRLIdentifier", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			CRLIdentifier = null;
 		}
 		else
 		{
 			CRLIdentifier = new CRLIdentifier();
-			CRLIdentifier.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CRLIdentifier.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 	}
 
@@ -124,27 +116,22 @@ public class CRLRef
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CRLRef", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CRLRef", XadesSignedXml.XadesNamespaceUri);
 
-		if (CertDigest != null && CertDigest.HasChanged())
-		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(CertDigest.GetXml(), true));
-		}
-		else
+		if (CertDigest == null || !CertDigest.HasChanged())
 		{
 			throw new CryptographicException("DigestAlgAndValue element missing in CRLRef");
 		}
 
+		result.AppendChild(creationXmlDocument.ImportNode(CertDigest.GetXml(), true));
+
 		if (CRLIdentifier != null && CRLIdentifier.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(CRLIdentifier.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(CRLIdentifier.GetXml(), true));
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

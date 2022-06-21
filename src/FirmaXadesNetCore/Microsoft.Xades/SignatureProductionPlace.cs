@@ -36,70 +36,55 @@ namespace Microsoft.Xades;
 /// </summary>
 public class SignatureProductionPlace
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// City where signature was produced
 	/// </summary>
-	public string City { get; set; }
+	public string? City { get; set; }
 
 	/// <summary>
 	/// State or province where signature was produced
 	/// </summary>
-	public string StateOrProvince { get; set; }
+	public string? StateOrProvince { get; set; }
 
 	/// <summary>
 	/// Postal code of place where signature was produced
 	/// </summary>
-	public string PostalCode { get; set; }
+	public string? PostalCode { get; set; }
 
 	/// <summary>
 	/// Country where signature was produced
 	/// </summary>
-	public string CountryName { get; set; }
-	#endregion
+	public string? CountryName { get; set; }
 
-	#region Constructors
-	/// <summary>
-	/// Default constructor
-	/// </summary>
-	public SignatureProductionPlace()
-	{
-	}
-	#endregion
-
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (!string.IsNullOrEmpty(City))
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (!string.IsNullOrEmpty(StateOrProvince))
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (!string.IsNullOrEmpty(PostalCode))
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (!string.IsNullOrEmpty(CountryName))
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
@@ -108,39 +93,40 @@ public class SignatureProductionPlace
 	/// <param name="xmlElement">XML element containing new state</param>
 	public void LoadXml(XmlElement xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xsd:City", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:City", xmlNamespaceManager);
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
-			City = xmlNodeList.Item(0).InnerText;
+			City = xmlNodeList.Item(0)!.InnerText;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:PostalCode", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
-			PostalCode = xmlNodeList.Item(0).InnerText;
+			PostalCode = xmlNodeList.Item(0)!.InnerText;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:StateOrProvince", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
-			StateOrProvince = xmlNodeList.Item(0).InnerText;
+			StateOrProvince = xmlNodeList.Item(0)!.InnerText;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:CountryName", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
-			CountryName = xmlNodeList.Item(0).InnerText;
+			CountryName = xmlNodeList.Item(0)!.InnerText;
 		}
 	}
 
@@ -150,42 +136,38 @@ public class SignatureProductionPlace
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
-		XmlElement bufferXmlElement;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignatureProductionPlace", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignatureProductionPlace", XadesSignedXml.XadesNamespaceUri);
 
 		if (!string.IsNullOrEmpty(City))
 		{
-			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "City", XadesSignedXml.XadesNamespaceUri);
+			XmlElement bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "City", XadesSignedXml.XadesNamespaceUri);
 			bufferXmlElement.InnerText = City;
-			retVal.AppendChild(bufferXmlElement);
+			result.AppendChild(bufferXmlElement);
 		}
 
 		if (!string.IsNullOrEmpty(StateOrProvince))
 		{
-			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "StateOrProvince", XadesSignedXml.XadesNamespaceUri);
+			XmlElement bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "StateOrProvince", XadesSignedXml.XadesNamespaceUri);
 			bufferXmlElement.InnerText = StateOrProvince;
-			retVal.AppendChild(bufferXmlElement);
+			result.AppendChild(bufferXmlElement);
 		}
 
 		if (!string.IsNullOrEmpty(PostalCode))
 		{
-			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "PostalCode", XadesSignedXml.XadesNamespaceUri);
+			XmlElement bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "PostalCode", XadesSignedXml.XadesNamespaceUri);
 			bufferXmlElement.InnerText = PostalCode;
-			retVal.AppendChild(bufferXmlElement);
+			result.AppendChild(bufferXmlElement);
 		}
 
 		if (CountryName != null && CountryName != "")
 		{
-			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CountryName", XadesSignedXml.XadesNamespaceUri);
+			XmlElement bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CountryName", XadesSignedXml.XadesNamespaceUri);
 			bufferXmlElement.InnerText = CountryName;
-			retVal.AppendChild(bufferXmlElement);
+			result.AppendChild(bufferXmlElement);
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

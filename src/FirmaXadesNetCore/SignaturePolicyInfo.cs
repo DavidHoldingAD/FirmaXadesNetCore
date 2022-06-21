@@ -31,12 +31,12 @@ public class SignaturePolicyInfo
 	/// <summary>
 	/// Gets or sets the policy identifier.
 	/// </summary>
-	public string PolicyIdentifier { get; set; }
+	public string? PolicyIdentifier { get; set; }
 
 	/// <summary>
 	/// Gets or sets the policy hash.
 	/// </summary>
-	public string PolicyHash { get; set; }
+	public string? PolicyHash { get; set; }
 
 	/// <summary>
 	/// Gets or sets the policy digest algorithm.
@@ -46,5 +46,5 @@ public class SignaturePolicyInfo
 	/// <summary>
 	/// Gets or sets the policy URI.
 	/// </summary>
-	public string PolicyUri { get; set; }
+	public string? PolicyUri { get; set; }
 }

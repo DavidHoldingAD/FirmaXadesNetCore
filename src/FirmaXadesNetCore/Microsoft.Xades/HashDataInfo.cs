@@ -35,22 +35,16 @@ namespace Microsoft.Xades;
 /// </summary>
 public class HashDataInfo
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Uri referencing a data object
 	/// </summary>
-	public string UriAttribute { get; set; }
+	public string? UriAttribute { get; set; }
 
 	/// <summary>
 	/// Transformations to make to this data object
 	/// </summary>
 	public Transforms Transforms { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -58,61 +52,55 @@ public class HashDataInfo
 	{
 		Transforms = new Transforms();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (!string.IsNullOrEmpty(UriAttribute))
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (Transforms != null && Transforms.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
-		if (xmlElement.HasAttribute("uri"))
+
+		if (!xmlElement.HasAttribute("Uri"))
 		{
-			UriAttribute = xmlElement.GetAttribute("uri");
-		}
-		else
-		{
-			UriAttribute = "";
 			throw new CryptographicException("uri attribute missing");
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		UriAttribute = xmlElement.GetAttribute("uri");
+
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xsd:Transforms", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:Transforms", xmlNamespaceManager);
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			Transforms = new Transforms();
-			Transforms.LoadXml((XmlElement)xmlNodeList.Item(0));
+			Transforms.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 	}
 
@@ -122,20 +110,17 @@ public class HashDataInfo
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("HashDataInfo", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement("HashDataInfo", XadesSignedXml.XadesNamespaceUri);
 
-		retVal.SetAttribute("uri", UriAttribute);
+		result.SetAttribute("uri", UriAttribute);
 
 		if (Transforms != null && Transforms.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(Transforms.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(Transforms.GetXml(), true));
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

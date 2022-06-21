@@ -40,12 +40,12 @@ public class CRLIdentifier
 	/// The optional URI attribute could serve to indicate where the OCSP
 	/// response identified is archived.
 	/// </summary>
-	public string UriAttribute { get; set; }
+	public string? UriAttribute { get; set; }
 
 	/// <summary>
 	/// Issuer of the CRL
 	/// </summary>
-	public string Issuer { get; set; }
+	public string? Issuer { get; set; }
 
 	/// <summary>
 	/// Date of issue of the CRL
@@ -67,7 +67,7 @@ public class CRLIdentifier
 	public CRLIdentifier()
 	{
 		IssueTime = DateTime.MinValue;
-		_number = long.MinValue; //Impossible value
+		_number = long.MinValue;
 	}
 
 	/// <summary>
@@ -105,39 +105,40 @@ public class CRLIdentifier
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
+
 		if (xmlElement.HasAttribute("URI"))
 		{
 			UriAttribute = xmlElement.GetAttribute("URI");
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xsd:Issuer", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:Issuer", xmlNamespaceManager);
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
-			Issuer = xmlNodeList.Item(0).InnerText;
+			Issuer = xmlNodeList.Item(0)!.InnerText;
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:IssueTime", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
-			IssueTime = XmlConvert.ToDateTime(xmlNodeList.Item(0).InnerText, XmlDateTimeSerializationMode.Local);
+			IssueTime = XmlConvert.ToDateTime(xmlNodeList.Item(0)!.InnerText, XmlDateTimeSerializationMode.Local);
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:Number", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
-			_number = long.Parse(xmlNodeList.Item(0).InnerText);
+			_number = long.Parse(xmlNodeList.Item(0)!.InnerText);
 		}
 	}
 
@@ -147,20 +148,18 @@ public class CRLIdentifier
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
-		XmlElement bufferXmlElement;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CRLIdentifier", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CRLIdentifier", XadesSignedXml.XadesNamespaceUri);
 
-		retVal.SetAttribute("URI", UriAttribute);
+		result.SetAttribute("URI", UriAttribute);
 
+		XmlElement? bufferXmlElement;
 		if (!string.IsNullOrEmpty(Issuer))
 		{
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "Issuer", XadesSignedXml.XadesNamespaceUri);
 			bufferXmlElement.InnerText = Issuer;
-			retVal.AppendChild(bufferXmlElement);
+			result.AppendChild(bufferXmlElement);
 		}
 
 		if (IssueTime != DateTime.MinValue)
@@ -171,16 +170,16 @@ public class CRLIdentifier
 
 			bufferXmlElement.InnerText = XmlConvert.ToString(truncatedDateTime, XmlDateTimeSerializationMode.Local);
 
-			retVal.AppendChild(bufferXmlElement);
+			result.AppendChild(bufferXmlElement);
 		}
 
 		if (_number != long.MinValue)
 		{
 			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "Number", XadesSignedXml.XadesNamespaceUri);
 			bufferXmlElement.InnerText = _number.ToString();
-			retVal.AppendChild(bufferXmlElement);
+			result.AppendChild(bufferXmlElement);
 		}
 
-		return retVal;
+		return result;
 	}
 }

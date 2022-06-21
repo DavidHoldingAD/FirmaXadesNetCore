@@ -40,7 +40,7 @@ namespace FirmaXadesNetCore.Clients;
 public class OcspClient
 {
 	private static readonly HttpClient _httpClient;
-	private Asn1OctetString _nonceAsn1OctetString;
+	private Asn1OctetString? _nonceAsn1OctetString;
 
 	static OcspClient()
 	{
@@ -57,9 +57,27 @@ public class OcspClient
 	/// <param name="requestorName"></param>
 	/// <param name="signCertificate"></param>
 	/// <returns></returns>
-	public byte[] QueryBinary(X509Certificate eeCert, X509Certificate issuerCert, string url, GeneralName requestorName = null,
-		System.Security.Cryptography.X509Certificates.X509Certificate2 signCertificate = null)
+	public byte[] QueryBinary(X509Certificate eeCert,
+		X509Certificate issuerCert,
+		string url,
+		GeneralName? requestorName = null,
+		System.Security.Cryptography.X509Certificates.X509Certificate2? signCertificate = null)
 	{
+		if (eeCert is null)
+		{
+			throw new ArgumentNullException(nameof(eeCert));
+		}
+
+		if (issuerCert is null)
+		{
+			throw new ArgumentNullException(nameof(issuerCert));
+		}
+
+		if (url is null)
+		{
+			throw new ArgumentNullException(nameof(url));
+		}
+
 		OcspReq ocspRequest = GenerateOcspRequest(issuerCert, eeCert.SerialNumber, requestorName, signCertificate);
 
 		using var request = new HttpRequestMessage(HttpMethod.Post, url)
@@ -85,7 +103,7 @@ public class OcspClient
 	/// </summary>
 	/// <param name="certificate"></param>
 	/// <returns></returns>
-	public string GetAuthorityInformationAccessOcspUrl(X509Certificate certificate)
+	public string? GetAuthorityInformationAccessOcspUrl(X509Certificate certificate)
 	{
 		if (certificate is null)
 		{
@@ -96,9 +114,8 @@ public class OcspClient
 
 		try
 		{
-			Asn1Object obj = GetExtensionValue(certificate, X509Extensions.AuthorityInfoAccess.Id);
-
-			if (obj == null)
+			Asn1Object? obj = GetExtensionValue(certificate, X509Extensions.AuthorityInfoAccess.Id);
+			if (obj is null)
 			{
 				return null;
 			}
@@ -140,62 +157,66 @@ public class OcspClient
 			throw new ArgumentNullException(nameof(binaryResp));
 		}
 
-		if (binaryResp.Length == 0)
+		if (_nonceAsn1OctetString is null)
+		{
+			throw new InvalidOperationException($"Request must be generated before processing.");
+		}
+
+		if (binaryResp.Length <= 0)
 		{
 			return CertificateStatus.Unknown;
 		}
 
-		var r = new OcspResp(binaryResp);
-		CertificateStatus cStatus = CertificateStatus.Unknown;
-
-		if (r.Status == OcspRespStatus.Successful)
+		var ocspResponse = new OcspResp(binaryResp);
+		if (ocspResponse.Status != OcspRespStatus.Successful)
 		{
-			var or = (BasicOcspResp)r.GetResponseObject();
+			throw new Exception($"Unknown status `{ocspResponse.Status}`.");
+		}
 
-			if (or.GetExtensionValue(OcspObjectIdentifiers.PkixOcspNonce).ToString() !=
-				_nonceAsn1OctetString.ToString())
-			{
-				throw new Exception("Bad nonce value");
-			}
+		var basicOscpResponse = (BasicOcspResp)ocspResponse.GetResponseObject();
+		if (basicOscpResponse.GetExtensionValue(OcspObjectIdentifiers.PkixOcspNonce).ToString()
+			!= _nonceAsn1OctetString.ToString())
+		{
+			throw new Exception("Bad nonce value");
+		}
 
-			if (or.Responses.Length == 1)
-			{
-				SingleResp resp = or.Responses[0];
+		if (basicOscpResponse.Responses.Length != 1)
+		{
+			return CertificateStatus.Unknown;
+		}
 
-				object certificateStatus = resp.GetCertStatus();
-
-				if (certificateStatus == Org.BouncyCastle.Ocsp.CertificateStatus.Good)
-				{
-					cStatus = CertificateStatus.Good;
-				}
-				else if (certificateStatus is RevokedStatus)
-				{
-					cStatus = CertificateStatus.Revoked;
-				}
-				else if (certificateStatus is UnknownStatus)
-				{
-					cStatus = CertificateStatus.Unknown;
-				}
-			}
-
+		object ocspCertificateStatus = basicOscpResponse.Responses[0].GetCertStatus();
+		if (ocspCertificateStatus == Org.BouncyCastle.Ocsp.CertificateStatus.Good)
+		{
+			return CertificateStatus.Good;
+		}
+		else if (ocspCertificateStatus is RevokedStatus)
+		{
+			return CertificateStatus.Revoked;
+		}
+		else if (ocspCertificateStatus is UnknownStatus)
+		{
+			return CertificateStatus.Unknown;
 		}
 		else
 		{
-			throw new Exception($"Unknown status `{r.Status}`.");
+			return CertificateStatus.Unknown;
 		}
-
-		return cStatus;
 	}
 
-	private OcspReq GenerateOcspRequest(X509Certificate issuerCert, BigInteger serialNumber, GeneralName requestorName,
-		System.Security.Cryptography.X509Certificates.X509Certificate2 signCertificate)
+	private OcspReq GenerateOcspRequest(X509Certificate issuerCert,
+		BigInteger serialNumber,
+		GeneralName? requestorName,
+		System.Security.Cryptography.X509Certificates.X509Certificate2? signCertificate)
 	{
 		var id = new CertificateID(CertificateID.HashSha1, issuerCert, serialNumber);
+
 		return GenerateOcspRequest(id, requestorName, signCertificate);
 	}
 
-	private OcspReq GenerateOcspRequest(CertificateID id, GeneralName requestorName,
-		System.Security.Cryptography.X509Certificates.X509Certificate2 signCertificate)
+	private OcspReq GenerateOcspRequest(CertificateID id,
+		GeneralName? requestorName,
+		System.Security.Cryptography.X509Certificates.X509Certificate2? signCertificate)
 	{
 		var ocspRequestGenerator = new OcspReqGenerator();
 
@@ -218,7 +239,7 @@ public class OcspClient
 
 		if (signCertificate != null)
 		{
-			return ocspRequestGenerator.Generate(RSA_CERTIFICATE_EXTENSIONS.GetRSAPrivateKey(signCertificate), CertificateUtils.GetCertificateChain(signCertificate));
+			return ocspRequestGenerator.Generate(RSA_CERTIFICATE_EXTENSIONS.GetRSAPrivateKey(signCertificate)!, CertificateUtils.GetCertificateChain(signCertificate));
 		}
 		else
 		{
@@ -226,11 +247,11 @@ public class OcspClient
 		}
 	}
 
-	private static Asn1Object GetExtensionValue(X509Certificate certificate, string oid)
+	private static Asn1Object? GetExtensionValue(X509Certificate certificate, string oid)
 	{
 		byte[] bytes = certificate.GetExtensionValue(new DerObjectIdentifier(oid)).GetOctets();
 
-		if (bytes == null)
+		if (bytes is null)
 		{
 			return null;
 		}

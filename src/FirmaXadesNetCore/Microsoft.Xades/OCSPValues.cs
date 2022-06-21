@@ -31,17 +31,11 @@ namespace Microsoft.Xades;
 /// </summary>
 public class OCSPValues
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Collection of OCSP values
 	/// </summary>
 	public OCSPValueCollection OCSPValueCollection { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -49,60 +43,48 @@ public class OCSPValues
 	{
 		OCSPValueCollection = new OCSPValueCollection();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
-	{
-		bool retVal = false;
-
-		if (OCSPValueCollection.Count > 0)
-		{
-			retVal = true;
-		}
-
-		return retVal;
-	}
+		=> OCSPValueCollection.Count > 0;
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		OCSPValue newOCSPValue;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-
 		if (xmlElement == null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 
 		OCSPValueCollection.Clear();
-		//xmlNodeList = xmlElement.SelectNodes("xades:OCSPValue", xmlNamespaceManager);
-		xmlNodeList = xmlElement.SelectNodes("xades:EncapsulatedOCSPValue", xmlNamespaceManager);
-		enumerator = xmlNodeList.GetEnumerator();
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xades:EncapsulatedOCSPValue", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required EncapsulatedOCSPValue element.");
+		}
+
+		IEnumerator enumerator = xmlNodeList.GetEnumerator();
 		try
 		{
 			while (enumerator.MoveNext())
 			{
-				iterationXmlElement = enumerator.Current as XmlElement;
-				if (iterationXmlElement != null)
+				if (enumerator.Current is not XmlElement iterationXmlElement)
 				{
-					newOCSPValue = new OCSPValue();
-					newOCSPValue.LoadXml(iterationXmlElement);
-					OCSPValueCollection.Add(newOCSPValue);
+					continue;
 				}
+
+				var newOCSPValue = new OCSPValue();
+				newOCSPValue.LoadXml(iterationXmlElement);
+				OCSPValueCollection.Add(newOCSPValue);
 			}
 		}
 		finally
@@ -120,13 +102,11 @@ public class OCSPValues
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "OCSPValues", XadesSignedXml.XadesNamespaceUri);
-		retVal.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "OCSPValues", XadesSignedXml.XadesNamespaceUri);
 
+		result.SetAttribute("xmlns:ds", SignedXml.XmlDsigNamespaceUrl);
 
 		if (OCSPValueCollection.Count > 0)
 		{
@@ -134,12 +114,11 @@ public class OCSPValues
 			{
 				if (ocspValue.HasChanged())
 				{
-					retVal.AppendChild(creationXmlDocument.ImportNode(ocspValue.GetXml(), true));
+					result.AppendChild(creationXmlDocument.ImportNode(ocspValue.GetXml(), true));
 				}
 			}
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

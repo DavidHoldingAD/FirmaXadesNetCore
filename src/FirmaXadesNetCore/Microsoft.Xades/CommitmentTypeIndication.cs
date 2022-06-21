@@ -40,12 +40,9 @@ namespace Microsoft.Xades;
 /// </summary>
 public class CommitmentTypeIndication
 {
-	#region Private variables
 	private ObjectReferenceCollection _objectReferenceCollection;
 	private bool _allSignedDataObjects;
-	#endregion
 
-	#region Public properties
 	/// <summary>
 	/// The CommitmentTypeId element univocally identifies the type of commitment made by the signer.
 	/// A number of commitments have been already identified and assigned corresponding OIDs.
@@ -93,9 +90,7 @@ public class CommitmentTypeIndication
 	/// qualifying information on the commitment made by the signer.
 	/// </summary>
 	public CommitmentTypeQualifiers CommitmentTypeQualifiers { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -106,84 +101,78 @@ public class CommitmentTypeIndication
 		_allSignedDataObjects = true;
 		CommitmentTypeQualifiers = new CommitmentTypeQualifiers();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (CommitmentTypeId != null && CommitmentTypeId.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (_objectReferenceCollection.Count > 0)
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (CommitmentTypeQualifiers != null && CommitmentTypeQualifiers.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-		IEnumerator enumerator;
-		XmlElement iterationXmlElement;
-		ObjectReference newObjectReference;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xsd:CommitmentTypeId", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:CommitmentTypeId", xmlNamespaceManager);
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
-			CommitmentTypeId = null;
 			throw new CryptographicException("CommitmentTypeId missing");
 		}
 		else
 		{
 			CommitmentTypeId = new ObjectIdentifier("CommitmentTypeId");
-			CommitmentTypeId.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CommitmentTypeId.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:ObjectReference", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			_objectReferenceCollection.Clear();
 			_allSignedDataObjects = false;
-			enumerator = xmlNodeList.GetEnumerator();
+			IEnumerator enumerator = xmlNodeList.GetEnumerator();
 			try
 			{
 				while (enumerator.MoveNext())
 				{
-					iterationXmlElement = enumerator.Current as XmlElement;
-					if (iterationXmlElement != null)
+					if (enumerator.Current is not XmlElement iterationXmlElement)
 					{
-						newObjectReference = new ObjectReference();
-						newObjectReference.LoadXml(iterationXmlElement);
-						_objectReferenceCollection.Add(newObjectReference);
+						continue;
 					}
+
+					var newObjectReference = new ObjectReference();
+					newObjectReference.LoadXml(iterationXmlElement);
+					_objectReferenceCollection.Add(newObjectReference);
 				}
 			}
 			finally
@@ -202,10 +191,11 @@ public class CommitmentTypeIndication
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:CommitmentTypeQualifiers", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			CommitmentTypeQualifiers = new CommitmentTypeQualifiers();
-			CommitmentTypeQualifiers.LoadXml((XmlElement)xmlNodeList.Item(0));
+			CommitmentTypeQualifiers.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 	}
 
@@ -215,16 +205,13 @@ public class CommitmentTypeIndication
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
-		XmlElement bufferXmlElement;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CommitmentTypeIndication", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "CommitmentTypeIndication", XadesSignedXml.XadesNamespaceUri);
 
 		if (CommitmentTypeId != null && CommitmentTypeId.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(CommitmentTypeId.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(CommitmentTypeId.GetXml(), true));
 		}
 		else
 		{
@@ -232,9 +219,10 @@ public class CommitmentTypeIndication
 		}
 
 		if (_allSignedDataObjects)
-		{ //Add emty element as required
-			bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "AllSignedDataObjects", XadesSignedXml.XadesNamespaceUri);
-			retVal.AppendChild(bufferXmlElement);
+		{
+			//Add emty element as required
+			XmlElement bufferXmlElement = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "AllSignedDataObjects", XadesSignedXml.XadesNamespaceUri);
+			result.AppendChild(bufferXmlElement);
 		}
 		else
 		{
@@ -244,7 +232,7 @@ public class CommitmentTypeIndication
 				{
 					if (objectReference.HasChanged())
 					{
-						retVal.AppendChild(creationXmlDocument.ImportNode(objectReference.GetXml(), true));
+						result.AppendChild(creationXmlDocument.ImportNode(objectReference.GetXml(), true));
 					}
 				}
 			}
@@ -252,10 +240,9 @@ public class CommitmentTypeIndication
 
 		if (CommitmentTypeQualifiers != null && CommitmentTypeQualifiers.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(CommitmentTypeQualifiers.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(CommitmentTypeQualifiers.GetXml(), true));
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

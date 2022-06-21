@@ -30,55 +30,24 @@ namespace Microsoft.Xades;
 /// </summary>
 public class DocumentationReference
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Pointer to further explanatory documentation of the object identifier
 	/// </summary>
-	public string DocumentationReferenceUri { get; set; }
-	#endregion
+	public string? DocumentationReferenceUri { get; set; }
 
-	#region Constructors
-	/// <summary>
-	/// Default constructor
-	/// </summary>
-	public DocumentationReference()
-	{
-	}
-	#endregion
-
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
-	{
-		bool retVal = false;
-
-		if (!string.IsNullOrEmpty(DocumentationReferenceUri))
-		{
-			retVal = true;
-		}
-
-		return retVal;
-	}
+		=> !string.IsNullOrEmpty(DocumentationReferenceUri);
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
-	{
-		if (xmlElement == null)
-		{
-			throw new ArgumentNullException(nameof(xmlElement));
-		}
-
-		DocumentationReferenceUri = xmlElement.InnerText;
-	}
+	public void LoadXml(XmlElement? xmlElement)
+		=> DocumentationReferenceUri = xmlElement?.InnerText;
 
 	/// <summary>
 	/// Returns the XML representation of the this object
@@ -86,14 +55,15 @@ public class DocumentationReference
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("DocumentationReference", XadesSignedXml.XadesNamespaceUri);
-		retVal.InnerText = DocumentationReferenceUri;
+		XmlElement result = creationXmlDocument.CreateElement("DocumentationReference", XadesSignedXml.XadesNamespaceUri);
 
-		return retVal;
+		if (!string.IsNullOrWhiteSpace(DocumentationReferenceUri))
+		{
+			result.InnerText = DocumentationReferenceUri;
+		}
+
+		return result;
 	}
-	#endregion
 }

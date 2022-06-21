@@ -37,10 +37,6 @@ namespace Microsoft.Xades;
 /// </summary>
 public class SignaturePolicyId
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// The SigPolicyId element contains an identifier that uniquely
 	/// identifies a specific version of the signature policy
@@ -65,9 +61,7 @@ public class SignaturePolicyId
 	/// qualifying the signature policy identifier
 	/// </summary>
 	public SigPolicyQualifiers SigPolicyQualifiers { get; set; }
-	#endregion
 
-	#region Constructors
 	/// <summary>
 	/// Default constructor
 	/// </summary>
@@ -78,86 +72,86 @@ public class SignaturePolicyId
 		SigPolicyHash = new DigestAlgAndValueType("SigPolicyHash");
 		SigPolicyQualifiers = new SigPolicyQualifiers();
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (SigPolicyId != null && SigPolicyId.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (Transforms != null && Transforms.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (SigPolicyHash != null && SigPolicyHash.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (SigPolicyQualifiers != null && SigPolicyQualifiers.HasChanged())
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public void LoadXml(XmlElement xmlElement)
+	public void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xsd:SigPolicyId", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:SigPolicyId", xmlNamespaceManager);
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			throw new CryptographicException("SigPolicyId missing");
 		}
+
 		SigPolicyId = new ObjectIdentifier("SigPolicyId");
-		SigPolicyId.LoadXml((XmlElement)xmlNodeList.Item(0));
+		SigPolicyId.LoadXml((XmlElement?)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("ds:Transforms", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			Transforms = new Transforms();
-			Transforms.LoadXml((XmlElement)xmlNodeList.Item(0));
+			Transforms.LoadXml((XmlElement?)xmlNodeList.Item(0));
 		}
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:SigPolicyHash", xmlNamespaceManager);
-		if (xmlNodeList.Count == 0)
+		if (xmlNodeList is null
+			|| xmlNodeList.Count <= 0)
 		{
 			throw new CryptographicException("SigPolicyHash missing");
 		}
 		SigPolicyHash = new DigestAlgAndValueType("SigPolicyHash");
-		SigPolicyHash.LoadXml((XmlElement)xmlNodeList.Item(0));
+		SigPolicyHash.LoadXml((XmlElement?)xmlNodeList.Item(0));
 
 		xmlNodeList = xmlElement.SelectNodes("xsd:SigPolicyQualifiers", xmlNamespaceManager);
-		if (xmlNodeList.Count != 0)
+		if (xmlNodeList is not null
+			&& xmlNodeList.Count != 0)
 		{
 			SigPolicyQualifiers = new SigPolicyQualifiers();
-			SigPolicyQualifiers.LoadXml((XmlElement)xmlNodeList.Item(0));
+			SigPolicyQualifiers.LoadXml((XmlElement)xmlNodeList.Item(0)!);
 		}
 	}
 
@@ -167,33 +161,30 @@ public class SignaturePolicyId
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignaturePolicyId", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, "SignaturePolicyId", XadesSignedXml.XadesNamespaceUri);
 
 		if (SigPolicyId != null && SigPolicyId.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(SigPolicyId.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(SigPolicyId.GetXml(), true));
 		}
 
 		if (Transforms != null && Transforms.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(Transforms.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(Transforms.GetXml(), true));
 		}
 
 		if (SigPolicyHash != null && SigPolicyHash.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(SigPolicyHash.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(SigPolicyHash.GetXml(), true));
 		}
 
 		if (SigPolicyQualifiers != null && SigPolicyQualifiers.HasChanged())
 		{
-			retVal.AppendChild(creationXmlDocument.ImportNode(SigPolicyQualifiers.GetXml(), true));
+			result.AppendChild(creationXmlDocument.ImportNode(SigPolicyQualifiers.GetXml(), true));
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

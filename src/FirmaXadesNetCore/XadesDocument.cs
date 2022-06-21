@@ -142,7 +142,7 @@ public sealed class XadesDocument : IXadesDocument
 	/// <inheritdoc/>
 	public SignatureDocument AttachSignature(SignatureDocument signatureDocument,
 		byte[] signatureValue,
-		TimeStampParameters timeStampParameters = null)
+		TimestampParameters? timestampParameters = null)
 	{
 		if (signatureDocument is null)
 		{
@@ -158,18 +158,22 @@ public sealed class XadesDocument : IXadesDocument
 		signatureDocument = _service.AttachSignature(signatureDocument, signatureValue);
 
 		// Timestamp
-		if (timeStampParameters is not null)
+		if (timestampParameters is not null)
 		{
-			using TimeStampClient timestampClient = !string.IsNullOrWhiteSpace(timeStampParameters.Username)
-				&& !string.IsNullOrWhiteSpace(timeStampParameters.Password)
-					? new TimeStampClient(timeStampParameters.Uri, timeStampParameters.Username, timeStampParameters.Password)
-					: new TimeStampClient(timeStampParameters.Uri);
-
-			var upgradeParameters = new UpgradeParameters
+			if (timestampParameters.Uri is null)
 			{
-				TimeStampClient = timestampClient,
+				throw new Exception($"Missing required timestamp server URI.");
+			}
+
+			using TimeStampClient timestampClient = !string.IsNullOrWhiteSpace(timestampParameters.Username)
+				&& !string.IsNullOrWhiteSpace(timestampParameters.Password)
+					? new TimeStampClient(timestampParameters.Uri, timestampParameters.Username, timestampParameters.Password)
+					: new TimeStampClient(timestampParameters.Uri);
+
+			var upgradeParameters = new UpgradeParameters(timestampClient)
+			{
 				DigestMethod = SignatureMethod
-					.GetByUri(signatureDocument.XadesSignature.SignatureMethod)
+					.GetByUri(signatureDocument.XadesSignature!.SignatureMethod)
 					.DigestMethod,
 
 				// TODO: CLRs and OCSP servers
@@ -179,11 +183,11 @@ public sealed class XadesDocument : IXadesDocument
 		}
 
 		// Update document element
-		XmlNode signatureElement = _document.SelectSingleNode($"//*[@Id='{signatureDocument.XadesSignature.Signature.Id}']");
+		XmlNode? signatureElement = _document.SelectSingleNode($"//*[@Id='{signatureDocument.XadesSignature!.Signature.Id}']");
 		if (signatureElement is null)
 		{
 			_document.RemoveAll();
-			_document.AppendChild(_document.ImportNode(signatureDocument.Document.DocumentElement, deep: true));
+			_document.AppendChild(_document.ImportNode(signatureDocument.Document!.DocumentElement!, deep: true));
 		}
 
 		return signatureDocument;
@@ -192,7 +196,7 @@ public sealed class XadesDocument : IXadesDocument
 	/// <inheritdoc/>
 	public SignatureDocument AttachCounterSignature(SignatureDocument signatureDocument,
 		byte[] signatureValue,
-		TimeStampParameters timeStampParameters = null)
+		TimestampParameters? timestampParameters = null)
 	{
 		if (signatureDocument is null)
 		{
@@ -208,18 +212,22 @@ public sealed class XadesDocument : IXadesDocument
 		signatureDocument = _service.AttachCounterSignature(signatureDocument, signatureValue);
 
 		// Timestamp
-		if (timeStampParameters is not null)
+		if (timestampParameters is not null)
 		{
-			using TimeStampClient timestampClient = !string.IsNullOrWhiteSpace(timeStampParameters.Username)
-				&& !string.IsNullOrWhiteSpace(timeStampParameters.Password)
-					? new TimeStampClient(timeStampParameters.Uri, timeStampParameters.Username, timeStampParameters.Password)
-					: new TimeStampClient(timeStampParameters.Uri);
-
-			var upgradeParameters = new UpgradeParameters
+			if (timestampParameters.Uri is null)
 			{
-				TimeStampClient = timestampClient,
+				throw new Exception($"Missing required timestamp server URI.");
+			}
+
+			using TimeStampClient timestampClient = !string.IsNullOrWhiteSpace(timestampParameters.Username)
+				&& !string.IsNullOrWhiteSpace(timestampParameters.Password)
+					? new TimeStampClient(timestampParameters.Uri, timestampParameters.Username, timestampParameters.Password)
+					: new TimeStampClient(timestampParameters.Uri);
+
+			var upgradeParameters = new UpgradeParameters(timestampClient)
+			{
 				DigestMethod = SignatureMethod
-					.GetByUri(signatureDocument.XadesSignature.SignatureMethod)
+					.GetByUri(signatureDocument.XadesSignature!.SignatureMethod)
 					.DigestMethod,
 
 				// TODO: CLRs and OCSP servers
@@ -230,7 +238,7 @@ public sealed class XadesDocument : IXadesDocument
 
 		// Update document element
 		_document.RemoveAll();
-		_document.AppendChild(_document.ImportNode(signatureDocument.Document.DocumentElement, deep: true));
+		_document.AppendChild(_document.ImportNode(signatureDocument.Document!.DocumentElement!, deep: true));
 
 		return signatureDocument;
 	}

@@ -33,10 +33,6 @@ namespace Microsoft.Xades;
 /// </summary>
 public class EncapsulatedPKIData
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// The name of the element when serializing
 	/// </summary>
@@ -46,21 +42,12 @@ public class EncapsulatedPKIData
 	/// The optional ID attribute can be used to make a reference to an element
 	/// of this data type.
 	/// </summary>
-	public string Id { get; set; }
+	public string? Id { get; set; }
 
 	/// <summary>
 	/// Base64 encoded content of this data type 
 	/// </summary>
-	public byte[] PkiData { get; set; }
-	#endregion
-
-	#region Constructors
-	/// <summary>
-	/// Default constructor
-	/// </summary>
-	public EncapsulatedPKIData()
-	{
-	}
+	public byte[]? PkiData { get; set; }
 
 	/// <summary>
 	/// Constructor with TagName
@@ -68,30 +55,28 @@ public class EncapsulatedPKIData
 	/// <param name="tagName">Name of the tag when serializing with GetXml</param>
 	public EncapsulatedPKIData(string tagName)
 	{
-		TagName = tagName;
+		TagName = tagName ?? throw new ArgumentNullException(nameof(tagName));
 	}
-	#endregion
 
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public bool HasChanged()
 	{
-		bool retVal = false;
+		bool result = false;
 
 		if (!string.IsNullOrEmpty(Id))
 		{
-			retVal = true;
+			result = true;
 		}
 
 		if (PkiData != null && PkiData.Length > 0)
 		{
-			retVal = true;
+			result = true;
 		}
 
-		return retVal;
+		return result;
 	}
 
 	/// <summary>
@@ -100,19 +85,14 @@ public class EncapsulatedPKIData
 	/// <param name="xmlElement">XML element containing new state</param>
 	public void LoadXml(XmlElement xmlElement)
 	{
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		if (xmlElement.HasAttribute("Id"))
-		{
-			Id = xmlElement.GetAttribute("Id");
-		}
-		else
-		{
-			Id = "";
-		}
+		Id = xmlElement.HasAttribute("Id")
+			? xmlElement.GetAttribute("Id")
+			: "";
 
 		PkiData = Convert.FromBase64String(xmlElement.InnerText);
 	}
@@ -123,24 +103,22 @@ public class EncapsulatedPKIData
 	/// <returns>XML element containing the state of this object</returns>
 	public XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, TagName, XadesSignedXml.XadesNamespaceUri);
-		retVal.SetAttribute("Encoding", "http://uri.etsi.org/01903/v1.2.2#DER");
+		XmlElement result = creationXmlDocument.CreateElement(XadesSignedXml.XmlXadesPrefix, TagName, XadesSignedXml.XadesNamespaceUri);
+
+		result.SetAttribute("Encoding", "http://uri.etsi.org/01903/v1.2.2#DER");
 
 		if (!string.IsNullOrEmpty(Id))
 		{
-			retVal.SetAttribute("Id", Id);
+			result.SetAttribute("Id", Id);
 		}
 
 		if (PkiData != null && PkiData.Length > 0)
 		{
-			retVal.InnerText = Convert.ToBase64String(PkiData, Base64FormattingOptions.InsertLineBreaks);
+			result.InnerText = Convert.ToBase64String(PkiData, Base64FormattingOptions.InsertLineBreaks);
 		}
 
-		return retVal;
+		return result;
 	}
-	#endregion
 }

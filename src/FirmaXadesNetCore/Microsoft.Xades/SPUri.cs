@@ -31,71 +31,48 @@ namespace Microsoft.Xades;
 /// </summary>
 public class SPUri : SigPolicyQualifier
 {
-	#region Private variables
-	#endregion
-
-	#region Public properties
 	/// <summary>
 	/// Uri for the sig policy qualifier
 	/// </summary>
-	public string Uri { get; set; }
+	public string? Uri { get; set; }
 
 	/// <summary>
 	/// Inherited generic element, not used in the SPUri class
 	/// </summary>
-	public override XmlElement AnyXmlElement
+	public override XmlElement? AnyXmlElement
 	{
 		get => null; //This does not make sense for SPUri
 		set => throw new CryptographicException("Setting AnyXmlElement on a SPUri is not supported");
 	}
-	#endregion
 
-	#region Constructors
-	/// <summary>
-	/// Default constructor
-	/// </summary>
-	public SPUri()
-	{
-	}
-	#endregion
-
-	#region Public methods
 	/// <summary>
 	/// Check to see if something has changed in this instance and needs to be serialized
 	/// </summary>
 	/// <returns>Flag indicating if a member needs serialization</returns>
 	public override bool HasChanged()
-	{
-		bool retVal = false;
-
-		if (Uri != null && Uri != "")
-		{
-			retVal = true;
-		}
-
-		return retVal;
-	}
+		=> Uri != null && Uri != "";
 
 	/// <summary>
 	/// Load state from an XML element
 	/// </summary>
 	/// <param name="xmlElement">XML element containing new state</param>
-	public override void LoadXml(XmlElement xmlElement)
+	public override void LoadXml(XmlElement? xmlElement)
 	{
-		XmlNamespaceManager xmlNamespaceManager;
-		XmlNodeList xmlNodeList;
-
-		if (xmlElement == null)
+		if (xmlElement is null)
 		{
 			throw new ArgumentNullException(nameof(xmlElement));
 		}
 
-		xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
+		var xmlNamespaceManager = new XmlNamespaceManager(xmlElement.OwnerDocument.NameTable);
 		xmlNamespaceManager.AddNamespace("xsd", XadesSignedXml.XadesNamespaceUri);
 
-		xmlNodeList = xmlElement.SelectNodes("xsd:SPURI", xmlNamespaceManager);
+		XmlNodeList? xmlNodeList = xmlElement.SelectNodes("xsd:SPURI", xmlNamespaceManager);
+		if (xmlNodeList is null)
+		{
+			throw new Exception($"Missing required SPURI element.");
+		}
 
-		Uri = ((XmlElement)xmlNodeList.Item(0)).InnerText;
+		Uri = ((XmlElement)xmlNodeList.Item(0)!).InnerText;
 	}
 
 	/// <summary>
@@ -104,18 +81,19 @@ public class SPUri : SigPolicyQualifier
 	/// <returns>XML element containing the state of this object</returns>
 	public override XmlElement GetXml()
 	{
-		XmlDocument creationXmlDocument;
-		XmlElement bufferXmlElement;
-		XmlElement retVal;
+		var creationXmlDocument = new XmlDocument();
 
-		creationXmlDocument = new XmlDocument();
-		retVal = creationXmlDocument.CreateElement("SigPolicyQualifier", XadesSignedXml.XadesNamespaceUri);
+		XmlElement result = creationXmlDocument.CreateElement("SigPolicyQualifier", XadesSignedXml.XadesNamespaceUri);
 
-		bufferXmlElement = creationXmlDocument.CreateElement("SPURI", XadesSignedXml.XadesNamespaceUri);
-		bufferXmlElement.InnerText = Uri;
-		retVal.AppendChild(creationXmlDocument.ImportNode(bufferXmlElement, true));
+		XmlElement bufferXmlElement = creationXmlDocument.CreateElement("SPURI", XadesSignedXml.XadesNamespaceUri);
 
-		return retVal;
+		if (!string.IsNullOrWhiteSpace(Uri))
+		{
+			bufferXmlElement.InnerText = Uri;
+		}
+
+		result.AppendChild(creationXmlDocument.ImportNode(bufferXmlElement, true));
+
+		return result;
 	}
-	#endregion
 }
