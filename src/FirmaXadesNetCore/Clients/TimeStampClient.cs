@@ -86,14 +86,14 @@ public sealed class TimeStampClient : ITimeStampClient, IDisposable
 	#region ITimeStampClient Members
 
 	/// <inheritdoc/>
-	public async Task<byte[]> GetTimeStampAsync(byte[] hash,
+	public async Task<byte[]> GetTimeStampAsync(byte[] hashValue,
 		DigestMethod digestMethod,
-		bool certReq,
+		bool requestSignerCertificates,
 		CancellationToken cancellationToken)
 	{
-		if (hash is null)
+		if (hashValue is null)
 		{
-			throw new ArgumentNullException(nameof(hash));
+			throw new ArgumentNullException(nameof(hashValue));
 		}
 
 		if (digestMethod is null)
@@ -102,10 +102,10 @@ public sealed class TimeStampClient : ITimeStampClient, IDisposable
 		}
 
 		var timeStampRequestGenerator = new TimeStampRequestGenerator();
-		timeStampRequestGenerator.SetCertReq(certReq);
+		timeStampRequestGenerator.SetCertReq(requestSignerCertificates);
 
 		TimeStampRequest timeStampRequest = timeStampRequestGenerator
-			.Generate(digestMethod.Oid, hash, BigInteger.ValueOf(DateTime.Now.Ticks));
+			.Generate(digestMethod.Oid, hashValue, BigInteger.ValueOf(DateTime.Now.Ticks));
 		byte[] timeStampRequestBytes = timeStampRequest.GetEncoded();
 
 		using var requestContent = new ByteArrayContent(timeStampRequestBytes);

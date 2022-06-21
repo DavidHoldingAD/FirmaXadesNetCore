@@ -31,13 +31,13 @@ public interface ITimeStampClient
 	/// <summary>
 	/// Makes the sealing request of the hash that is passed as a parameter and returns the response from the server.
 	/// </summary>
-	/// <param name="hash"></param>
+	/// <param name="hashValue"></param>
 	/// <param name="digestMethod"></param>
-	/// <param name="certReq"></param>
+	/// <param name="cerrequestSignerCertificatesReq"></param>
 	/// <param name="cancellationToken"></param>
 	/// <returns></returns>
-	Task<byte[]> GetTimeStampAsync(byte[] hash,
+	Task<byte[]> GetTimeStampAsync(byte[] hashValue,
 		DigestMethod digestMethod,
-		bool certReq,
+		bool cerrequestSignerCertificatesReq,
 		CancellationToken cancellationToken);
 }

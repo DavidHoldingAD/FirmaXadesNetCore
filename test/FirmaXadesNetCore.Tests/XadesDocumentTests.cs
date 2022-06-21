@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 
 namespace FirmaXadesNetCore.Tests;
@@ -89,6 +90,25 @@ public class XadesDocumentTests : TestsBase
 			Uri = new Uri(FreeTSAUrl),
 		});
 
+		// Clear stream
+		stream.SetLength(0);
+		document.WriteTo(stream);
+		stream.Seek(0, SeekOrigin.Begin);
+
+		// Reload document
+		document = XadesDocument.Create(stream);
+		signatureDocument = document.GetSignatures()[0];
+
 		AssertValid(signatureDocument);
+
+		// Decode timestamp
+		Microsoft.Xades.TimeStamp timeStamp = signatureDocument.XadesSignature.XadesObject.QualifyingProperties
+			.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection[0];
+
+		Assert.IsNotNull(timeStamp);
+		Assert.IsNotNull(timeStamp.EncapsulatedTimeStamp.PkiData);
+		Assert.IsTrue(Rfc3161TimestampToken.TryDecode(timeStamp.EncapsulatedTimeStamp.PkiData, out Rfc3161TimestampToken timestampToken, out _));
+		Assert.IsNotNull(timestampToken);
+		Assert.IsNotNull(timestampToken.TokenInfo);
 	}
 }
