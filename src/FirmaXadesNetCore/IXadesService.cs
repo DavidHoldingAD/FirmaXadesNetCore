@@ -61,12 +61,38 @@ public interface IXadesService
 	SignatureDocument GetRemotingSigningDigest(XmlDocument xmlDocument, RemoteSignatureParameters parameters, out byte[] digest);
 
 	/// <summary>
+	/// Performs a co system signing and gets the digest for remote singing.
+	/// </summary>
+	/// <param name="signatureDocument">the signature to countersign</param>
+	/// <param name="parameters">the signing parameters</param>
+	/// <param name="digest">the digest</param>
+	/// <returns>the signature document</returns>
+	SignatureDocument GetCoRemotingSigningDigest(SignatureDocument signatureDocument, RemoteSignatureParameters parameters, out byte[] digest);
+
+	/// <summary>
+	/// Performs a counter system signing and gets the digest for remote singing.
+	/// </summary>
+	/// <param name="signatureDocument">the signature to countersign</param>
+	/// <param name="parameters">the signing parameters</param>
+	/// <param name="digest">the digest</param>
+	/// <returns>the signature document</returns>
+	SignatureDocument GetCounterRemotingSigningDigest(SignatureDocument signatureDocument, RemoteSignatureParameters parameters, out byte[] digest);
+
+	/// <summary>
 	/// Attaches the signature value to the signature document.
 	/// </summary>
 	/// <param name="document">the signature document</param>
 	/// <param name="signatureValue">the signature value</param>
 	/// <returns>the updated signature document</returns>
 	SignatureDocument AttachSignature(SignatureDocument document, byte[] signatureValue);
+
+	/// <summary>
+	/// Attaches the signature value to the counter signature document.
+	/// </summary>
+	/// <param name="document">the counter signature document</param>
+	/// <param name="signatureValue">the signature value</param>
+	/// <returns>the updated counter signature document</returns>
+	SignatureDocument AttachCounterSignature(SignatureDocument document, byte[] signatureValue);
 
 	/// <summary>
 	/// Loads the signature documents from the specified XML stream.

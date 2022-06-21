@@ -7,7 +7,7 @@ using FirmaXadesNetCore.Clients;
 namespace FirmaXadesNetCore.Tests;
 
 [TestClass]
-public class SigningTests : TestsBase
+public class XadesServiceTests : TestsBase
 {
 	private const string FreeTSAUrl = "https://freetsa.org/tsr";
 
@@ -285,6 +285,122 @@ public class SigningTests : TestsBase
 			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
 				? "test"
 				: null,
+		}, out byte[] digestValue);
+
+		Assert.IsNotNull(signatureDocument);
+		Assert.IsNotNull(signatureDocument.XadesSignature);
+
+		if (packaging != SignaturePackaging.Enveloping)
+		{
+			Assert.IsNotNull(signatureDocument.Document);
+		}
+
+		// Sign digest
+		var asymmetricSignatureFormatter = new RSAPKCS1SignatureFormatter(certificate.GetRSAPrivateKey());
+		asymmetricSignatureFormatter.SetHashAlgorithm(HashAlgorithmName.SHA256.Name);
+		byte[] signatureValue = asymmetricSignatureFormatter.CreateSignature(digestValue);
+
+		// Attach signature
+		signatureDocument = service.AttachSignature(signatureDocument, signatureValue);
+
+		AssertValid(signatureDocument);
+	}
+
+	[TestMethod]
+	[DataRow(SignaturePackaging.Enveloped)]
+	[DataRow(SignaturePackaging.Enveloping)]
+	[DataRow(SignaturePackaging.InternallyDetached)]
+	public void Sign_Counter_Remote_Validate(SignaturePackaging packaging)
+	{
+		var service = new XadesService();
+
+		using Stream stream = CreateExampleDocumentSignedStream(elementID: "test");
+
+		var xmlDocument = new XmlDocument
+		{
+			PreserveWhitespace = true,
+		};
+		xmlDocument.Load(stream);
+
+		SignatureDocument originalSignatureDocument = service.Load(xmlDocument)[0];
+
+		Assert.IsNotNull(originalSignatureDocument);
+
+		using X509Certificate2 certificate = CreateSelfSignedCertificate();
+		using var publicCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
+
+		// Get digest
+		SignatureDocument signatureDocument = service.GetCounterRemotingSigningDigest(originalSignatureDocument, new RemoteSignatureParameters
+		{
+			PublicCertificate = publicCertificate,
+			SignaturePackaging = packaging,
+			DataFormat = new DataFormat { MimeType = "text/xml" },
+			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
+				? "test"
+				: null,
+		}, out byte[] digestValue);
+
+		Assert.IsNotNull(signatureDocument);
+		Assert.IsNotNull(signatureDocument.XadesSignature);
+
+		if (packaging != SignaturePackaging.Enveloping)
+		{
+			Assert.IsNotNull(signatureDocument.Document);
+		}
+
+		// Sign digest
+		var asymmetricSignatureFormatter = new RSAPKCS1SignatureFormatter(certificate.GetRSAPrivateKey());
+		asymmetricSignatureFormatter.SetHashAlgorithm(HashAlgorithmName.SHA256.Name);
+		byte[] signatureValue = asymmetricSignatureFormatter.CreateSignature(digestValue);
+
+		// Attach signature
+		signatureDocument = service.AttachCounterSignature(signatureDocument, signatureValue);
+
+		AssertValid(signatureDocument);
+	}
+
+	[TestMethod]
+	[DataRow(SignaturePackaging.Enveloped)]
+	[DataRow(SignaturePackaging.Enveloping)]
+	[DataRow(SignaturePackaging.InternallyDetached)]
+	public void Sign_Co_Remote_Validate(SignaturePackaging packaging)
+	{
+		if (packaging != SignaturePackaging.InternallyDetached)
+		{
+			Assert.Inconclusive($"Co signing `{packaging}` packaging is not supported at the moment.");
+		}
+
+		var service = new XadesService();
+
+		using Stream stream = CreateExampleDocumentSignedStream(elementID: "test",
+			signaturePackaging: packaging,
+			digestMethodUri: SignedXml.XmlDsigSHA256Url,
+			signatureMethodUri: SignedXml.XmlDsigRSASHA256Url);
+
+		var xmlDocument = new XmlDocument
+		{
+			PreserveWhitespace = true,
+		};
+		xmlDocument.Load(stream);
+
+		SignatureDocument originalSignatureDocument = service.Load(xmlDocument)[0];
+
+		Assert.IsNotNull(originalSignatureDocument);
+
+		using X509Certificate2 certificate = CreateSelfSignedCertificate();
+		using var publicCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
+
+		// Get digest
+		SignatureDocument signatureDocument = service.GetCoRemotingSigningDigest(originalSignatureDocument, new RemoteSignatureParameters
+		{
+			PublicCertificate = publicCertificate,
+			SignaturePackaging = packaging,
+			DataFormat = new DataFormat { MimeType = "text/xml" },
+			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
+				? "test"
+				: null,
+			DigestMethod = DigestMethod.SHA256,
+			SignatureMethod = SignatureMethod.RSAwithSHA256,
 		}, out byte[] digestValue);
 
 		Assert.IsNotNull(signatureDocument);

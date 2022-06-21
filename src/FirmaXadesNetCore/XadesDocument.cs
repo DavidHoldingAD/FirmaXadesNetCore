@@ -86,6 +86,60 @@ public sealed class XadesDocument : IXadesDocument
 	}
 
 	/// <inheritdoc/>
+	public byte[] GetCoSigningDigest(SignatureDocument signatureDocument,
+		RemoteSignatureParameters parameters,
+		out SignatureDocument coSignatureDocument)
+	{
+		if (signatureDocument is null)
+		{
+			throw new ArgumentNullException(nameof(signatureDocument));
+		}
+
+		if (parameters is null)
+		{
+			throw new ArgumentNullException(nameof(parameters));
+		}
+
+		if (parameters.PublicCertificate is null)
+		{
+			throw new ArgumentException($"Missing required public certificate.", nameof(parameters));
+		}
+
+		// Compute digest
+		coSignatureDocument = _service
+			.GetCoRemotingSigningDigest(signatureDocument, parameters, out byte[] digestValue);
+
+		return digestValue;
+	}
+
+	/// <inheritdoc/>
+	public byte[] GetCounterSigningDigest(SignatureDocument signatureDocument,
+		RemoteSignatureParameters parameters,
+		out SignatureDocument counterSignatureDocument)
+	{
+		if (signatureDocument is null)
+		{
+			throw new ArgumentNullException(nameof(signatureDocument));
+		}
+
+		if (parameters is null)
+		{
+			throw new ArgumentNullException(nameof(parameters));
+		}
+
+		if (parameters.PublicCertificate is null)
+		{
+			throw new ArgumentException($"Missing required public certificate.", nameof(parameters));
+		}
+
+		// Compute digest
+		counterSignatureDocument = _service
+			.GetCounterRemotingSigningDigest(signatureDocument, parameters, out byte[] digestValue);
+
+		return digestValue;
+	}
+
+	/// <inheritdoc/>
 	public SignatureDocument AttachSignature(SignatureDocument signatureDocument,
 		byte[] signatureValue,
 		TimeStampParameters timeStampParameters = null)
@@ -99,9 +153,6 @@ public sealed class XadesDocument : IXadesDocument
 		{
 			throw new ArgumentNullException(nameof(signatureValue));
 		}
-
-		// Enveloping mode clones the original XML document
-		bool updateAfterAttach = signatureDocument.Document is null;
 
 		// Updated signature value
 		signatureDocument = _service.AttachSignature(signatureDocument, signatureValue);
@@ -127,12 +178,59 @@ public sealed class XadesDocument : IXadesDocument
 			_upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesT, upgradeParameters);
 		}
 
-		// Enveloping
-		if (updateAfterAttach)
+		// Update document element
+		XmlNode signatureElement = _document.SelectSingleNode($"//*[@Id='{signatureDocument.XadesSignature.Signature.Id}']");
+		if (signatureElement is null)
 		{
 			_document.RemoveAll();
-			_document.AppendChild(_document.ImportNode(signatureDocument.XadesSignature.GetXml(), deep: true));
+			_document.AppendChild(_document.ImportNode(signatureDocument.Document.DocumentElement, deep: true));
 		}
+
+		return signatureDocument;
+	}
+
+	/// <inheritdoc/>
+	public SignatureDocument AttachCounterSignature(SignatureDocument signatureDocument,
+		byte[] signatureValue,
+		TimeStampParameters timeStampParameters = null)
+	{
+		if (signatureDocument is null)
+		{
+			throw new ArgumentNullException(nameof(signatureDocument));
+		}
+
+		if (signatureValue is null)
+		{
+			throw new ArgumentNullException(nameof(signatureValue));
+		}
+
+		// Updated signature value
+		signatureDocument = _service.AttachCounterSignature(signatureDocument, signatureValue);
+
+		// Timestamp
+		if (timeStampParameters is not null)
+		{
+			using TimeStampClient timestampClient = !string.IsNullOrWhiteSpace(timeStampParameters.Username)
+				&& !string.IsNullOrWhiteSpace(timeStampParameters.Password)
+					? new TimeStampClient(timeStampParameters.Uri, timeStampParameters.Username, timeStampParameters.Password)
+					: new TimeStampClient(timeStampParameters.Uri);
+
+			var upgradeParameters = new UpgradeParameters
+			{
+				TimeStampClient = timestampClient,
+				DigestMethod = SignatureMethod
+					.GetByUri(signatureDocument.XadesSignature.SignatureMethod)
+					.DigestMethod,
+
+				// TODO: CLRs and OCSP servers
+			};
+
+			_upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesT, upgradeParameters);
+		}
+
+		// Update document element
+		_document.RemoveAll();
+		_document.AppendChild(_document.ImportNode(signatureDocument.Document.DocumentElement, deep: true));
 
 		return signatureDocument;
 	}

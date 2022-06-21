@@ -116,7 +116,6 @@ public class SignatureDocument
 
 			if (xmlNode != null)
 			{
-
 				var nm = new XmlNamespaceManager(Document.NameTable);
 				nm.AddNamespace("xades", XadesSignedXml.XadesNamespaceUri);
 				nm.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
@@ -157,7 +156,6 @@ public class SignatureDocument
 					xmlUnsingedPropertiesNode = Document.ImportNode(XadesSignature.XadesObject.QualifyingProperties.UnsignedProperties.GetXml(), true);
 					xmlQPNode.AppendChild(xmlUnsingedPropertiesNode);
 				}
-
 			}
 			else
 			{

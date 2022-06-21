@@ -36,7 +36,10 @@ public abstract class TestsBase
 		return stream;
 	}
 
-	public static Stream CreateExampleDocumentSignedStream(string elementID)
+	public static Stream CreateExampleDocumentSignedStream(string elementID,
+		SignaturePackaging signaturePackaging = SignaturePackaging.Enveloped,
+		string digestMethodUri = null,
+		string signatureMethodUri = null)
 	{
 		if (elementID is null)
 		{
@@ -51,12 +54,18 @@ public abstract class TestsBase
 		var service = new XadesService();
 		var parameters = new LocalSignatureParameters
 		{
-			SignaturePackaging = SignaturePackaging.Enveloped,
+			SignaturePackaging = signaturePackaging,
 			Signer = new Signer(certificate),
 			DataFormat = new DataFormat { MimeType = "text/xml" },
-			ElementIdToSign = elementID,
-			DigestMethod = DigestMethod.SHA512,
-			SignatureMethod = SignatureMethod.RSAwithSHA512,
+			ElementIdToSign = signaturePackaging == SignaturePackaging.InternallyDetached
+				? elementID
+				: null,
+			DigestMethod = digestMethodUri is not null
+				? DigestMethod.GetByUri(digestMethodUri)
+				: DigestMethod.SHA512,
+			SignatureMethod = signatureMethodUri is not null
+				? SignatureMethod.GetByUri(signatureMethodUri)
+				: SignatureMethod.RSAwithSHA512,
 		};
 		parameters.SignatureCommitments.Add(new SignatureCommitment(SignatureCommitmentType.ProofOfCreation));
 
@@ -90,7 +99,7 @@ public abstract class TestsBase
 
 		// Assert
 		Assert.IsNotNull(result);
-		Assert.IsTrue(result.IsValid);
+		Assert.IsTrue(result.IsValid, $"{result.Message}:{result.Exception}");
 	}
 
 	protected static X509Certificate2 CreateSelfSignedCertificate(int keySizeInBits = 4096, string name = "test", string password = "WeNeedASaf3rPassword")

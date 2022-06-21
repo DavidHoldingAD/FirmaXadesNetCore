@@ -21,6 +21,28 @@ public interface IXadesDocument
 		out SignatureDocument signatureDocument);
 
 	/// <summary>
+	/// Performs a co system signing and gets the digest for remote singing.
+	/// </summary>
+	/// <param name="signatureDocument">the signature to countersign</param>
+	/// <param name="parameters">the signing parameters</param>
+	/// <param name="coSignatureDocument">the co signature document</param>
+	/// <returns>the digest</returns>>
+	byte[] GetCoSigningDigest(SignatureDocument signatureDocument,
+		RemoteSignatureParameters parameters,
+		out SignatureDocument coSignatureDocument);
+
+	/// <summary>
+	/// Performs a counter system signing and gets the digest for remote singing.
+	/// </summary>
+	/// <param name="signatureDocument">the signature to countersign</param>
+	/// <param name="parameters">the signing parameters</param>
+	/// <param name="counterSignatureDocument">the counter signature document</param>
+	/// <returns>the digest</returns>
+	byte[] GetCounterSigningDigest(SignatureDocument signatureDocument,
+		RemoteSignatureParameters parameters,
+		out SignatureDocument counterSignatureDocument);
+
+	/// <summary>
 	/// Attaches the specified signature value.
 	/// </summary>
 	/// <param name="signatureDocument">the signature document</param>
@@ -28,6 +50,17 @@ public interface IXadesDocument
 	/// <param name="timeStampParameters">the timestamp parameters</param>
 	/// <returns>the attached signature document</returns>
 	SignatureDocument AttachSignature(SignatureDocument signatureDocument,
+		byte[] signatureValue,
+		TimeStampParameters timeStampParameters = null);
+
+	/// <summary>
+	/// Attaches the signature value to the counter signature document.
+	/// </summary>
+	/// <param name="document">the counter signature document</param>
+	/// <param name="signatureValue">the signature value</param>
+	/// <param name="timeStampParameters">the timestamp parameters</param>
+	/// <returns>the updated counter signature document</returns>
+	SignatureDocument AttachCounterSignature(SignatureDocument document,
 		byte[] signatureValue,
 		TimeStampParameters timeStampParameters = null);
 
