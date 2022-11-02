@@ -1204,7 +1204,7 @@ public class XadesSignedXml : SignedXml
 		certDigests.Sort();
 		foreach (EncapsulatedX509Certificate encapsulatedX509Certificate in unsignedSignatureProperties.CertificateValues.EncapsulatedX509CertificateCollection)
 		{
-			byte[] certDigest = SHA1.HashData(encapsulatedX509Certificate.PkiData!);
+			byte[] certDigest = HashSha1(encapsulatedX509Certificate.PkiData!);
 			int index = certDigests.BinarySearch(Convert.ToBase64String(certDigest));
 			if (index >= 0)
 			{
@@ -1249,7 +1249,7 @@ public class XadesSignedXml : SignedXml
 		crlDigests.Sort();
 		foreach (CRLValue crlValue in unsignedSignatureProperties.RevocationValues.CRLValues.CRLValueCollection)
 		{
-			byte[] crlDigest = SHA1.HashData(crlValue.PkiData!);
+			byte[] crlDigest = HashSha1(crlValue.PkiData!);
 			int index = crlDigests.BinarySearch(Convert.ToBase64String(crlDigest));
 			if (index >= 0)
 			{
@@ -1805,6 +1805,22 @@ public class XadesSignedXml : SignedXml
 	#endregion
 
 	#region Private methods
+
+	private static byte[] HashSha1(byte[] data)
+	{
+		if (data is null)
+		{
+			throw new ArgumentNullException(nameof(data));
+		}
+
+#if NET6_0_OR_GREATER
+		return SHA1.HashData(data);
+#else
+		using var hashAlgorithm = SHA1.Create();
+
+		return hashAlgorithm.ComputeHash(data);
+#endif
+	}
 
 	private XmlElement? GetXadesObjectElement(XmlElement signatureElement)
 	{

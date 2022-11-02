@@ -107,9 +107,11 @@ public class XadesDocumentTests : TestsBase
 
 		Assert.IsNotNull(timeStamp);
 		Assert.IsNotNull(timeStamp.EncapsulatedTimeStamp.PkiData);
+#if NET6_0_OR_GREATER
 		Assert.IsTrue(Rfc3161TimestampToken.TryDecode(timeStamp.EncapsulatedTimeStamp.PkiData, out Rfc3161TimestampToken timestampToken, out _));
 		Assert.IsNotNull(timestampToken);
 		Assert.IsNotNull(timestampToken.TokenInfo);
+#endif
 	}
 
 	[TestMethod]
@@ -186,9 +188,11 @@ public class XadesDocumentTests : TestsBase
 
 		Assert.IsNotNull(timeStamp);
 		Assert.IsNotNull(timeStamp.EncapsulatedTimeStamp.PkiData);
+#if NET6_0_OR_GREATER
 		Assert.IsTrue(Rfc3161TimestampToken.TryDecode(timeStamp.EncapsulatedTimeStamp.PkiData, out Rfc3161TimestampToken timestampToken, out _));
 		Assert.IsNotNull(timestampToken);
 		Assert.IsNotNull(timestampToken.TokenInfo);
+#endif
 	}
 
 	[TestMethod]
@@ -256,8 +260,10 @@ public class XadesDocumentTests : TestsBase
 
 		Assert.IsNotNull(timeStamp);
 		Assert.IsNotNull(timeStamp.EncapsulatedTimeStamp.PkiData);
+#if NET6_0_OR_GREATER
 		Assert.IsTrue(Rfc3161TimestampToken.TryDecode(timeStamp.EncapsulatedTimeStamp.PkiData, out Rfc3161TimestampToken timestampToken, out _));
 		Assert.IsNotNull(timestampToken);
 		Assert.IsNotNull(timestampToken.TokenInfo);
+#endif
 	}
 }

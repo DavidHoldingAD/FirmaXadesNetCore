@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFrameworks>net6.0;net48</TargetFrameworks>
 		<Authors>Verdun Labs</Authors>
 		<Company>TelviSoft CR</Company>
 		<RepositoryUrl>https://github.com/DavidHoldingAD/FirmaXadesNetCore</RepositoryUrl>
@@ -17,10 +17,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Using Remove="System.Net.Http" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<EmbeddedResource Include="**\*.xsd" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="System.Memory" Version="4.5.5" Condition="'$(TargetFramework)' == 'net48'" />
 		<PackageReference Include="BouncyCastle.NetCore" Version="1.9.0" />
 		<PackageReference Include="System.Security.Cryptography.Xml" Version="6.0.0" />
 	</ItemGroup>

@@ -160,6 +160,7 @@ public sealed class XadesDocument : IXadesDocument
 		// Timestamp
 		if (timestampParameters is not null)
 		{
+#if NET6_0_OR_GREATER
 			if (timestampParameters.Uri is null)
 			{
 				throw new Exception($"Missing required timestamp server URI.");
@@ -180,6 +181,9 @@ public sealed class XadesDocument : IXadesDocument
 			};
 
 			_upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesT, upgradeParameters);
+#else
+			throw new Exception($"Timestamps are not supported in .NET 4.8 target framework.");
+#endif
 		}
 
 		// Update document element
@@ -214,6 +218,7 @@ public sealed class XadesDocument : IXadesDocument
 		// Timestamp
 		if (timestampParameters is not null)
 		{
+#if NET6_0_OR_GREATER
 			if (timestampParameters.Uri is null)
 			{
 				throw new Exception($"Missing required timestamp server URI.");
@@ -234,6 +239,9 @@ public sealed class XadesDocument : IXadesDocument
 			};
 
 			_upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesT, upgradeParameters);
+#else
+			throw new Exception($"Timestamps are not supported in .NET 4.8 target framework.");
+#endif
 		}
 
 		// Update document element

@@ -133,6 +133,7 @@ public sealed class DigestMethod
 			throw new ArgumentNullException(nameof(value));
 		}
 
+#if NET6_0_OR_GREATER
 		return Uri switch
 		{
 			SignedXml.XmlDsigSHA1Url
@@ -146,6 +147,23 @@ public sealed class DigestMethod
 			_
 				=> throw new Exception($"Hash algorithm URI `{Uri}` is not supported in this context.")
 		};
+#else
+		using HashAlgorithm hashAlgorithm = Uri switch
+		{
+			SignedXml.XmlDsigSHA1Url
+				=> HashAlgorithm.Create(HashAlgorithmName.SHA1.Name),
+			SignedXml.XmlDsigSHA256Url
+				=> HashAlgorithm.Create(HashAlgorithmName.SHA256.Name),
+			SignedXml.XmlDsigSHA384Url
+				=> HashAlgorithm.Create(HashAlgorithmName.SHA384.Name),
+			SignedXml.XmlDsigSHA512Url
+				=> HashAlgorithm.Create(HashAlgorithmName.SHA512.Name),
+			_
+				=> throw new Exception($"Hash algorithm URI `{Uri}` is not supported in this context.")
+		};
+
+		return hashAlgorithm.ComputeHash(value);
+#endif
 	}
 
 	/// <summary>

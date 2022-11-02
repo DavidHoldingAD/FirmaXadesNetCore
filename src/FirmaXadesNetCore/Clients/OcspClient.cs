@@ -21,7 +21,9 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
+#if NET6_0_OR_GREATER
 using System.Collections;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using FirmaXadesNetCore.Utils;
 using Org.BouncyCastle.Asn1;
@@ -261,3 +263,4 @@ public class OcspClient
 		return aIn.ReadObject();
 	}
 }
+#endif

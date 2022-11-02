@@ -48,15 +48,20 @@ public sealed class XadesUpgraderService : IXadesUpgraderService
 
 		SignatureDocument.CheckSignatureDocument(signatureDocument);
 
-		IXadesUpgrader xadesUpgrader = toFormat switch
+		IXadesUpgrader xadesUpgrader;
+		if (toFormat == SignatureFormat.XadesT
+			|| signatureDocument.XadesSignature!.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count <= 0)
 		{
-			SignatureFormat.XadesT
-				=> new XadesTUpgrader(),
-			_
-				=> signatureDocument.XadesSignature!.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count <= 0
-					? new XadesTUpgrader()
-					: new XadesXLUpgrader(),
-		};
+			xadesUpgrader = new XadesTUpgrader();
+		}
+		else
+		{
+#if NET6_0_OR_GREATER
+			xadesUpgrader = new XadesXLUpgrader();
+#else
+			throw new Exception($"XAdES XL is not supported on .NET 4.8 target framework.");
+#endif
+		}
 
 		xadesUpgrader.Upgrade(signatureDocument, parameters);
 	}

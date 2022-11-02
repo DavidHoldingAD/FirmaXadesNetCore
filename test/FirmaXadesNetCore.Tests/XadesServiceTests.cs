@@ -178,12 +178,14 @@ public class XadesServiceTests : TestsBase
 			SignatureMethod = SignatureMethod.RSAwithSHA256,
 		});
 
+#if NET6_0_OR_GREATER
 		// Add timestamp
 		using var timestampClient = new TimeStampClient(new Uri(FreeTSAUrl));
 		upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesT, new Upgraders.Parameters.UpgradeParameters(timestampClient)
 		{
 			DigestMethod = DigestMethod.GetByUri(digestMethod),
 		});
+#endif
 
 		AssertValid(signatureDocument);
 	}
@@ -213,12 +215,14 @@ public class XadesServiceTests : TestsBase
 			SignatureMethod = SignatureMethod.RSAwithSHA256,
 		});
 
+#if NET6_0_OR_GREATER
 		// Add timestamp
 		using var timestampClient = new TimeStampClient(new Uri(FreeTSAUrl));
 		upgraderService.Upgrade(signatureDocument, SignatureFormat.XadesXL, new Upgraders.Parameters.UpgradeParameters(timestampClient)
 		{
 			DigestMethod = DigestMethod.GetByUri(digestMethod),
 		});
+#endif
 
 		AssertValid(signatureDocument);
 	}

@@ -112,10 +112,12 @@ public abstract class TestsBase
 
 		using X509Certificate2 certificate = request.CreateSelfSigned(new DateTimeOffset(DateTime.UtcNow.AddDays(-1)), new DateTimeOffset(DateTime.UtcNow.AddDays(3650)));
 
+#if NET6_0_OR_GREATER
 		if (OperatingSystem.IsWindows())
 		{
 			certificate.FriendlyName = name;
 		}
+#endif
 
 		byte[] pfxBytes = certificate.Export(X509ContentType.Pfx, password);
 
