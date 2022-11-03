@@ -1,14 +1,51 @@
-name: Build
-on: [push]
+name: Build and test
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - '**.png'
+      - '**.editorconfig'
+      - '**.csv'
+      - '**codeql-analysis.yml'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - '**.png'
+      - '**.editorconfig'
+      - '**.csv'
+      - '**codeql-analysis.yml'
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    name: Test `${{ matrix.options.tf }}` on `${{ matrix.options.os }}`
+    runs-on: ${{ matrix.options.os }}
+    strategy:
+      matrix:
+        options:
+          # ne5.0
+          - os: ubuntu-latest
+            tf: net6.0
+          - os: windows-latest
+            tf: net6.0
+          - os: macos-latest
+            tf: net6.0
+          # net48
+          - os: windows-latest
+            tf: net48
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v2.4.2
-    - name: Setup SDK
-      uses: actions/setup-dotnet@v2.1.0
-    - name: Build
-      run: dotnet build -c Release
-    - name: Test
-      run: dotnet test -c Release
+     - name: Checkout
+       uses: actions/actions/checkout@v2.5.0
+
+     - name: Setup dotnet
+       uses: actions/setup-dotnet@v3.0.3
+       with:
+         dotnet-version: ${{ matrix.options.rv }}
+
+     - name: Publish tests
+       run: dotnet publish "test/FirmaXadesNetCore.Tests/FirmaXadesNetCore.Tests.csproj" -o ".deploy/FirmaXadesNetCore.Tests" -c "Release" -f "${{ matrix.options.tf }}"
+
+     - name: Run tests
+       run: dotnet vstest ".deploy/FirmaXadesNetCore.Tests/FirmaXadesNetCore.Tests.dll" --ResultsDirectory:".deploy/FirmaXadesNetCore.Tests/TestResults"
