@@ -39,32 +39,32 @@ internal static class ReflectionUtils
 	private static readonly Type _ocspReqGeneratorInfoType = typeof(Org.BouncyCastle.Ocsp.OcspReqGenerator);
 
 	private static readonly FieldInfo _signedXmlRefProcessed = _signedXmlType
-		.GetField(SignedXmlRefProcessedFieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetField(SignedXmlRefProcessedFieldName, BindingFlags.NonPublic | BindingFlags.Instance)!;
 	private static readonly FieldInfo _signedXmlLevelCache = _signedXmlType
-		.GetField(SignedXmlRefLevelCacheFieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetField(SignedXmlRefLevelCacheFieldName, BindingFlags.NonPublic | BindingFlags.Instance)!;
 	private static readonly FieldInfo _signedXmlContainingDocument = _signedXmlType
-		.GetField(SignedXmlContainingDocumentFieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetField(SignedXmlContainingDocumentFieldName, BindingFlags.NonPublic | BindingFlags.Instance)!;
 	private static readonly FieldInfo _signedXmlBCacheValid = _signedXmlType
-		.GetField(SignedXmlBCacheValidFieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetField(SignedXmlBCacheValidFieldName, BindingFlags.NonPublic | BindingFlags.Instance)!;
 	private static readonly FieldInfo _signedXmlBResolverSet = _signedXmlType
-		.GetField(SignedXmlBResolverSetFieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetField(SignedXmlBResolverSetFieldName, BindingFlags.NonPublic | BindingFlags.Instance)!;
 	private static readonly FieldInfo _signedXmlXmlResolver = _signedXmlType
-		.GetField(SignedXmlXmlResolverFieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetField(SignedXmlXmlResolverFieldName, BindingFlags.NonPublic | BindingFlags.Instance)!;
 	private static readonly FieldInfo _signedXmlContext = _signedXmlType
-		.GetField(SignedXmlContextFieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetField(SignedXmlContextFieldName, BindingFlags.NonPublic | BindingFlags.Instance)!;
 	private static readonly FieldInfo _signedXmlDigestedSignedInfo = _signedXmlType
-		.GetField("_digestedSignedInfo", BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetField("_digestedSignedInfo", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
 	private static readonly PropertyInfo _signedInfoTypeCacheValid = _signedInfoType
 		.GetProperty("CacheValid", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
 	private static readonly Assembly _systemSecurityAssembly = Assembly.Load(SystemSecurityAssemblyFullName);
 	private static readonly Type _referenceLevelSortOrderType = _systemSecurityAssembly
-		.GetType("System.Security.Cryptography.Xml.SignedXml+ReferenceLevelSortOrder");
+		.GetType("System.Security.Cryptography.Xml.SignedXml+ReferenceLevelSortOrder")!;
 	private static readonly ConstructorInfo _referenceLevelSortOrderConstructorInfo = _referenceLevelSortOrderType
-		.GetConstructor(Array.Empty<Type>());
+		.GetConstructor(Array.Empty<Type>())!;
 	private static readonly PropertyInfo _referenceLevelSortOrderReferences = _referenceLevelSortOrderType
-		.GetProperty("References", BindingFlags.Public | BindingFlags.Instance);
+		.GetProperty("References", BindingFlags.Public | BindingFlags.Instance)!;
 
 #if NET6_0_OR_GREATER
 	private static readonly Assembly _cripXmlAssembly = Assembly.Load("System.Security.Cryptography.Xml");
@@ -75,41 +75,41 @@ internal static class ReflectionUtils
 	private static readonly Type _canonicalXmlNodeListType = _cripXmlAssembly
 		.GetType("System.Security.Cryptography.Xml.CanonicalXmlNodeList")!;
 	private static readonly ConstructorInfo _canonicalXmlNodeListConstructorInfo = _canonicalXmlNodeListType
-		.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, Array.Empty<Type>(), null);
+		.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, Array.Empty<Type>(), null)!;
 	private static readonly MethodInfo _canonicalXmlNodeListAddMethod = _canonicalXmlNodeListType
-		.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance);
+		.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance)!;
 
 	private static readonly MethodInfo _referenceUpdateHashValueMethod = _referenceType
-		.GetMethod("UpdateHashValue", BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetMethod("UpdateHashValue", BindingFlags.NonPublic | BindingFlags.Instance)!;
 	private static readonly MethodInfo _referenceCalculateHashValueMethod = _referenceType
-		.GetMethod("CalculateHashValue", BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetMethod("CalculateHashValue", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
 	private static readonly Type _xmlUtilsType = _cripXmlAssembly
-		.GetType("System.Security.Cryptography.Xml.Utils");
+		.GetType("System.Security.Cryptography.Xml.Utils")!;
 	private static readonly MethodInfo _xmlUtilsPreProcessElementInputMethod = _xmlUtilsType
-		.GetMethod("PreProcessElementInput", BindingFlags.NonPublic | BindingFlags.Static);
+		.GetMethod("PreProcessElementInput", BindingFlags.NonPublic | BindingFlags.Static)!;
 	private static readonly MethodInfo _xmlUtilsGetPropagatedAttributes = _xmlUtilsType
-		.GetMethod("GetPropagatedAttributes", BindingFlags.NonPublic | BindingFlags.Static);
+		.GetMethod("GetPropagatedAttributes", BindingFlags.NonPublic | BindingFlags.Static)!;
 	private static readonly MethodInfo _xmlUtilsAddNamespaces = _xmlUtilsType
 		.GetMethod("AddNamespaces", BindingFlags.NonPublic | BindingFlags.Static, null,
-			new Type[] { typeof(XmlElement), _canonicalXmlNodeListType }, null);
+			new Type[] { typeof(XmlElement), _canonicalXmlNodeListType }, null)!;
 
 	private static readonly PropertyInfo _transformBaseURI = _transformType
-		.GetProperty("BaseURI", BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetProperty("BaseURI", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
 	private static readonly FieldInfo _xmlDsigXPathTransformNsm = _xmlDsigXPathTransformType
-		.GetField("_nsm", BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetField("_nsm", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
 	private static readonly FieldInfo _ocspReqGeneratorInfoList = _ocspReqGeneratorInfoType
-		.GetField("list", BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetField("list", BindingFlags.NonPublic | BindingFlags.Instance)!;
 	private static readonly Type _ocspReqGeneratorInfoRequestObjectType = _ocspReqGeneratorInfoType
-		.GetNestedType("RequestObject", BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetNestedType("RequestObject", BindingFlags.NonPublic | BindingFlags.Instance)!;
 	private static readonly MethodInfo _ocspReqGeneratorInfoRequestToRequestMethod = _ocspReqGeneratorInfoRequestObjectType
-		.GetMethod("ToRequest");
+		.GetMethod("ToRequest")!;
 	private static readonly FieldInfo _ocspReqGeneratorInfoRequestorName = _ocspReqGeneratorInfoType
-		.GetField("requestorName", BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetField("requestorName", BindingFlags.NonPublic | BindingFlags.Instance)!;
 	private static readonly FieldInfo _ocspReqGeneratorInfoRequestExtensions = _ocspReqGeneratorInfoType
-		.GetField("requestExtensions", BindingFlags.NonPublic | BindingFlags.Instance);
+		.GetField("requestExtensions", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
 	public static XmlSchemaSet CreateXadesSchemaSet()
 	{
@@ -125,13 +125,13 @@ internal static class ReflectionUtils
 			XmlResolver = null,
 		};
 
-		using (Stream stream = assembly.GetManifestResourceStream(XmlDsigCoreXsdResourceName))
+		using (Stream stream = assembly.GetManifestResourceStream(XmlDsigCoreXsdResourceName)!)
 		using (var xmlReader = XmlReader.Create(stream, xmlReaderSettings))
 		{
 			schemaSet.Add(null, xmlReader);
 		}
 
-		using (Stream stream = assembly.GetManifestResourceStream(XadesXSDResourceName))
+		using (Stream stream = assembly.GetManifestResourceStream(XadesXSDResourceName)!)
 		using (var xmlReader = XmlReader.Create(stream, xmlReaderSettings))
 		{
 			schemaSet.Add(null, xmlReader);
@@ -189,7 +189,7 @@ internal static class ReflectionUtils
 			throw new ArgumentNullException(nameof(signedXml));
 		}
 
-		bool result = (bool)_signedXmlBCacheValid.GetValue(signedXml);
+		bool result = (bool)_signedXmlBCacheValid.GetValue(signedXml)!;
 
 		return result;
 	}
@@ -211,7 +211,7 @@ internal static class ReflectionUtils
 			throw new ArgumentNullException(nameof(signedXml));
 		}
 
-		bool result = (bool)_signedXmlBResolverSet.GetValue(signedXml);
+		bool result = (bool)_signedXmlBResolverSet.GetValue(signedXml)!;
 
 		return result;
 	}
@@ -223,7 +223,7 @@ internal static class ReflectionUtils
 			throw new ArgumentNullException(nameof(signedXml));
 		}
 
-		var result = (XmlResolver)_signedXmlXmlResolver.GetValue(signedXml);
+		var result = (XmlResolver)_signedXmlXmlResolver.GetValue(signedXml)!;
 
 		return result;
 	}
@@ -247,7 +247,7 @@ internal static class ReflectionUtils
 			throw new ArgumentNullException(nameof(signedXml));
 		}
 
-		byte[] result = (byte[])_signedXmlDigestedSignedInfo.GetValue(signedXml);
+		byte[] result = (byte[])_signedXmlDigestedSignedInfo.GetValue(signedXml)!;
 
 		return result;
 	}
@@ -274,7 +274,7 @@ internal static class ReflectionUtils
 			throw new ArgumentNullException(nameof(signedInfo));
 		}
 
-		bool result = (bool)_signedInfoTypeCacheValid.GetValue(signedInfo);
+		bool result = (bool)_signedInfoTypeCacheValid.GetValue(signedInfo)!;
 
 		return result;
 	}
@@ -345,14 +345,14 @@ internal static class ReflectionUtils
 			throw new ArgumentNullException(nameof(nodeList));
 		}
 
-		byte[] result = (byte[])_referenceCalculateHashValueMethod.Invoke(reference, new object?[] { xmlDocument, nodeList });
+		byte[] result = (byte[])_referenceCalculateHashValueMethod.Invoke(reference, new object?[] { xmlDocument, nodeList })!;
 
 		return result;
 	}
 
 	public static XmlDocument XmlUtilsPreProcessElementInput(XmlElement? xmlElement, XmlResolver? xmlResolver, string? securityUrl)
 	{
-		var result = (XmlDocument)_xmlUtilsPreProcessElementInputMethod.Invoke(null, new object?[] { xmlElement, xmlResolver, securityUrl });
+		var result = (XmlDocument)_xmlUtilsPreProcessElementInputMethod.Invoke(null, new object?[] { xmlElement, xmlResolver, securityUrl })!;
 
 		return result;
 	}
@@ -364,15 +364,8 @@ internal static class ReflectionUtils
 		return result;
 	}
 
-	public static void XmlUtilsAddNamespaces(XmlElement xmlElement, XmlNodeList? namespaces)
-	{
-		if (xmlElement is null)
-		{
-			throw new ArgumentNullException(nameof(xmlElement));
-		}
-
-		_xmlUtilsAddNamespaces.Invoke(null, new object?[] { xmlElement, namespaces });
-	}
+	public static void XmlUtilsAddNamespaces(XmlElement? xmlElement, XmlNodeList? namespaces)
+		=> _xmlUtilsAddNamespaces.Invoke(null, new object?[] { xmlElement, namespaces });
 
 	public static void SetTransformBaseURI(Transform transform, string? securityUrl)
 	{
@@ -391,7 +384,7 @@ internal static class ReflectionUtils
 			throw new ArgumentNullException(nameof(transform));
 		}
 
-		var result = (XmlNamespaceManager)_xmlDsigXPathTransformNsm.GetValue(transform);
+		var result = (XmlNamespaceManager)_xmlDsigXPathTransformNsm.GetValue(transform)!;
 
 		return result;
 	}
@@ -403,7 +396,7 @@ internal static class ReflectionUtils
 			throw new ArgumentNullException(nameof(generator));
 		}
 
-		var result = (IList)_ocspReqGeneratorInfoList.GetValue(generator);
+		var result = (IList)_ocspReqGeneratorInfoList.GetValue(generator)!;
 
 		return result;
 	}
@@ -415,7 +408,7 @@ internal static class ReflectionUtils
 			throw new ArgumentNullException(nameof(reqObj));
 		}
 
-		var result = (Org.BouncyCastle.Asn1.Ocsp.Request)_ocspReqGeneratorInfoRequestToRequestMethod.Invoke(reqObj, null);
+		var result = (Org.BouncyCastle.Asn1.Ocsp.Request)_ocspReqGeneratorInfoRequestToRequestMethod.Invoke(reqObj, null)!;
 
 		return result;
 	}
@@ -427,7 +420,7 @@ internal static class ReflectionUtils
 			throw new ArgumentNullException(nameof(generator));
 		}
 
-		var result = (Org.BouncyCastle.Asn1.X509.GeneralName)_ocspReqGeneratorInfoRequestorName.GetValue(generator);
+		var result = (Org.BouncyCastle.Asn1.X509.GeneralName)_ocspReqGeneratorInfoRequestorName.GetValue(generator)!;
 
 		return result;
 	}
@@ -439,7 +432,7 @@ internal static class ReflectionUtils
 			throw new ArgumentNullException(nameof(generator));
 		}
 
-		var result = (Org.BouncyCastle.Asn1.X509.X509Extensions)_ocspReqGeneratorInfoRequestExtensions.GetValue(generator);
+		var result = (Org.BouncyCastle.Asn1.X509.X509Extensions)_ocspReqGeneratorInfoRequestExtensions.GetValue(generator)!;
 
 		return result;
 	}

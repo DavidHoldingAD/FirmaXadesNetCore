@@ -1438,9 +1438,9 @@ public class XadesSignedXml : SignedXml
 		XmlNodeList refList = ReflectionUtils.CreateCanonicalXmlNodeList();
 
 		// containingDocument = this.m_containingDocument;
-		XmlDocument containingDocument = ReflectionUtils.GetSignedXmlContainingDocument(this);
+		XmlDocument? containingDocument = ReflectionUtils.GetSignedXmlContainingDocument(this);
 
-		if (ContentElement == null)
+		if (ContentElement is null)
 		{
 			FindContentElement();
 		}

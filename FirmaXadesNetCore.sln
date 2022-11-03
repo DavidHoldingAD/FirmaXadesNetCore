@@ -22,6 +22,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirmaXadesNetCore.Tests", "test\FirmaXadesNetCore.Tests\FirmaXadesNetCore.Tests.csproj", "{DEB907BB-54CD-40F7-8609-E5A279B48098}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{549E3378-92A0-465E-A084-7B41F652AA29}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{070DE525-7241-47F2-997D-F0F428F757AD}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\dotnetcore.yml = .github\workflows\dotnetcore.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +50,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{D6BF5312-2023-4672-8E74-18B47A181A2E} = {3FD1D81B-DBFD-46C9-B821-BF41E696D223}
 		{DEB907BB-54CD-40F7-8609-E5A279B48098} = {356F8B28-2170-4B38-97A7-C0735014FD98}
+		{070DE525-7241-47F2-997D-F0F428F757AD} = {549E3378-92A0-465E-A084-7B41F652AA29}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {72E8FDFE-4BBB-4BD7-B015-C6F81673EB20}

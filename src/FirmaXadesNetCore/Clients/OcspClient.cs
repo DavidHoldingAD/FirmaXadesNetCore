@@ -232,14 +232,19 @@ public class OcspClient
 			ocspRequestGenerator.SetRequestorName(requestorName);
 		}
 
-		var oids = new ArrayList();
-		var values = new Hashtable();
-
-		oids.Add(OcspObjectIdentifiers.PkixOcspNonce);
-
+		// Generate nonce
 		_nonceAsn1OctetString = new DerOctetString(new DerOctetString(BigInteger.ValueOf(DateTime.Now.Ticks).ToByteArray()));
 
-		values.Add(OcspObjectIdentifiers.PkixOcspNonce, new X509Extension(false, _nonceAsn1OctetString));
+		var oids = new List<object>()
+		{
+			OcspObjectIdentifiers.PkixOcspNonce,
+		};
+
+		var values = new Hashtable
+		{
+			{ OcspObjectIdentifiers.PkixOcspNonce, new X509Extension(false, _nonceAsn1OctetString) },
+		};
+
 		ocspRequestGenerator.SetRequestExtensions(new X509Extensions(oids, values));
 
 		if (signCertificate != null)

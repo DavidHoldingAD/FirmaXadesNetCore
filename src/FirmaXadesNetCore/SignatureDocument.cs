@@ -105,10 +105,7 @@ public class SignatureDocument
 
 	internal void UpdateDocument()
 	{
-		if (Document == null)
-		{
-			Document = new XmlDocument();
-		}
+		Document ??= new XmlDocument();
 
 		if (Document.DocumentElement != null)
 		{
