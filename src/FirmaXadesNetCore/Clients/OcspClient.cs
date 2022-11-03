@@ -22,6 +22,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Collections;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using FirmaXadesNetCore.Utils;
 using Org.BouncyCastle.Asn1;
@@ -87,7 +88,11 @@ public class OcspClient
 
 		request.Content.Headers.ContentType = MediaTypeWithQualityHeaderValue.Parse("application/ocsp-request");
 
-		using HttpResponseMessage response = _httpClient.Send(request);
+		using HttpResponseMessage response = _httpClient
+			.SendAsync(request)
+			.ConfigureAwait(continueOnCapturedContext: false)
+			.GetAwaiter()
+			.GetResult();
 
 		response.EnsureSuccessStatusCode();
 
@@ -227,14 +232,19 @@ public class OcspClient
 			ocspRequestGenerator.SetRequestorName(requestorName);
 		}
 
-		var oids = new ArrayList();
-		var values = new Hashtable();
-
-		oids.Add(OcspObjectIdentifiers.PkixOcspNonce);
-
+		// Generate nonce
 		_nonceAsn1OctetString = new DerOctetString(new DerOctetString(BigInteger.ValueOf(DateTime.Now.Ticks).ToByteArray()));
 
-		values.Add(OcspObjectIdentifiers.PkixOcspNonce, new X509Extension(false, _nonceAsn1OctetString));
+		var oids = new List<object>()
+		{
+			OcspObjectIdentifiers.PkixOcspNonce,
+		};
+
+		var values = new Hashtable
+		{
+			{ OcspObjectIdentifiers.PkixOcspNonce, new X509Extension(false, _nonceAsn1OctetString) },
+		};
+
 		ocspRequestGenerator.SetRequestExtensions(new X509Extensions(oids, values));
 
 		if (signCertificate != null)

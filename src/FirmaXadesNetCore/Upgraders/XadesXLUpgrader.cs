@@ -309,7 +309,7 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 			string? certOcspUrl = ocsp.GetAuthorityInformationAccessOcspUrl(issuerCert);
 			if (!string.IsNullOrEmpty(certOcspUrl))
 			{
-				finalOcspServers.Add(new OcspServer(certOcspUrl));
+				finalOcspServers.Add(new OcspServer(certOcspUrl!));
 			}
 		}
 

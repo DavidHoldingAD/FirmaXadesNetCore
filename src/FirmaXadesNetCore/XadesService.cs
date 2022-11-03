@@ -89,7 +89,7 @@ public class XadesService : IXadesService
 
 					if (!string.IsNullOrEmpty(parameters.ElementIdToSign))
 					{
-						SetContentInternallyDetached(signatureDocument, XmlUtils.LoadDocument(stream), parameters.ElementIdToSign);
+						SetContentInternallyDetached(signatureDocument, XmlUtils.LoadDocument(stream), parameters.ElementIdToSign!);
 					}
 					else
 					{
@@ -640,7 +640,7 @@ public class XadesService : IXadesService
 							nameof(parameters));
 					}
 
-					SetContentInternallyDetached(signatureDocument, xmlDocument, parameters.ElementIdToSign);
+					SetContentInternallyDetached(signatureDocument, xmlDocument, parameters.ElementIdToSign!);
 					break;
 				}
 			case SignaturePackaging.Enveloped:

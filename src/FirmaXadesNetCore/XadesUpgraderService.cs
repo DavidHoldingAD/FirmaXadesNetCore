@@ -48,15 +48,10 @@ public sealed class XadesUpgraderService : IXadesUpgraderService
 
 		SignatureDocument.CheckSignatureDocument(signatureDocument);
 
-		IXadesUpgrader xadesUpgrader = toFormat switch
-		{
-			SignatureFormat.XadesT
-				=> new XadesTUpgrader(),
-			_
-				=> signatureDocument.XadesSignature!.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count <= 0
-					? new XadesTUpgrader()
-					: new XadesXLUpgrader(),
-		};
+		IXadesUpgrader xadesUpgrader = toFormat == SignatureFormat.XadesT
+			|| signatureDocument.XadesSignature!.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count <= 0
+				? new XadesTUpgrader()
+				: new XadesXLUpgrader();
 
 		xadesUpgrader.Upgrade(signatureDocument, parameters);
 	}

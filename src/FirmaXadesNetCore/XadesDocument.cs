@@ -167,7 +167,7 @@ public sealed class XadesDocument : IXadesDocument
 
 			using TimeStampClient timestampClient = !string.IsNullOrWhiteSpace(timestampParameters.Username)
 				&& !string.IsNullOrWhiteSpace(timestampParameters.Password)
-					? new TimeStampClient(timestampParameters.Uri, timestampParameters.Username, timestampParameters.Password)
+					? new TimeStampClient(timestampParameters.Uri, timestampParameters.Username!, timestampParameters.Password!)
 					: new TimeStampClient(timestampParameters.Uri);
 
 			var upgradeParameters = new UpgradeParameters(timestampClient)
@@ -221,7 +221,7 @@ public sealed class XadesDocument : IXadesDocument
 
 			using TimeStampClient timestampClient = !string.IsNullOrWhiteSpace(timestampParameters.Username)
 				&& !string.IsNullOrWhiteSpace(timestampParameters.Password)
-					? new TimeStampClient(timestampParameters.Uri, timestampParameters.Username, timestampParameters.Password)
+					? new TimeStampClient(timestampParameters.Uri, timestampParameters.Username!, timestampParameters.Password!)
 					: new TimeStampClient(timestampParameters.Uri);
 
 			var upgradeParameters = new UpgradeParameters(timestampClient)

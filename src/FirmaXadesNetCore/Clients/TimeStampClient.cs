@@ -21,6 +21,7 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using Org.BouncyCastle.Math;
@@ -118,9 +119,16 @@ public sealed class TimeStampClient : ITimestampClient, IDisposable
 
 		response.EnsureSuccessStatusCode();
 
+#if NET6_0_OR_GREATER
 		using Stream responseStream = await response.Content
 			.ReadAsStreamAsync(cancellationToken)
 			.ConfigureAwait(continueOnCapturedContext: false);
+#else
+		using Stream responseStream = await response.Content
+			.ReadAsStreamAsync()
+			.ConfigureAwait(continueOnCapturedContext: false);
+#endif
+
 		using Stream bufferedResponseStream = new BufferedStream(responseStream);
 
 		var timeStampResponse = new TimeStampResponse(bufferedResponseStream);
