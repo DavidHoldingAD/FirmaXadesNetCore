@@ -21,8 +21,6 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-#if NET6_0_OR_GREATER
-
 using System.Collections;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
@@ -476,4 +474,3 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 		signatureDocument.XadesSignature.UnsignedProperties = unsignedProperties;
 	}
 }
-#endif

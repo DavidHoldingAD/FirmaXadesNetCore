@@ -21,7 +21,6 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-#if NET6_0_OR_GREATER
 using System.Collections;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -89,7 +88,11 @@ public class OcspClient
 
 		request.Content.Headers.ContentType = MediaTypeWithQualityHeaderValue.Parse("application/ocsp-request");
 
-		using HttpResponseMessage response = _httpClient.Send(request);
+		using HttpResponseMessage response = _httpClient
+			.SendAsync(request)
+			.ConfigureAwait(continueOnCapturedContext: false)
+			.GetAwaiter()
+			.GetResult();
 
 		response.EnsureSuccessStatusCode();
 
@@ -263,4 +266,3 @@ public class OcspClient
 		return aIn.ReadObject();
 	}
 }
-#endif

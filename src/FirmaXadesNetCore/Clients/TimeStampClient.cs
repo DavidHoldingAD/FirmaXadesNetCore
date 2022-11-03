@@ -21,7 +21,6 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-#if NET6_0_OR_GREATER
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -85,7 +84,7 @@ public sealed class TimeStampClient : ITimestampClient, IDisposable
 		_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuthenticationBase64);
 	}
 
-#region ITimeStampClient Members
+	#region ITimeStampClient Members
 
 	/// <inheritdoc/>
 	public async Task<byte[]> GetTimeStampAsync(byte[] hashValue,
@@ -120,9 +119,16 @@ public sealed class TimeStampClient : ITimestampClient, IDisposable
 
 		response.EnsureSuccessStatusCode();
 
+#if NET6_0_OR_GREATER
 		using Stream responseStream = await response.Content
 			.ReadAsStreamAsync(cancellationToken)
 			.ConfigureAwait(continueOnCapturedContext: false);
+#else
+		using Stream responseStream = await response.Content
+			.ReadAsStreamAsync()
+			.ConfigureAwait(continueOnCapturedContext: false);
+#endif
+
 		using Stream bufferedResponseStream = new BufferedStream(responseStream);
 
 		var timeStampResponse = new TimeStampResponse(bufferedResponseStream);
@@ -136,9 +142,9 @@ public sealed class TimeStampClient : ITimestampClient, IDisposable
 		return timeStampResponse.TimeStampToken.GetEncoded();
 	}
 
-#endregion
+	#endregion
 
-#region IDisposable Members
+	#region IDisposable Members
 
 	/// <inheritdoc/>
 	public void Dispose()
@@ -163,6 +169,5 @@ public sealed class TimeStampClient : ITimestampClient, IDisposable
 		_disposed = true;
 	}
 
-#endregion
+	#endregion
 }
-#endif
