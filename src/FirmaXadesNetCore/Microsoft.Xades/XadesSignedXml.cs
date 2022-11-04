@@ -242,18 +242,24 @@ public class XadesSignedXml : SignedXml
 		base.LoadXml(xmlElement);
 
 		// Get original prefix for namespaces
-		foreach (XmlAttribute attr in xmlElement.Attributes)
+		foreach (XmlAttribute attribute in xmlElement.Attributes)
 		{
-			if (attr.Name.StartsWith("xmlns"))
+			if (!attribute.Name.StartsWith("xmlns"))
 			{
-				if (attr.Value.ToUpper() == XadesNamespaceUri.ToUpper())
-				{
-					XmlXadesPrefix = attr.Name.Split(':')[1];
-				}
-				else if (attr.Value.ToUpper() == XmlDsigNamespaceUrl.ToUpper())
-				{
-					XmlDSigPrefix = attr.Name.Split(':')[1];
-				}
+				continue;
+			}
+
+			if (attribute.Value.Equals(XadesNamespaceUri, StringComparison.InvariantCultureIgnoreCase))
+			{
+				XmlXadesPrefix = attribute.Name.IndexOf(':') > 0
+					? attribute.Name.Split(':')[1]
+					: string.Empty;
+			}
+			else if (attribute.Value.Equals(XmlDsigNamespaceUrl, StringComparison.InvariantCultureIgnoreCase))
+			{
+				XmlDSigPrefix = attribute.Name.IndexOf(':') > 0
+					? attribute.Name.Split(':')[1]
+					: string.Empty;
 			}
 		}
 
