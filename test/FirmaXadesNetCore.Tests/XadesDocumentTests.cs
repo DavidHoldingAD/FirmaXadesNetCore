@@ -2,6 +2,7 @@
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
+using System.Xml;
 
 namespace FirmaXadesNetCore.Tests;
 
@@ -11,11 +12,34 @@ public class XadesDocumentTests : TestsBase
 	private const string FreeTSAUrl = "https://freetsa.org/tsr";
 
 	[TestMethod]
-	public void Create()
+	public void Create_Reader()
+	{
+		using Stream stream = CreateExampleDocumentStream(elementID: "test");
+		using var reader = XmlReader.Create(stream);
+
+		IXadesDocument document = XadesDocument.Create(reader);
+
+		Assert.IsNotNull(document);
+	}
+
+	[TestMethod]
+	public void Create_Stream()
 	{
 		using Stream stream = CreateExampleDocumentStream(elementID: "test");
 
 		IXadesDocument document = XadesDocument.Create(stream);
+
+		Assert.IsNotNull(document);
+	}
+
+	[TestMethod]
+	public void Create_Bytes()
+	{
+		using MemoryStream stream = CreateExampleDocumentStream(elementID: "test");
+
+		byte[] xmlBytes = stream.ToArray();
+
+		IXadesDocument document = XadesDocument.Create(xmlBytes);
 
 		Assert.IsNotNull(document);
 	}

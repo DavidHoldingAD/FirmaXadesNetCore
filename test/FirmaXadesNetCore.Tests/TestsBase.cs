@@ -6,7 +6,7 @@ namespace FirmaXadesNetCore.Tests;
 
 public abstract class TestsBase
 {
-	public static Stream CreateExampleDocumentStream(string elementID = null)
+	public static MemoryStream CreateExampleDocumentStream(string elementID = null)
 	{
 		var xmlDocument = new XmlDocument
 		{

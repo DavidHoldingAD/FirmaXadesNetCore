@@ -29,6 +29,31 @@ public sealed class XadesDocument : IXadesDocument
 	/// <summary>
 	/// Creates a new instance of the <see cref="XadesDocument"/> class.
 	/// </summary>
+	/// <param name="reader">the XML reader</param>
+	/// <returns>the created signer</returns>
+	/// <exception cref="ArgumentNullException">when reader is null</exception>
+	public static XadesDocument Create(XmlReader reader)
+	{
+		if (reader is null)
+		{
+			throw new ArgumentNullException(nameof(reader));
+		}
+
+		var document = new XmlDocument
+		{
+			// This should be true if we want the XML to be correctly validated by other programs
+			// Example: https://weryfikacjapodpisu.pl/verification/#dropzone
+			PreserveWhitespace = true,
+		};
+
+		document.Load(reader);
+
+		return new XadesDocument(document);
+	}
+
+	/// <summary>
+	/// Creates a new instance of the <see cref="XadesDocument"/> class.
+	/// </summary>
 	/// <param name="stream">the XML stream</param>
 	/// <returns>the created signer</returns>
 	/// <exception cref="ArgumentNullException">when stream is null</exception>
@@ -46,16 +71,25 @@ public sealed class XadesDocument : IXadesDocument
 
 		using var reader = XmlReader.Create(stream, settings);
 
-		var document = new XmlDocument
+		return Create(reader);
+	}
+
+	/// <summary>
+	/// Creates a new instance of the <see cref="XadesDocument"/> class.
+	/// </summary>
+	/// <param name="xmlBytes">the XML bytes</param>
+	/// <returns>the created signer</returns>
+	/// <exception cref="ArgumentNullException">when XML bytes is null</exception>
+	public static XadesDocument Create(byte[] xmlBytes)
+	{
+		if (xmlBytes is null)
 		{
-			// This should be true if we want the XML to be correctly validated by other programs
-			// Example: https://weryfikacjapodpisu.pl/verification/#dropzone
-			PreserveWhitespace = true,
-		};
+			throw new ArgumentNullException(nameof(xmlBytes));
+		}
 
-		document.Load(reader);
+		using var stream = new MemoryStream(xmlBytes);
 
-		return new XadesDocument(document);
+		return Create(stream);
 	}
 
 	#region IXadesDocument Members
