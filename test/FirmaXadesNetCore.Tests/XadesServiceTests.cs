@@ -248,10 +248,13 @@ public class XadesServiceTests : TestsBase
 	}
 
 	[TestMethod]
-	[DataRow(SignaturePackaging.Enveloped)]
-	[DataRow(SignaturePackaging.Enveloping)]
-	[DataRow(SignaturePackaging.InternallyDetached)]
-	public void Sign_Remote_Validate(SignaturePackaging packaging)
+	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.Enveloping, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.Enveloping, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.InternallyDetached, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.InternallyDetached, RemoteSignatureDigestMode.Hashed)]
+	public void Sign_Remote_Validate(SignaturePackaging packaging, RemoteSignatureDigestMode digestMode)
 	{
 		var service = new XadesService();
 
@@ -267,14 +270,16 @@ public class XadesServiceTests : TestsBase
 		using var publicCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
 
 		// Get digest
-		SignatureDocument signatureDocument = service.GetRemotingSigningDigest(xmlDocument, new RemoteSignatureParameters(publicCertificate)
-		{
-			SignaturePackaging = packaging,
-			DataFormat = new DataFormat { MimeType = "text/xml" },
-			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
-				? "test"
-				: null,
-		}, out byte[] digestValue);
+		SignatureDocument signatureDocument = service.GetRemotingSigningDigest(xmlDocument,
+			new RemoteSignatureParameters(publicCertificate)
+			{
+				DigestMode = digestMode,
+				SignaturePackaging = packaging,
+				DataFormat = new DataFormat { MimeType = "text/xml" },
+				ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
+					? "test"
+					: null,
+			}, out byte[] digestValue);
 
 		Assert.IsNotNull(signatureDocument);
 		Assert.IsNotNull(signatureDocument.XadesSignature);
@@ -282,6 +287,11 @@ public class XadesServiceTests : TestsBase
 		if (packaging != SignaturePackaging.Enveloping)
 		{
 			Assert.IsNotNull(signatureDocument.Document);
+		}
+
+		if (digestMode == RemoteSignatureDigestMode.Raw)
+		{
+			digestValue = SHA256.Create().ComputeHash(digestValue);
 		}
 
 		// Sign digest
@@ -296,10 +306,13 @@ public class XadesServiceTests : TestsBase
 	}
 
 	[TestMethod]
-	[DataRow(SignaturePackaging.Enveloped)]
-	[DataRow(SignaturePackaging.Enveloping)]
-	[DataRow(SignaturePackaging.InternallyDetached)]
-	public void Sign_Counter_Remote_Validate(SignaturePackaging packaging)
+	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.Enveloping, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.Enveloping, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.InternallyDetached, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.InternallyDetached, RemoteSignatureDigestMode.Hashed)]
+	public void Sign_Counter_Remote_Validate(SignaturePackaging packaging, RemoteSignatureDigestMode digestMode)
 	{
 		var service = new XadesService();
 
@@ -319,14 +332,16 @@ public class XadesServiceTests : TestsBase
 		using var publicCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
 
 		// Get digest
-		SignatureDocument signatureDocument = service.GetCounterRemotingSigningDigest(originalSignatureDocument, new RemoteSignatureParameters(publicCertificate)
-		{
-			SignaturePackaging = packaging,
-			DataFormat = new DataFormat { MimeType = "text/xml" },
-			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
-				? "test"
-				: null,
-		}, out byte[] digestValue);
+		SignatureDocument signatureDocument = service.GetCounterRemotingSigningDigest(originalSignatureDocument,
+			new RemoteSignatureParameters(publicCertificate)
+			{
+				DigestMode = digestMode,
+				SignaturePackaging = packaging,
+				DataFormat = new DataFormat { MimeType = "text/xml" },
+				ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
+					? "test"
+					: null,
+			}, out byte[] digestValue);
 
 		Assert.IsNotNull(signatureDocument);
 		Assert.IsNotNull(signatureDocument.XadesSignature);
@@ -334,6 +349,11 @@ public class XadesServiceTests : TestsBase
 		if (packaging != SignaturePackaging.Enveloping)
 		{
 			Assert.IsNotNull(signatureDocument.Document);
+		}
+
+		if (digestMode == RemoteSignatureDigestMode.Raw)
+		{
+			digestValue = SHA256.Create().ComputeHash(digestValue);
 		}
 
 		// Sign digest
@@ -348,10 +368,13 @@ public class XadesServiceTests : TestsBase
 	}
 
 	[TestMethod]
-	[DataRow(SignaturePackaging.Enveloped)]
-	[DataRow(SignaturePackaging.Enveloping)]
-	[DataRow(SignaturePackaging.InternallyDetached)]
-	public void Sign_Co_Remote_Validate(SignaturePackaging packaging)
+	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.Enveloping, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.Enveloping, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.InternallyDetached, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.InternallyDetached, RemoteSignatureDigestMode.Hashed)]
+	public void Sign_Co_Remote_Validate(SignaturePackaging packaging, RemoteSignatureDigestMode digestMode)
 	{
 		if (packaging != SignaturePackaging.InternallyDetached)
 		{
@@ -379,16 +402,18 @@ public class XadesServiceTests : TestsBase
 		using var publicCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
 
 		// Get digest
-		SignatureDocument signatureDocument = service.GetCoRemotingSigningDigest(originalSignatureDocument, new RemoteSignatureParameters(publicCertificate)
-		{
-			SignaturePackaging = packaging,
-			DataFormat = new DataFormat { MimeType = "text/xml" },
-			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
-				? "test"
-				: null,
-			DigestMethod = DigestMethod.SHA256,
-			SignatureMethod = SignatureMethod.RSAwithSHA256,
-		}, out byte[] digestValue);
+		SignatureDocument signatureDocument = service.GetCoRemotingSigningDigest(originalSignatureDocument,
+			new RemoteSignatureParameters(publicCertificate)
+			{
+				DigestMode = digestMode,
+				SignaturePackaging = packaging,
+				DataFormat = new DataFormat { MimeType = "text/xml" },
+				ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
+					? "test"
+					: null,
+				DigestMethod = DigestMethod.SHA256,
+				SignatureMethod = SignatureMethod.RSAwithSHA256,
+			}, out byte[] digestValue);
 
 		Assert.IsNotNull(signatureDocument);
 		Assert.IsNotNull(signatureDocument.XadesSignature);
@@ -396,6 +421,11 @@ public class XadesServiceTests : TestsBase
 		if (packaging != SignaturePackaging.Enveloping)
 		{
 			Assert.IsNotNull(signatureDocument.Document);
+		}
+
+		if (digestMode == RemoteSignatureDigestMode.Raw)
+		{
+			digestValue = SHA256.Create().ComputeHash(digestValue);
 		}
 
 		// Sign digest

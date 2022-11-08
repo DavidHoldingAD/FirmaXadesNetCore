@@ -389,6 +389,8 @@ public class XadesSignedXml : SignedXml
 		_signedPropertiesIdBuffer = xadesObject.QualifyingProperties.SignedProperties.Id;
 		reference.Uri = "#" + _signedPropertiesIdBuffer;
 		reference.Type = SignedPropertiesType;
+		reference.AddTransform(new XmlDsigExcC14NTransform());
+
 		AddReference(reference); //Add the XAdES object reference
 
 		_cachedXadesObjectDocument = new XmlDocument();
@@ -1233,7 +1235,7 @@ public class XadesSignedXml : SignedXml
 	}
 
 	/// <inheritdoc/>
-	public new byte[] ComputeSignature()
+	public byte[] ComputeSignature(bool digestHashed = true)
 	{
 		BuildDigestedReferences();
 
@@ -1275,9 +1277,11 @@ public class XadesSignedXml : SignedXml
 			throw new CryptographicException("Cryptography_Xml_CreateHashAlgorithmFailed");
 		}
 
-		byte[] digest = GetC14NDigest(hashAlgorithm, "ds");
+		byte[] digest = GetC14NDigest(hashAlgorithm, "ds", digestHashed: digestHashed);
 
-		m_signature.SignatureValue = description.CreateFormatter(signingKey).CreateSignature(hashAlgorithm);
+		m_signature.SignatureValue = description
+			.CreateFormatter(signingKey)
+			.CreateSignature(hashAlgorithm);
 
 		return digest;
 	}
@@ -1605,8 +1609,8 @@ public class XadesSignedXml : SignedXml
 			throw new CryptographicException("signature description can't be created");
 		}
 
-		// Necessary for correct calculation
-		byte[] hashval = GetC14NDigest(hashAlgorithm, "ds");
+		// Necessary for correct calculation, force hashing
+		byte[] hashval = GetC14NDigest(hashAlgorithm, "ds", digestHashed: true);
 
 		AsymmetricSignatureDeformatter asymmetricSignatureDeformatter = signatureDescription.CreateDeformatter(key);
 
@@ -1617,13 +1621,14 @@ public class XadesSignedXml : SignedXml
 	/// Copy of System.Security.Cryptography.Xml.SignedXml.GetC14NDigest() which will add a
 	/// namespace prefix to all XmlDsig nodes
 	/// </summary>
-	private byte[] GetC14NDigest(HashAlgorithm hash, string prefix)
+	private byte[] GetC14NDigest(HashAlgorithm hash, string prefix, bool digestHashed)
 	{
 		// if (!this.bCacheValid || !this.SignedInfo.CacheValid)
 		bool bCacheValid = ReflectionUtils.GetSignedXmlBCacheValid(this);
 		bool CacheValid = ReflectionUtils.GetSignedInfoCacheValid(SignedInfo);
 
-		if (!bCacheValid || !CacheValid)
+		// TODO: force recalculation when digest mode is raw (hashed = false)
+		if (!bCacheValid || !CacheValid || !digestHashed)
 		{
 			//string securityUrl = (this.m_containingDocument == null) ? null : this.m_containingDocument.BaseURI;
 			XmlDocument? m_containingDocument = ReflectionUtils.GetSignedXmlContainingDocument(this);
@@ -1679,12 +1684,20 @@ public class XadesSignedXml : SignedXml
 
 			//this.bCacheValid = true;
 			ReflectionUtils.SetSignedXmlBCacheValid(this, true);
+
+			if (!digestHashed)
+			{
+				using var digestStream = (Stream)canonicalizationMethodObject.GetOutput(typeof(Stream));
+				using var stream = new MemoryStream();
+				digestStream.CopyTo(stream);
+				return stream.ToArray();
+			}
 		}
 
 		//return this._digestedSignedInfo;
-		byte[] _digestedSignedInfo = ReflectionUtils.GetSignedXmlDigestedSignedInfo(this);
+		byte[] digestedSignedInfo = ReflectionUtils.GetSignedXmlDigestedSignedInfo(this);
 
-		return _digestedSignedInfo;
+		return digestedSignedInfo;
 	}
 
 	#endregion

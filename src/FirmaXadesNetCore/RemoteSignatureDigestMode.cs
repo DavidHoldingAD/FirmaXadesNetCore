@@ -21,31 +21,20 @@
 // 
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Security.Cryptography.X509Certificates;
-
 namespace FirmaXadesNetCore;
 
 /// <summary>
-/// Represents a remote signature parameters.
+/// Represents an enumeration of remote signature digest modes.
 /// </summary>
-public sealed class RemoteSignatureParameters : SignatureParametersBase
+public enum RemoteSignatureDigestMode
 {
 	/// <summary>
-	/// Gets or sets the public certificate.
+	/// Hashed
 	/// </summary>
-	public X509Certificate2 PublicCertificate { get; }
+	Hashed,
 
 	/// <summary>
-	/// Gets or sets the digest mode.
+	/// Raw
 	/// </summary>
-	public RemoteSignatureDigestMode DigestMode { get; set; }
-
-	/// <summary>
-	/// Initializes a new instance of <see cref="RemoteSignatureParameters"/> class.
-	/// </summary>
-	/// <param name="certificate">the public certificate</param>
-	public RemoteSignatureParameters(X509Certificate2 certificate)
-	{
-		PublicCertificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
-	}
+	Raw,
 }

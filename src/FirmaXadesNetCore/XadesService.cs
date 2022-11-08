@@ -352,7 +352,7 @@ public class XadesService : IXadesService
 
 		PrepareSignature(coSignatureDocument, parameters);
 
-		digest = coSignatureDocument.XadesSignature.ComputeSignature();
+		digest = coSignatureDocument.XadesSignature.ComputeSignature(parameters.DigestMode == RemoteSignatureDigestMode.Hashed);
 
 		return coSignatureDocument;
 	}
@@ -539,7 +539,7 @@ public class XadesService : IXadesService
 		counterSignature.AddXadesNamespace = true;
 
 		// Perform system sing
-		digest = counterSignature.ComputeSignature();
+		digest = counterSignature.ComputeSignature(parameters.DigestMode == RemoteSignatureDigestMode.Hashed);
 
 		UnsignedProperties unsignedProperties = signatureDocument.XadesSignature.UnsignedProperties;
 		unsignedProperties.UnsignedSignatureProperties.CounterSignatureCollection.Add(counterSignature);
@@ -682,7 +682,8 @@ public class XadesService : IXadesService
 
 		PrepareSignature(signatureDocument, parameters);
 
-		digest = signatureDocument.XadesSignature!.ComputeSignature();
+		digest = signatureDocument.XadesSignature
+			!.ComputeSignature(parameters.DigestMode == RemoteSignatureDigestMode.Hashed);
 
 		return signatureDocument;
 	}
@@ -1154,6 +1155,7 @@ public class XadesService : IXadesService
 			Id = "ReferenceKeyInfo",
 			Uri = $"#KeyInfoId-{sigDocument.XadesSignature.Signature.Id}",
 		};
+		reference.AddTransform(new XmlDsigExcC14NTransform());
 
 		sigDocument.XadesSignature.AddReference(reference);
 	}

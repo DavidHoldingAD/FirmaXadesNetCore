@@ -101,7 +101,7 @@ public abstract class TestsBase
 		Assert.IsTrue(result.IsValid, $"{result.Message}:{result.Exception}");
 	}
 
-	protected static X509Certificate2 CreateSelfSignedCertificate(int keySizeInBits = 4096, string name = "test", string password = "WeNeedASaf3rPassword")
+	protected static X509Certificate2 CreateSelfSignedCertificate(int keySizeInBits = 2048, string name = "test", string password = "WeNeedASaf3rPassword")
 	{
 		var distinguishedName = new X500DistinguishedName($"CN={name}");
 

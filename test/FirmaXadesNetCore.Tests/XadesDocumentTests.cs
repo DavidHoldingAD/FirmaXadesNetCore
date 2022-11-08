@@ -49,10 +49,13 @@ public class XadesDocumentTests : TestsBase
 
 	[TestMethod]
 	[DoNotParallelize]
-	[DataRow(SignaturePackaging.Enveloped)]
-	[DataRow(SignaturePackaging.Enveloping)]
-	[DataRow(SignaturePackaging.InternallyDetached)]
-	public void Sign_Remote_Validate(SignaturePackaging packaging)
+	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.Enveloping, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.Enveloping, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.InternallyDetached, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.InternallyDetached, RemoteSignatureDigestMode.Raw)]
+	public void Sign_Remote_Validate(SignaturePackaging packaging, RemoteSignatureDigestMode digestMode)
 	{
 		using Stream stream = CreateExampleDocumentStream(elementID: "test");
 
@@ -64,6 +67,7 @@ public class XadesDocumentTests : TestsBase
 		// Get digest
 		byte[] digestValue = document.GetDigest(new RemoteSignatureParameters(publicCertificate)
 		{
+			DigestMode = digestMode,
 			SignaturePackaging = packaging,
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
@@ -79,6 +83,10 @@ public class XadesDocumentTests : TestsBase
 			Assert.IsNotNull(signatureDocument.Document);
 		}
 
+		if (digestMode == RemoteSignatureDigestMode.Raw)
+		{
+			digestValue = SHA256.Create().ComputeHash(digestValue);
+		}
 		// Sign digest
 		var asymmetricSignatureFormatter = new RSAPKCS1SignatureFormatter(certificate.GetRSAPrivateKey());
 		asymmetricSignatureFormatter.SetHashAlgorithm(HashAlgorithmName.SHA256.Name);
@@ -116,10 +124,13 @@ public class XadesDocumentTests : TestsBase
 
 	[TestMethod]
 	[DoNotParallelize]
-	[DataRow(SignaturePackaging.Enveloped)]
-	[DataRow(SignaturePackaging.Enveloping)]
-	[DataRow(SignaturePackaging.InternallyDetached)]
-	public void Sign_Co_Remote_Validate(SignaturePackaging packaging)
+	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.Enveloping, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.Enveloping, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.InternallyDetached, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.InternallyDetached, RemoteSignatureDigestMode.Raw)]
+	public void Sign_Co_Remote_Validate(SignaturePackaging packaging, RemoteSignatureDigestMode digestMode)
 	{
 		if (packaging != SignaturePackaging.InternallyDetached)
 		{
@@ -143,6 +154,7 @@ public class XadesDocumentTests : TestsBase
 		// Get digest
 		byte[] digestValue = document.GetCoSigningDigest(originalSignatureDocument, new RemoteSignatureParameters(publicCertificate)
 		{
+			DigestMode = digestMode,
 			SignaturePackaging = packaging,
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
@@ -158,6 +170,11 @@ public class XadesDocumentTests : TestsBase
 		if (packaging != SignaturePackaging.Enveloping)
 		{
 			Assert.IsNotNull(signatureDocument.Document);
+		}
+
+		if (digestMode == RemoteSignatureDigestMode.Raw)
+		{
+			digestValue = SHA256.Create().ComputeHash(digestValue);
 		}
 
 		// Sign digest
@@ -196,12 +213,14 @@ public class XadesDocumentTests : TestsBase
 	}
 
 	[TestMethod]
-	//[Ignore("TODO")]
 	[DoNotParallelize]
-	[DataRow(SignaturePackaging.Enveloped)]
-	[DataRow(SignaturePackaging.Enveloping)]
-	[DataRow(SignaturePackaging.InternallyDetached)]
-	public void Sign_Counter_Remote_Validate(SignaturePackaging packaging)
+	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.Enveloping, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.Enveloping, RemoteSignatureDigestMode.Raw)]
+	[DataRow(SignaturePackaging.InternallyDetached, RemoteSignatureDigestMode.Hashed)]
+	[DataRow(SignaturePackaging.InternallyDetached, RemoteSignatureDigestMode.Raw)]
+	public void Sign_Counter_Remote_Validate(SignaturePackaging packaging, RemoteSignatureDigestMode digestMode)
 	{
 		using Stream stream = CreateExampleDocumentSignedStream(elementID: "test");
 
@@ -217,6 +236,7 @@ public class XadesDocumentTests : TestsBase
 		// Get digest
 		byte[] digestValue = document.GetCounterSigningDigest(originalSignatureDocument, new RemoteSignatureParameters(publicCertificate)
 		{
+			DigestMode = digestMode,
 			SignaturePackaging = packaging,
 			DataFormat = new DataFormat { MimeType = "text/xml" },
 			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
@@ -230,6 +250,11 @@ public class XadesDocumentTests : TestsBase
 		if (packaging != SignaturePackaging.Enveloping)
 		{
 			Assert.IsNotNull(signatureDocument.Document);
+		}
+
+		if (digestMode == RemoteSignatureDigestMode.Raw)
+		{
+			digestValue = SHA256.Create().ComputeHash(digestValue);
 		}
 
 		// Sign digest
