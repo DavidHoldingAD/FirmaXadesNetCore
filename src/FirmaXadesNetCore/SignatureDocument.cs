@@ -50,8 +50,6 @@ public class SignatureDocument
 	/// <returns>the bytes</returns>
 	public byte[] GetDocumentBytes()
 	{
-		CheckSignatureDocument(this);
-
 		using var stream = new MemoryStream();
 
 		Save(stream);
@@ -92,6 +90,8 @@ public class SignatureDocument
 		{
 			throw new ArgumentNullException(nameof(stream));
 		}
+
+		CheckSignatureDocument(this);
 
 		var settings = new XmlWriterSettings
 		{
