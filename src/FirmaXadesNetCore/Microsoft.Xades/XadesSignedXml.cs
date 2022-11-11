@@ -1637,7 +1637,12 @@ public class XadesSignedXml : SignedXml
 			//XmlResolver xmlResolver = this.m_bResolverSet ? this.m_xmlResolver : new XmlSecureResolver(new XmlUrlResolver(), securityUrl);
 			bool privateBResolverSet = ReflectionUtils.GetSignedXmlBResolverSet(this);
 			XmlResolver privateXmlResolver = ReflectionUtils.GetSignedXmlXmlResolver(this);
+
+#if NET7_0_OR_GREATER
+			XmlResolver? xmlResolver = privateBResolverSet ? privateXmlResolver : XmlResolver.ThrowingResolver;
+#else
 			XmlResolver xmlResolver = privateBResolverSet ? privateXmlResolver : new XmlSecureResolver(new XmlUrlResolver(), securityUrl);
+#endif
 
 			//XmlDocument document = Utils.PreProcessElementInput(this.SignedInfo.GetXml(), xmlResolver, securityUrl);
 			XmlElement xml = SignedInfo.GetXml();

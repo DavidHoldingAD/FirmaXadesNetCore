@@ -160,10 +160,7 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 			chainCert.CertDigest.DigestValue = digestMethod.ComputeHash(cert.GetRawCertData());
 			chainCert.URI = $"#Cert{guidCert}";
 
-			if (unsignedProperties.UnsignedSignatureProperties.CompleteCertificateRefs is not null)
-			{
-				unsignedProperties.UnsignedSignatureProperties.CompleteCertificateRefs.CertRefs.CertCollection.Add(chainCert);
-			}
+			unsignedProperties.UnsignedSignatureProperties.CompleteCertificateRefs?.CertRefs.CertCollection.Add(chainCert);
 
 			if (unsignedProperties.UnsignedSignatureProperties.CertificateValues is not null)
 			{
@@ -355,10 +352,8 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 
 						ocspRef.OCSPIdentifier.ProducedAt = or.ProducedAt.ToLocalTime();
 
-						if (unsignedProperties.UnsignedSignatureProperties.CompleteRevocationRefs is not null)
-						{
-							unsignedProperties.UnsignedSignatureProperties.CompleteRevocationRefs.OCSPRefs.OCSPRefCollection.Add(ocspRef);
-						}
+						unsignedProperties.UnsignedSignatureProperties.CompleteRevocationRefs
+							?.OCSPRefs.OCSPRefCollection.Add(ocspRef);
 
 						if (unsignedProperties.UnsignedSignatureProperties.RevocationValues is not null)
 						{

@@ -51,7 +51,7 @@ public abstract class SignatureParametersBase
 	/// <summary>
 	/// Gets or sets the signature commitments.
 	/// </summary>
-	public List<SignatureCommitment> SignatureCommitments { get; } = new();
+	public SignatureCommitment[]? SignatureCommitments { get; set; }
 
 	/// <summary>
 	/// Gets or sets the signature production place.
@@ -61,7 +61,7 @@ public abstract class SignatureParametersBase
 	/// <summary>
 	/// Gets or sets the XPath transformations.
 	/// </summary>
-	public List<SignatureXPathExpression> XPathTransformations { get; } = new();
+	public SignatureXPathExpression[]? XPathTransformations { get; set; }
 
 	/// <summary>
 	/// Gets or sets the signature policy information.

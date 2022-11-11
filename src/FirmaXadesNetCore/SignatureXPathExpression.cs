@@ -36,5 +36,5 @@ public class SignatureXPathExpression
 	/// <summary>
 	/// Gets or sets the namespaces.
 	/// </summary>
-	public Dictionary<string, string> Namespaces { get; } = new();
+	public Dictionary<string, string>? Namespaces { get; set; }
 }

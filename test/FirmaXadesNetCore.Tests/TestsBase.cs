@@ -55,7 +55,10 @@ public abstract class TestsBase
 		var parameters = new LocalSignatureParameters(certificate)
 		{
 			SignaturePackaging = signaturePackaging,
-			DataFormat = new DataFormat { MimeType = "text/xml" },
+			DataFormat = signaturePackaging != SignaturePackaging.Enveloped
+				&& signaturePackaging != SignaturePackaging.Enveloping
+					? new DataFormat { MimeType = "text/xml" }
+					: null,
 			ElementIdToSign = signaturePackaging == SignaturePackaging.InternallyDetached
 				? elementID
 				: null,
@@ -65,8 +68,11 @@ public abstract class TestsBase
 			SignatureMethod = signatureMethodUri is not null
 				? SignatureMethod.GetByUri(signatureMethodUri)
 				: SignatureMethod.RSAwithSHA512,
+			SignatureCommitments = new[]
+			{
+				new SignatureCommitment(SignatureCommitmentType.ProofOfCreation),
+			},
 		};
-		parameters.SignatureCommitments.Add(new SignatureCommitment(SignatureCommitmentType.ProofOfCreation));
 
 		SignatureDocument document = service.Sign(stream, parameters);
 

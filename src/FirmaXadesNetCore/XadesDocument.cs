@@ -43,6 +43,7 @@ public sealed class XadesDocument : IXadesDocument
 		{
 			// This should be true if we want the XML to be correctly validated by other programs
 			// Example: https://weryfikacjapodpisu.pl/verification/#dropzone
+			// Example: https://ec.europa.eu/digital-building-blocks/DSS/webapp-demo/validation
 			PreserveWhitespace = true,
 		};
 

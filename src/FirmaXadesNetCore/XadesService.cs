@@ -963,28 +963,30 @@ public class XadesService : IXadesService
 
 	private void SetSignatureDestination(SignatureDocument signatureDocument, SignatureXPathExpression destination)
 	{
-		XmlNode? node;
-		if (destination.Namespaces.Count > 0)
+		XmlNode? destinationNode;
+		if (destination.Namespaces is not null
+			&& destination.Namespaces.Count > 0)
 		{
-			var xmlnsMgr = new XmlNamespaceManager(signatureDocument.Document!.NameTable);
+			var xmlnsNamespaceManager = new XmlNamespaceManager(signatureDocument.Document!.NameTable);
+
 			foreach (KeyValuePair<string, string> item in destination.Namespaces)
 			{
-				xmlnsMgr.AddNamespace(item.Key, item.Value);
+				xmlnsNamespaceManager.AddNamespace(item.Key, item.Value);
 			}
 
-			node = signatureDocument.Document!.SelectSingleNode(destination.XPathExpression!, xmlnsMgr);
+			destinationNode = signatureDocument.Document!.SelectSingleNode(destination.XPathExpression!, xmlnsNamespaceManager);
 		}
 		else
 		{
-			node = signatureDocument.Document!.SelectSingleNode(destination.XPathExpression!);
+			destinationNode = signatureDocument.Document!.SelectSingleNode(destination.XPathExpression!);
 		}
 
-		if (node == null)
+		if (destinationNode == null)
 		{
 			throw new Exception($"Element `{destination.XPathExpression}` was not found.");
 		}
 
-		signatureDocument.XadesSignature!.SignatureNodeDestination = (XmlElement)node;
+		signatureDocument.XadesSignature!.SignatureNodeDestination = (XmlElement)destinationNode;
 	}
 
 	private void SetContentExternallyDetached(SignatureDocument sigDocument, string fileName)
@@ -1006,25 +1008,26 @@ public class XadesService : IXadesService
 		sigDocument.XadesSignature.AddReference(_refContent);
 	}
 
-	private void AddXPathTransform(SignatureDocument sigDocument, Dictionary<string, string> namespaces, string XPathString)
+	private void AddXPathTransform(SignatureDocument sigDocument, Dictionary<string, string>? namespaces, string XPathString)
 	{
 		XmlDocument document = sigDocument.Document ?? new XmlDocument();
+		XmlElement xPathElement = document.CreateElement("XPath");
 
-		XmlElement xPathElem = document.CreateElement("XPath");
-
-		foreach (KeyValuePair<string, string> ns in namespaces)
+		if (namespaces is not null)
 		{
-			XmlAttribute attr = document.CreateAttribute($"xmlns:{ns.Key}");
-			attr.Value = ns.Value;
-
-			xPathElem.Attributes.Append(attr);
+			foreach (KeyValuePair<string, string> ns in namespaces)
+			{
+				XmlAttribute attribute = document.CreateAttribute($"xmlns:{ns.Key}");
+				attribute.Value = ns.Value;
+				xPathElement.Attributes.Append(attribute);
+			}
 		}
 
-		xPathElem.InnerText = XPathString;
+		xPathElement.InnerText = XPathString;
 
 		var transform = new XmlDsigXPathTransform();
 
-		transform.LoadInnerXml(xPathElem.SelectNodes("."));
+		transform.LoadInnerXml(xPathElement.SelectNodes("."));
 
 		var reference = sigDocument.XadesSignature!.SignedInfo.References[0] as Reference;
 		reference?.AddTransform(transform);
@@ -1086,12 +1089,13 @@ public class XadesService : IXadesService
 			reference.DigestMethod = parameters.DigestMethod.Uri;
 		}
 
-		if (parameters.SignatureDestination != null)
+		if (parameters.SignatureDestination is not null)
 		{
 			SetSignatureDestination(sigDocument, parameters.SignatureDestination);
 		}
 
-		if (parameters.XPathTransformations.Count > 0)
+		if (parameters.XPathTransformations is not null
+			&& parameters.XPathTransformations.Length > 0)
 		{
 			foreach (SignatureXPathExpression xPathTrans in parameters.XPathTransformations)
 			{
@@ -1239,23 +1243,27 @@ public class XadesService : IXadesService
 			}
 		}
 
-		foreach (SignatureCommitment signatureCommitment in parameters.SignatureCommitments)
+		if (parameters.SignatureCommitments is not null
+			&& parameters.SignatureCommitments.Length > 0)
 		{
-			var cti = new CommitmentTypeIndication();
-			cti.CommitmentTypeId.Identifier.IdentifierUri = signatureCommitment.Type.Uri;
-			cti.AllSignedDataObjects = true;
-
-			foreach (XmlElement signatureCommitmentQualifier in signatureCommitment.TypeQualifiers)
+			foreach (SignatureCommitment signatureCommitment in parameters.SignatureCommitments)
 			{
-				var ctq = new CommitmentTypeQualifier
+				var commitmentTypeIndication = new CommitmentTypeIndication();
+				commitmentTypeIndication.CommitmentTypeId.Identifier.IdentifierUri = signatureCommitment.Type.Uri;
+				commitmentTypeIndication.AllSignedDataObjects = true;
+
+				foreach (XmlElement signatureCommitmentQualifier in signatureCommitment.TypeQualifiers)
 				{
-					AnyXmlElement = signatureCommitmentQualifier
-				};
+					var commitmentTypeQualifier = new CommitmentTypeQualifier
+					{
+						AnyXmlElement = signatureCommitmentQualifier,
+					};
 
-				cti.CommitmentTypeQualifiers.CommitmentTypeQualifierCollection.Add(ctq);
+					commitmentTypeIndication.CommitmentTypeQualifiers.CommitmentTypeQualifierCollection.Add(commitmentTypeQualifier);
+				}
+
+				signedDataObjectProperties.CommitmentTypeIndicationCollection.Add(commitmentTypeIndication);
 			}
-
-			signedDataObjectProperties.CommitmentTypeIndicationCollection.Add(cti);
 		}
 
 		if (parameters.SignatureProductionPlace != null)
