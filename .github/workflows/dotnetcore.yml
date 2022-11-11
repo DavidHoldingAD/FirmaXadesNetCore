@@ -25,12 +25,15 @@ jobs:
     strategy:
       matrix:
         options:
-          # ne5.0
+          # net7.0
           - os: ubuntu-latest
-            tf: net6.0
+            tf: net7.0
           - os: windows-latest
-            tf: net6.0
+            tf: net7.0
           - os: macos-latest
+            tf: net7.0
+          # net6.0
+          - os: ubuntu-latest
             tf: net6.0
           # net48
           - os: windows-latest
