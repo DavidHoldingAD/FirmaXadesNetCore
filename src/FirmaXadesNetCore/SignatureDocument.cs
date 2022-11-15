@@ -103,6 +103,21 @@ public class SignatureDocument
 		Document!.Save(writer);
 	}
 
+	/// <summary>
+	/// Validates the signature document with the specified options.
+	/// </summary>
+	/// <param name="validationFlags">the validation flags</param>
+	/// <param name="validateTimestamps">a flag indicating whether to validate timestamps or not</param>
+	/// <returns>the validation result</returns>
+	public ValidationResult Validate(XadesValidationFlags validationFlags = XadesValidationFlags.AllChecks,
+		bool validateTimestamps = true)
+	{
+		ValidationResult validationResult = new XadesService()
+			.Validate(this, validationFlags, validateTimestamps);
+
+		return validationResult;
+	}
+
 	internal void UpdateDocument()
 	{
 		Document ??= new XmlDocument();

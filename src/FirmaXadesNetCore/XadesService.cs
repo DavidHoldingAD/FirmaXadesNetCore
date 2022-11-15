@@ -421,7 +421,7 @@ public class XadesService : IXadesService
 		counterSignatureXadesObject.QualifyingProperties.Target = $"#{counterSignature.Signature.Id}";
 		counterSignatureXadesObject.QualifyingProperties.SignedProperties.Id = $"SignedProperties-{counterSignature.Signature.Id}";
 
-		AddSignatureProperties(counterSigDocument,
+		AddSignaturePropertiesV1(counterSigDocument,
 			counterSignatureXadesObject.QualifyingProperties.SignedProperties.SignedSignatureProperties,
 			counterSignatureXadesObject.QualifyingProperties.SignedProperties.SignedDataObjectProperties,
 			parameters,
@@ -522,7 +522,7 @@ public class XadesService : IXadesService
 		counterSignatureXadesObject.QualifyingProperties.Target = $"#{counterSignature.Signature.Id}";
 		counterSignatureXadesObject.QualifyingProperties.SignedProperties.Id = $"SignedProperties-{counterSignature.Signature.Id}";
 
-		AddSignatureProperties(counterSigDocument,
+		AddSignaturePropertiesV1(counterSigDocument,
 			counterSignatureXadesObject.QualifyingProperties.SignedProperties.SignedSignatureProperties,
 			counterSignatureXadesObject.QualifyingProperties.SignedProperties.SignedDataObjectProperties,
 			parameters,
@@ -788,6 +788,7 @@ public class XadesService : IXadesService
 			}
 
 			if (validateTimestamps
+				&& signatureDocument.XadesSignature.SignatureStandard == KnownSignatureStandard.Xades
 				&& signatureDocument.XadesSignature.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Count > 0)
 			{
 				if (!ValidateTimestamps(signatureDocument.XadesSignature))
@@ -1127,7 +1128,7 @@ public class XadesService : IXadesService
 		xadesObject.QualifyingProperties.Target = $"#{sigDocument.XadesSignature!.Signature.Id}";
 		xadesObject.QualifyingProperties.SignedProperties.Id = $"SignedProperties-{sigDocument.XadesSignature.Signature.Id}";
 
-		AddSignatureProperties(sigDocument,
+		AddSignaturePropertiesV1(sigDocument,
 			xadesObject.QualifyingProperties.SignedProperties.SignedSignatureProperties,
 			xadesObject.QualifyingProperties.SignedProperties.SignedDataObjectProperties,
 			parameters,
@@ -1164,7 +1165,7 @@ public class XadesService : IXadesService
 		sigDocument.XadesSignature.AddReference(reference);
 	}
 
-	private void AddSignatureProperties(SignatureDocument sigDocument,
+	private void AddSignaturePropertiesV1(SignatureDocument sigDocument,
 		SignedSignatureProperties signedSignatureProperties,
 		SignedDataObjectProperties signedDataObjectProperties,
 		SignatureParametersBase parameters,
@@ -1176,6 +1177,8 @@ public class XadesService : IXadesService
 		xadesCertificate.CertDigest.DigestMethod.Algorithm = parameters.DigestMethod.Uri;
 		xadesCertificate.CertDigest.DigestValue = parameters.DigestMethod.ComputeHash(certificate.GetRawCertData());
 
+		signedSignatureProperties.SignaturePolicyIdentifier ??= new SignaturePolicyIdentifier();
+		signedSignatureProperties.SigningCertificate ??= new SigningCertificate();
 		signedSignatureProperties.SigningCertificate.CertCollection.Add(xadesCertificate);
 
 		if (parameters.SignaturePolicyInfo != null)

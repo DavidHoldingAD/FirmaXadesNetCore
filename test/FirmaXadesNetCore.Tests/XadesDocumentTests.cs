@@ -58,6 +58,24 @@ public class XadesDocumentTests : TestsBase
 	}
 
 	[TestMethod]
+	public void CreateSigned_GetSignatures_Validate()
+	{
+		using Stream stream = CreateExampleDocumentSignedStream(elementID: "test");
+
+		IXadesDocument document = XadesDocument.Create(stream);
+
+		SignatureDocument[] signatureDocuments = document.GetSignatures();
+
+		foreach (SignatureDocument signatureDocument in signatureDocuments)
+		{
+			ValidationResult validationResult = signatureDocument.Validate();
+
+			Assert.IsTrue(validationResult.IsValid, validationResult.Message);
+			Assert.IsNull(validationResult.Exception);
+		}
+	}
+
+	[TestMethod]
 	public void CreateSigned_Verify()
 	{
 		using Stream stream = CreateExampleDocumentSignedStream(elementID: "test");
