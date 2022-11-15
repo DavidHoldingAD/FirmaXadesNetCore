@@ -8,8 +8,35 @@ namespace FirmaXadesNetCore.Utils;
 
 internal static class ReflectionUtils
 {
-	private const string XadesXSDResourceName = "FirmaXadesNetCore.Utils.XAdES.xsd";
-	private const string XmlDsigCoreXsdResourceName = "FirmaXadesNetCore.Utils.xmldsig-core-schema.xsd";
+	private const string XmlDsigCoreXsdResourceName = "FirmaXadesNetCore.Schemas.XmlDsig.xmldsig-core-schema.xsd";
+	private const string XadesResourceNameBase = "FirmaXadesNetCore.Schemas.XAdES";
+
+	private const string XadesV132ResourceNameBase = $"{XadesResourceNameBase}.v132";
+	//private const string XadesV132BaseResourceName = $"{XadesV132ResourceNameBase}.XAdES01903v132.xsd";
+	//private const string XadesV132506ResourceName = $"{XadesV132ResourceNameBase}.XAdES01903v132-201506.xsd";
+	private const string XadesV132601ResourceName = $"{XadesV132ResourceNameBase}.XAdES01903v132-201601.xsd";
+
+	private const string XadesV141ResourceNameBase = $"{XadesResourceNameBase}.v141";
+	//private const string XadesV141BaseResourceName = $"{XadesV141ResourceNameBase}.XAdES01903v141.xsd";
+	//private const string XadesV141506ResourceName = $"{XadesV141ResourceNameBase}.XAdES01903v141-201506.xsd";
+	private const string XadesV141601ResourceName = $"{XadesV141ResourceNameBase}.XAdES01903v141-201601.xsd";
+
+	private static readonly string[] _schemaResourceNames = new[]
+	{
+		// XmlDsig
+		XmlDsigCoreXsdResourceName,
+
+		// XAdES v1.3.2
+		//XadesV132BaseResourceName,
+		//XadesV132506ResourceName,
+		XadesV132601ResourceName,
+		
+		// XAdES v1.4.1
+		//XadesV141BaseResourceName,
+		//XadesV141506ResourceName,
+		XadesV141601ResourceName,
+	};
+
 
 #if NET6_0_OR_GREATER
 	private const string SignedXmlRefProcessedFieldName = "_refProcessed";
@@ -125,17 +152,15 @@ internal static class ReflectionUtils
 			XmlResolver = null,
 		};
 
-		using (Stream stream = assembly.GetManifestResourceStream(XmlDsigCoreXsdResourceName)!)
-		using (var xmlReader = XmlReader.Create(stream, xmlReaderSettings))
+		foreach (string schemaResourceName in _schemaResourceNames)
 		{
+			using Stream stream = assembly.GetManifestResourceStream(schemaResourceName)!;
+			using var xmlReader = XmlReader.Create(stream, xmlReaderSettings);
+
 			schemaSet.Add(null, xmlReader);
 		}
 
-		using (Stream stream = assembly.GetManifestResourceStream(XadesXSDResourceName)!)
-		using (var xmlReader = XmlReader.Create(stream, xmlReaderSettings))
-		{
-			schemaSet.Add(null, xmlReader);
-		}
+		schemaSet.Compile();
 
 		return schemaSet;
 	}

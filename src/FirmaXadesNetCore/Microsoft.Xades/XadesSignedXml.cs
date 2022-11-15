@@ -434,7 +434,8 @@ public class XadesSignedXml : SignedXml
 	{
 		if (SignatureStandard != KnownSignatureStandard.Xades)
 		{
-			throw new Exception("SignatureStandard is not XAdES. CheckSignature returned: " + CheckSignature());
+			// XmlDsig supports only standard validation.
+			return CheckSignature();
 		}
 
 		bool result = true;
@@ -598,6 +599,12 @@ public class XadesSignedXml : SignedXml
 
 				foreach (XmlAttribute ns in namespaces)
 				{
+					if (ns.LocalName.Equals("xmlns", StringComparison.InvariantCultureIgnoreCase))
+					{
+						// TODO: skipped reserved namespace
+						continue;
+					}
+
 					nsm.AddNamespace(ns.LocalName, ns.Value);
 				}
 			}
@@ -679,13 +686,34 @@ public class XadesSignedXml : SignedXml
 	/// <returns>If the function returns true the check was OK</returns>
 	public virtual bool CheckSameCertificate()
 	{
-		CertCollection xadesSigningCertificateCollection = XadesObject.QualifyingProperties.SignedProperties.SignedSignatureProperties.SigningCertificate.CertCollection;
-		if (xadesSigningCertificateCollection.Count <= 0)
-		{
-			throw new CryptographicException("Certificate not found in SigningCertificate element while doing CheckSameCertificate()");
-		}
+		DigestAlgAndValueType xadesCertificateDigest;
 
-		DigestAlgAndValueType xadesCertificateDigest = xadesSigningCertificateCollection[0].CertDigest;
+		SignedSignatureProperties signedSignatureProperties = XadesObject.QualifyingProperties.SignedProperties.SignedSignatureProperties;
+		if (signedSignatureProperties.SigningCertificate is not null)
+		{
+			CertCollection xadesSigningCertificateCollection = signedSignatureProperties.SigningCertificate.CertCollection;
+			if (xadesSigningCertificateCollection.Count <= 0)
+			{
+				throw new CryptographicException("Certificate not found in SigningCertificate element while doing CheckSameCertificate()");
+			}
+
+			xadesCertificateDigest = xadesSigningCertificateCollection[0].CertDigest;
+		}
+		else if (signedSignatureProperties.SigningCertificateV2 is not null)
+		{
+			CertCollectionV2 xadesSigningCertificateCollection = signedSignatureProperties.SigningCertificateV2.CertCollection;
+			if (xadesSigningCertificateCollection.Count <= 0)
+			{
+				throw new CryptographicException("Certificate not found in SigningCertificateV2 element while doing CheckSameCertificate()");
+			}
+
+			xadesCertificateDigest = xadesSigningCertificateCollection[0].CertDigest;
+		}
+		else
+		{
+			throw new CryptographicException(
+				"Could not find `SigningCertificate` or `SigningCertificateV2` in `SignedSignatureProperties` while doing CheckSameCertificate().");
+		}
 
 		X509Certificate2 keyInfoCertificate = GetSigningCertificate();
 		HashAlgorithmName hashAlgorithmName = FirmaXadesNetCore.DigestMethod
