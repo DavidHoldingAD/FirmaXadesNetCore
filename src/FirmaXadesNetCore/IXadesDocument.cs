@@ -12,6 +12,13 @@ public interface IXadesDocument
 	SignatureDocument[] GetSignatures();
 
 	/// <summary>
+	/// Performs a local signing.
+	/// </summary>
+	/// <param name="parameters">the signing parameters</param>
+	/// <returns>the signature document</returns>
+	SignatureDocument Sign(LocalSignatureParameters parameters);
+
+	/// <summary>
 	/// Gets the digest for the specified signing parameters.
 	/// </summary>
 	/// <param name="parameters">the signing parameters</param>

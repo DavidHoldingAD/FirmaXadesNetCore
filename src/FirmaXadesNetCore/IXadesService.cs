@@ -33,6 +33,14 @@ public interface IXadesService
 	/// <summary>
 	/// Complete the signing process.
 	/// </summary>
+	/// <param name="document">the XML document</param>
+	/// <param name="parameters">the local signing parameters</param>
+	SignatureDocument Sign(XmlDocument? document,
+		LocalSignatureParameters parameters);
+
+	/// <summary>
+	/// Complete the signing process.
+	/// </summary>
 	/// <param name="stream"></param>
 	/// <param name="parameters"></param>
 	SignatureDocument Sign(Stream? stream, LocalSignatureParameters parameters);

@@ -166,6 +166,47 @@ public class XadesDocumentTests : TestsBase
 
 	[TestMethod]
 	[DoNotParallelize]
+	[DataRow(SignaturePackaging.Enveloped)]
+	[DataRow(SignaturePackaging.Enveloping)]
+	[DataRow(SignaturePackaging.InternallyDetached)]
+	public void Sign_Local_Validate(SignaturePackaging packaging)
+	{
+		using Stream stream = CreateExampleDocumentStream(elementID: "test");
+		using X509Certificate2 certificate = CreateSelfSignedCertificate();
+
+		IXadesDocument document = XadesDocument.Create(stream);
+
+		SignatureDocument signatureDocument = document.Sign(new LocalSignatureParameters(certificate)
+		{
+			SignaturePackaging = packaging,
+			DataFormat = new DataFormat { MimeType = "text/xml" },
+			ElementIdToSign = packaging == SignaturePackaging.InternallyDetached
+				? "test"
+				: null,
+		});
+
+		Assert.IsNotNull(signatureDocument);
+		Assert.IsNotNull(signatureDocument.XadesSignature);
+
+		if (packaging != SignaturePackaging.Enveloping)
+		{
+			Assert.IsNotNull(signatureDocument.Document);
+		}
+
+		// Clear stream
+		stream.SetLength(0);
+		document.WriteTo(stream);
+		stream.Seek(0, SeekOrigin.Begin);
+
+		// Reload document
+		document = XadesDocument.Create(stream);
+		signatureDocument = document.GetSignatures()[0];
+
+		AssertValid(signatureDocument);
+	}
+
+	[TestMethod]
+	[DoNotParallelize]
 	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Hashed)]
 	[DataRow(SignaturePackaging.Enveloped, RemoteSignatureDigestMode.Raw)]
 	[DataRow(SignaturePackaging.Enveloping, RemoteSignatureDigestMode.Hashed)]

@@ -53,7 +53,25 @@ public class XadesService : IXadesService
 			throw new ArgumentNullException(nameof(parameters));
 		}
 
-		if (stream is null
+		XmlDocument? xmlDocument = stream is not null
+			? XmlUtils.LoadDocument(stream)
+			: null;
+
+		SignatureDocument signatureDocument = Sign(xmlDocument, parameters);
+
+		return signatureDocument;
+	}
+
+	/// <inheritdoc/>
+	public SignatureDocument Sign(XmlDocument? document,
+		LocalSignatureParameters parameters)
+	{
+		if (parameters is null)
+		{
+			throw new ArgumentNullException(nameof(parameters));
+		}
+
+		if (document is null
 			&& string.IsNullOrEmpty(parameters.ExternalContentUri))
 		{
 			throw new Exception("No content to sign has been specified.");
@@ -66,9 +84,9 @@ public class XadesService : IXadesService
 		{
 			case SignaturePackaging.InternallyDetached:
 				{
-					if (stream is null)
+					if (document is null)
 					{
-						throw new ArgumentException($"Stream is required.", nameof(stream));
+						throw new ArgumentException($"XML document is required.", nameof(document));
 					}
 
 					if (parameters.DataFormat == null || string.IsNullOrEmpty(parameters.DataFormat.MimeType))
@@ -89,19 +107,19 @@ public class XadesService : IXadesService
 
 					if (!string.IsNullOrEmpty(parameters.ElementIdToSign))
 					{
-						SetContentInternallyDetached(signatureDocument, XmlUtils.LoadDocument(stream), parameters.ElementIdToSign!);
+						SetContentInternallyDetached(signatureDocument, document, parameters.ElementIdToSign!);
 					}
 					else
 					{
-						SetContentInternallyDetached(signatureDocument, stream);
+						SetContentInternallyDetached(signatureDocument, document);
 					}
 					break;
 				}
 			case SignaturePackaging.InternallyDetachedHash:
 				{
-					if (stream is null)
+					if (document is null)
 					{
-						throw new ArgumentException($"Stream is required.", nameof(stream));
+						throw new ArgumentException($"XML document is required.", nameof(document));
 					}
 
 					if (parameters.DataFormat == null || string.IsNullOrEmpty(parameters.DataFormat.MimeType))
@@ -113,38 +131,38 @@ public class XadesService : IXadesService
 						_dataFormat.MimeType = parameters.DataFormat.MimeType;
 					}
 					_dataFormat.Encoding = "http://www.w3.org/2000/09/xmldsig#base64";
-					SetContentInternallyDetachedHashed(signatureDocument, stream);
+					SetContentInternallyDetachedHashed(signatureDocument, document);
 					break;
 				}
 			case SignaturePackaging.Enveloped:
 				{
-					if (stream is null)
+					if (document is null)
 					{
-						throw new ArgumentException($"Stream is required.", nameof(stream));
+						throw new ArgumentException($"XML document is required.", nameof(document));
 					}
 
 					_dataFormat.MimeType = "text/xml";
 					_dataFormat.Encoding = "UTF-8";
-					SetContentEnveloped(signatureDocument, XmlUtils.LoadDocument(stream));
+					SetContentEnveloped(signatureDocument, document);
 					break;
 				}
 			case SignaturePackaging.Enveloping:
 				{
-					if (stream is null)
+					if (document is null)
 					{
-						throw new ArgumentException($"Stream is required.", nameof(stream));
+						throw new ArgumentException($"XML document is required.", nameof(document));
 					}
 
 					_dataFormat.MimeType = "text/xml";
 					_dataFormat.Encoding = "UTF-8";
-					SetContentEveloping(signatureDocument, XmlUtils.LoadDocument(stream));
+					SetContentEveloping(signatureDocument, document);
 					break;
 				}
 			case SignaturePackaging.ExternallyDetached:
 				{
 					if (parameters.ExternalContentUri is null)
 					{
-						throw new ArgumentException($"External content URI is required.", nameof(stream));
+						throw new ArgumentException($"External content URI is required.", nameof(parameters));
 					}
 
 					SetContentExternallyDetached(signatureDocument, parameters.ExternalContentUri);
@@ -841,7 +859,7 @@ public class XadesService : IXadesService
 		sigDocument.XadesSignature.AddReference(_refContent);
 	}
 
-	private void SetContentInternallyDetached(SignatureDocument sigDocument, Stream input)
+	private void SetContentInternallyDetached(SignatureDocument sigDocument, XmlDocument xmlDocument)
 	{
 		sigDocument.Document = new XmlDocument();
 
@@ -861,13 +879,7 @@ public class XadesService : IXadesService
 
 		if (_dataFormat!.MimeType == "text/xml")
 		{
-			var doc = new XmlDocument
-			{
-				PreserveWhitespace = true
-			};
-			doc.Load(input);
-
-			contentElement.InnerXml = doc.DocumentElement!.OuterXml;
+			contentElement.InnerXml = xmlDocument.DocumentElement!.OuterXml;
 
 			var transform = new XmlDsigC14NTransform();
 			_refContent.AddTransform(transform);
@@ -877,9 +889,7 @@ public class XadesService : IXadesService
 			var transform = new XmlDsigBase64Transform();
 			_refContent.AddTransform(transform);
 
-			using var ms = new MemoryStream();
-			input.CopyTo(ms);
-			contentElement.InnerText = Convert.ToBase64String(ms.ToArray(), Base64FormattingOptions.InsertLineBreaks);
+			contentElement.InnerText = Convert.ToBase64String(GetXmlBytes(xmlDocument), Base64FormattingOptions.InsertLineBreaks);
 		}
 
 		contentElement.SetAttribute("Id", id);
@@ -892,7 +902,7 @@ public class XadesService : IXadesService
 		sigDocument.XadesSignature.AddReference(_refContent);
 	}
 
-	private void SetContentInternallyDetachedHashed(SignatureDocument sigDocument, Stream input)
+	private void SetContentInternallyDetachedHashed(SignatureDocument sigDocument, XmlDocument xmlDocument)
 	{
 		sigDocument.Document = new XmlDocument();
 
@@ -915,7 +925,7 @@ public class XadesService : IXadesService
 
 		using (var sha2 = SHA256.Create())
 		{
-			contentElement.InnerText = Convert.ToBase64String(sha2.ComputeHash(input));
+			contentElement.InnerText = Convert.ToBase64String(sha2.ComputeHash(GetXmlBytes(xmlDocument)));
 		}
 
 		contentElement.SetAttribute("Id", id);
@@ -1328,5 +1338,28 @@ public class XadesService : IXadesService
 		}
 
 		return true;
+	}
+
+	private static byte[] GetXmlBytes(XmlDocument xmlDocument)
+	{
+		if (xmlDocument is null)
+		{
+			throw new ArgumentNullException(nameof(xmlDocument));
+		}
+
+		var settings = new XmlWriterSettings
+		{
+			CloseOutput = false,
+			Encoding = new System.Text.UTF8Encoding(),
+		};
+
+		using var stream = new MemoryStream();
+		using (var writer = XmlWriter.Create(stream, settings))
+		{
+			xmlDocument.WriteTo(writer);
+			writer.Flush();
+		}
+
+		return stream.ToArray();
 	}
 }

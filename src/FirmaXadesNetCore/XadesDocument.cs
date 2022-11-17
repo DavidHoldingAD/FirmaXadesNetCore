@@ -100,6 +100,27 @@ public sealed class XadesDocument : IXadesDocument
 		=> _service.Load(_document);
 
 	/// <inheritdoc/>
+	public SignatureDocument Sign(LocalSignatureParameters parameters)
+	{
+		if (parameters is null)
+		{
+			throw new ArgumentNullException(nameof(parameters));
+		}
+
+		SignatureDocument signatureDocument = _service.Sign(_document, parameters);
+
+		// Update document element
+		XmlNode? signatureElement = _document.SelectSingleNode($"//*[@Id='{signatureDocument.XadesSignature!.Signature.Id}']");
+		if (signatureElement is null)
+		{
+			_document.RemoveAll();
+			_document.AppendChild(_document.ImportNode(signatureDocument.Document!.DocumentElement!, deep: true));
+		}
+
+		return signatureDocument;
+	}
+
+	/// <inheritdoc/>
 	public byte[] GetDigest(RemoteSignatureParameters parameters,
 		out SignatureDocument signatureDocument)
 	{

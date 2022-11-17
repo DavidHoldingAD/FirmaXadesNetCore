@@ -73,6 +73,54 @@ public class XadesServiceTests : TestsBase
 	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA256Url)]
 	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA384Url)]
 	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA512Url)]
+	public void Sign_Method_Document_Validate(string signatureMethod, string digestMethod)
+	{
+		var service = new XadesService();
+
+		using Stream stream = CreateExampleDocumentStream(elementID: "test");
+		using X509Certificate2 certificate = CreateSelfSignedCertificate();
+
+		var xmlDocument = new XmlDocument
+		{
+			PreserveWhitespace = true,
+		};
+
+		xmlDocument.Load(stream);
+
+		// Sign
+		SignatureDocument document = service.Sign(xmlDocument, new LocalSignatureParameters(certificate)
+		{
+			SignaturePackaging = SignaturePackaging.Enveloped,
+			DataFormat = new DataFormat { MimeType = "text/xml" },
+			ElementIdToSign = "test",
+			DigestMethod = DigestMethod.GetByUri(digestMethod),
+			SignatureMethod = SignatureMethod.GetByUri(signatureMethod),
+		});
+
+		AssertValid(document);
+	}
+
+	[TestMethod]
+	// RSA-SHA1
+	[DataRow(SignedXml.XmlDsigRSASHA1Url, SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA1Url, SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA1Url, SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA1Url, SignedXml.XmlDsigSHA512Url)]
+	// RSA-SHA256
+	[DataRow(SignedXml.XmlDsigRSASHA256Url, SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA256Url, SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA256Url, SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA256Url, SignedXml.XmlDsigSHA512Url)]
+	// RSA-SHA384
+	[DataRow(SignedXml.XmlDsigRSASHA384Url, SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA384Url, SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA384Url, SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA384Url, SignedXml.XmlDsigSHA512Url)]
+	// RSA-SHA512
+	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA1Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA256Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA384Url)]
+	[DataRow(SignedXml.XmlDsigRSASHA512Url, SignedXml.XmlDsigSHA512Url)]
 	public void Sign_Counter_Validate(string signatureMethod, string digestMethod)
 	{
 		var service = new XadesService();
