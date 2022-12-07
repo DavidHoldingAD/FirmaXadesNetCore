@@ -37,7 +37,6 @@ using Org.BouncyCastle.Ocsp;
 using Org.BouncyCastle.Tsp;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Extension;
-using Org.BouncyCastle.X509.Store;
 
 namespace FirmaXadesNetCore.Upgraders;
 
@@ -246,7 +245,7 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 
 		foreach (X509Crl crlEntry in crlList)
 		{
-			if (crlEntry.IssuerDN.Equivalent(issuerCert.SubjectDN) && crlEntry.NextUpdate.Value > DateTime.Now)
+			if (crlEntry.IssuerDN.Equivalent(issuerCert.SubjectDN) && crlEntry.NextUpdate!.Value > DateTime.Now)
 			{
 				if (crlEntry.IsRevoked(clientCert))
 				{
@@ -406,10 +405,10 @@ internal sealed class XadesXLUpgrader : IXadesUpgrader
 		bool addCertificateOcspUrl)
 	{
 		var token = new TimeStampToken(new CmsSignedData(unsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection[0].EncapsulatedTimeStamp?.PkiData));
-		IX509Store store = token.GetCertificates("Collection");
+		Org.BouncyCastle.Utilities.Collections.IStore<Org.BouncyCastle.X509.X509Certificate> store = token.GetCertificates();
 
 		var tsaCerts = new List<X509Certificate2>();
-		foreach (object tsaCert in store.GetMatches(null))
+		foreach (object tsaCert in store.EnumerateMatches(null))
 		{
 			var cert = new X509Certificate2(((Org.BouncyCastle.X509.X509Certificate)tsaCert).GetEncoded());
 			tsaCerts.Add(cert);
