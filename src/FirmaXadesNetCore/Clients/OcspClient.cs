@@ -235,17 +235,12 @@ public class OcspClient
 		// Generate nonce
 		_nonceAsn1OctetString = new DerOctetString(new DerOctetString(BigInteger.ValueOf(DateTime.Now.Ticks).ToByteArray()));
 
-		var oids = new List<object>()
+		var extensions = new Dictionary<DerObjectIdentifier, X509Extension>
 		{
-			OcspObjectIdentifiers.PkixOcspNonce,
+			{ OcspObjectIdentifiers.PkixOcspNonce, new X509Extension(false, _nonceAsn1OctetString) }
 		};
 
-		var values = new Hashtable
-		{
-			{ OcspObjectIdentifiers.PkixOcspNonce, new X509Extension(false, _nonceAsn1OctetString) },
-		};
-
-		ocspRequestGenerator.SetRequestExtensions(new X509Extensions(oids, values));
+		ocspRequestGenerator.SetRequestExtensions(new X509Extensions(extensions));
 
 		if (signCertificate != null)
 		{
